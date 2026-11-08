@@ -131,7 +131,7 @@ The tasks.md should be immediately executable - each task must be specific enoug
 
 **CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
 
-**Tests are OPTIONAL**: Only generate test tasks if explicitly requested in the feature specification or if user requests TDD approach.
+**Tests required by the constitution are MANDATORY**: Per `.specify/memory/constitution.md` Principle V, always generate test tasks for domain invariants, boundary conditions, failure scenarios, and state transitions; golden-fixture tests for capacity calculations and reporting metrics; and integration or end-to-end tests for important user workflows. This applies whether or not the specification asks for tests. Tests beyond that baseline are optional: add them only if the specification requests them or the user asks for a TDD approach.
 
 ### Checklist Format (REQUIRED)
 
@@ -173,12 +173,12 @@ Every task MUST strictly follow this format:
      - Models needed for that story
      - Services needed for that story
      - Interfaces/UI needed for that story
-     - If tests requested: Tests specific to that story
+     - Tests specific to that story (constitution-required tests always; others if requested)
    - Mark story dependencies (most stories should be independent)
 
 2. **From Contracts**:
    - Map each interface contract → to the user story it serves
-   - If tests requested: Each interface contract → contract test task [P] before implementation in that story's phase
+   - Contract test task [P] before implementation in that story's phase: always when the contract enforces domain rules or backs an important workflow; otherwise only if tests are requested
 
 3. **From Data Model**:
    - Map each entity to the user story(ies) that need it
