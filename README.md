@@ -2,7 +2,7 @@
 
 Azusa is a personal, local-first learning project for Team- and ART-level Agile/SAFe planning, execution, and reporting. Version **0.1.0** provides Next.js 15, React 19, strict TypeScript, embedded PGlite/PostgreSQL with Drizzle, local fonts, and the Azusa shell. No cloud services, credentials, paid APIs, or external runtime fonts are required.
 
-The nine destinations currently show honest feature placeholders and database diagnostics. Organization, capacity/calendar, work items, planning/execution, and reporting belong to F002–F019. Search only expands/focuses/collapses; Settings is a disabled profile-menu item. F001 acceptance remains pending Phase 08 conformance review and explicit operator UAT.
+The nine destinations currently show honest feature placeholders and database diagnostics. Organization, capacity/calendar, work items, planning/execution, and reporting belong to F002–F019. Search only expands/focuses/collapses; Settings is a disabled profile-menu item. The operator personally completed the Phase 08 tests and confirmed completion on 2026-11-23; the acceptance and review follow-up are recorded in the F001 task notes.
 
 ## Install and run
 

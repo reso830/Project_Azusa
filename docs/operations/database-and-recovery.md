@@ -13,7 +13,7 @@ For schema work, edit `src/persistence/schema/`, run `npx drizzle-kit generate -
 
 ## Ownership and startup backups
 
-The active sentinel is `<parent(dir)>/<basename(dir)>.azusa-lock`; `proper-lockfile` creates its empty `.lock/` directory. Its stale threshold is **10 seconds**, heartbeat **2 seconds**, and every holder waits **2100 ms (> 2000 ms)** after acquisition before touching database contents. Ownership diagnostics in `<dir>.azusa-owner.json` are optional and can be stale. Never put metadata inside `.lock/`, or remove a live process's lock to bypass contention.
+Configured database paths are canonicalized through the nearest existing ancestor before deriving lock and owner paths, so directory symlinks/junctions share ownership with their real target even before a new database is created. The active sentinel is `<parent(dir)>/<basename(dir)>.azusa-lock` for that canonical directory; `proper-lockfile` creates its empty `.lock/` directory. Its stale threshold is **10 seconds**, heartbeat **2 seconds**, and every holder waits **2100 ms (> 2000 ms)** after acquisition before touching database contents. Ownership diagnostics in `<dir>.azusa-owner.json` are optional and can be stale. Never put metadata inside `.lock/`, or remove a live process's lock to bypass contention.
 
 `db:migrate`, `db:backup`, and active overwrite need exclusive active ownership. Contention exits 1 with **“Database is currently locked. Stop the running Azusa server before running this command.”** Stop the holder first. Following a crash, allow the stale interval to expire; an immediate production command may still refuse. Browser-test bootstrap alone retries this contention for up to 15 seconds.
 

@@ -80,6 +80,7 @@ async function accessible(page: Page, state: string) {
 test('keyboard-only shell navigation reaches all nine honest placeholders', async ({
   page,
 }) => {
+  test.setTimeout(90000); // Includes navigation and compilation across nine routes.
   await ready(page);
   const nav = page.getByRole('button', { name: 'Open navigation' });
   await page.keyboard.press('Tab');
@@ -141,7 +142,7 @@ test('keyboard-only shell navigation reaches all nine honest placeholders', asyn
   await page.keyboard.press('Space');
   const input = page.getByRole('searchbox', { name: 'Search' });
   await expect(input).toBeFocused();
-  await visibleFocus(input);
+  await visibleFocus(input.locator('..'));
   await expect(input).toHaveAttribute(
     'placeholder',
     'Search stories, features…',

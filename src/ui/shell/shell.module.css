@@ -190,6 +190,13 @@
   width: 280px;
   box-sizing: border-box;
 }
+.searchField:focus-within {
+  outline: 2px solid var(--color-brand-orange);
+  outline-offset: 2px;
+}
+.searchField input:focus-visible {
+  outline: none;
+}
 .searchField input {
   background: transparent;
   font-size: 13px;

@@ -1,6 +1,6 @@
 # Changelog
 
-Application release history is independent of Azusa's internal PI Plan Versioning. This entry uses F001's planned version date; conformance review and operator UAT acceptance remain pending Phase 08.
+Application release history is independent of Azusa's internal PI Plan Versioning. This entry uses F001's planned version date; operator UAT completion was confirmed on 2026-11-23 and is recorded in the F001 Phase 08 task notes.
 
 ## [0.1.0] - 2026-11-20
 

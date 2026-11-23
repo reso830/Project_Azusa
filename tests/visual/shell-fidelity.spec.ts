@@ -156,6 +156,9 @@ for (const width of [1440, 1024, 768]) {
     await search.click();
     const input = page.getByRole('searchbox', { name: 'Search' });
     await expect(input).toBeFocused();
+    await expect(input).toHaveCSS('outline-style', 'none');
+    await expect(input.locator('..')).toHaveCSS('outline-width', '2px');
+    await expect(input.locator('..')).toHaveCSS('border-radius', '20px');
     expect((await bounds(input.locator('..'))).width).toBe(280);
     expect((await bounds(header)).height).toBe(headerHeight);
     expect((await bounds(profile)).x + 40).toBeCloseTo(width - 28, 0);
@@ -220,6 +223,7 @@ for (const width of [1440, 1024, 768]) {
 test('all nine destinations render their own placeholder and badge', async ({
   page,
 }) => {
+  test.setTimeout(90000); // Includes cold compilation across nine routes.
   await freezeClock(page);
   for (const destination of destinations) {
     await page.goto(destination.href);

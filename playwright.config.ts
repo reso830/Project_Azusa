@@ -21,6 +21,8 @@ export default defineConfig({
   webServer: {
     command: 'npx tsx scripts/test/start-playwright-server.ts',
     url: 'http://127.0.0.1:3100',
+    // Includes database seeding and cold Next.js startup on slower machines.
+    timeout: 180000,
     reuseExistingServer: false,
     env: {
       PORT: '3100',

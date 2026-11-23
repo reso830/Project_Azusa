@@ -1,7 +1,7 @@
 # ADR 0001: Local-first Next.js and PGlite foundation
 
 **Date:** 2026-11-21  
-**Status:** Adopted for F001 under the approved specification; feature acceptance remains subject to Phase 08 conformance review/operator UAT.
+**Status:** Adopted for F001 under the approved specification; operator UAT completion was confirmed on 2026-11-23, with the acceptance/review record in the F001 task notes.
 
 ## Context
 

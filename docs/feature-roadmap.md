@@ -19,7 +19,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
 - [ ] **M3 — Metrics & Reporting** (F016–F018)
 - [ ] **M4 — ART-Level Planning** (F019)
 
-**Progress:** 0 / 19 features implemented. F001 has an earlier SDD package, but that package must be regenerated against the refreshed brief before implementation.
+**Progress:** 1 / 19 features implemented and accepted (F001). Operator UAT completion was confirmed on 2026-11-23; see the [Phase 08 verification record](../specs/001-application-foundations/tasks.md). F002–F019 remain planned.
 
 ---
 
@@ -29,10 +29,10 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
 
 **Milestone exit criteria:** The operator can configure an ART and its Teams, define the PI/Sprint cadence, maintain categories and allocations, enter calendar/availability information, and inspect capacity forecasts. The application remains local, recoverable, tested, and documented.
 
-- [ ] **F001 — Application Foundation**
+- [x] **F001 — Application Foundation**
   - Local Next.js/TypeScript application, PGlite/Drizzle persistence, migrations, safe backup/restore, quality gates, design system, floating shell, nine primary navigation placeholders, profile-menu Settings placeholder, and living documentation.
   - Dependencies: none.
-  - Brief: `AZUSA_F001_APPLICATION_FOUNDATION_v0.2.md`.
+  - Brief: [001-application-foundations.md](features/001-application-foundations.md).
 
 - [ ] **F002 — Organization & PI Cadence**
   - ARTs, Teams, Members, role placeholders, Locations/time zones, PIs, Sprints/iterations, custom PI/Sprint names, explicit dates, configurable sprint count/duration, and Team offsets of −1 / 0 / +1 working day while preserving shared ART iteration identity. Establish the location/holiday and absence records needed by downstream capacity calculations.

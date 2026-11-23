@@ -70,7 +70,7 @@ it('resolves every local README Markdown link and indexes all documentation arti
     );
 });
 
-it('retains the proposed nineteen-feature roadmap across five milestones without accepting later features', async () => {
+it('retains the nineteen-feature roadmap across five milestones without accepting later features', async () => {
   const features: { id: string; milestone: string; checked: string }[] = [];
   let milestone = '';
   for (const line of (await read('docs/feature-roadmap.md')).split(/\r?\n/)) {

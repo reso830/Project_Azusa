@@ -7,13 +7,12 @@ import {
   rm,
   stat,
   writeFile,
-  realpath,
 } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { z } from 'zod';
-import { acquireDbLock } from './lock';
+import { acquireDbLock, canonicalDbPath as canonical } from './lock';
 import { renameDirectory } from './rename-directory';
 import {
   AppMetadataEntrySchema,
@@ -236,18 +235,6 @@ export async function createManualBackup(options: BackupOptions) {
   } finally {
     await release().catch(() => {});
   }
-}
-async function canonical(input: string) {
-  let full = path.resolve(input);
-  const rest: string[] = [];
-  while (!(await exists(full))) {
-    const parent = path.dirname(full);
-    if (parent === full) break;
-    rest.unshift(path.basename(full));
-    full = parent;
-  }
-  const result = path.resolve(await realpath(full), ...rest);
-  return result;
 }
 function pathKey(value: string) {
   return process.platform === 'win32' ? value.toLowerCase() : value;

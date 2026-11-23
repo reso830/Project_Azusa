@@ -1,6 +1,6 @@
 import lockfile from 'proper-lockfile';
 import path from 'node:path';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, rm, realpath } from 'node:fs/promises';
 export const LOCK_CONTENTION_MESSAGE =
   'Database is currently locked. Stop the running Azusa server before running this command.';
 export function lockErrorMessage(error: unknown): string {
@@ -10,12 +10,27 @@ export function lockErrorMessage(error: unknown): string {
       ? error.message
       : String(error);
 }
+export async function canonicalDbPath(input: string): Promise<string> {
+  let existing = path.resolve(input);
+  const missing: string[] = [];
+  for (;;) {
+    try {
+      return path.resolve(await realpath(existing), ...missing);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      const parent = path.dirname(existing);
+      if (parent === existing) throw error;
+      missing.unshift(path.basename(existing));
+      existing = parent;
+    }
+  }
+}
 export async function acquireDbLock(
   dir: string,
   processType: 'server' | 'cli:migrate' | 'cli:backup' | 'cli:restore',
   options: { staleMs?: number; onCompromised: (err: Error) => void },
 ) {
-  const full = path.resolve(dir);
+  const full = await canonicalDbPath(dir);
   const parent = path.dirname(full);
   await mkdir(parent, { recursive: true });
   const sentinel = path.join(parent, `${path.basename(full)}.azusa-lock`);
