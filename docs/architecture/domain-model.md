@@ -1,0 +1,131 @@
+# Conceptual domain model
+
+**Baseline:** Data Model v0.6 (2026-11-20), Roadmap v0.2, and Constitution Principle III. The source is `azusa-handoff/docs/azusa-data-model.md` inside the [v2 handoff](../handoffs/azusa-handoff-v2.zip), with its work-item and Sprint-planning decisions. This document carries that blueprint into the repository; it is not a finalized physical schema.
+
+**Implemented in F001:** infrastructure metadata only. None of the business entities below has a physical table or operational screen yet. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md). Subsequent features must preserve these rules while choosing their physical schemas.
+
+## Ownership and planning scope
+
+- A Project is a long-lived Train umbrella, may span PIs and Teams, and derives participating Teams from owned work. A Feature/Epic is one entity with configurable display label, belongs to exactly one Project, one owning Team, and one PI. Other Teams' work uses separate Features/Stories linked by dependencies.
+- A Story requires Project and Team; Feature is optional. A Feature-parented Story must share its Project and Team. Bug is a separate Project/Team-parented type restricted to the Bugs category. Support work also counts as SW maintenance; it is not automatically overhead.
+- Each Feature, Story, and set of StorySlices stays within its PI boundary. A committed Story has one Sprint slice; Stretch may have multiple slices within one PI whose planned shares sum to the Story SP. Selecting a Sprint sets the Story PI; a PI different from its Feature's PI produces an advisory warning rather than a block. PI-only items need no Sprint; unscheduled backlog items need no PI.
+- PI Objective committed/uncommitted is independent of work-item committed/stretch/unplanned designation. Backlog rank is priority; there is no separate priority field.
+- Training, Retrospective, and General Work are non-story capacity activities, require no Project, and deduct time rather than earn SP. Product changes belong to development work (including Tech debt/Enabler); learning/ritual/exploration belongs to Training. Never count the same effort as both SP and overhead.
+
+## Organization and dated calendar
+
+| Concept               | Relationships and invariants                                                                                                                                                                                                                               |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Train / ART           | Owns default categories, calendar configuration, and common PI/iteration cadence.                                                                                                                                                                          |
+| Team                  | Belongs to Train; default workday 8.0 hours, deduction mode, `sprint_offset_workdays` of −1/0/+1 working day, and `planning_style` of `owner` or `distributed`. Keeps shared ART iteration identity; planning style is snapshotted at Sprint Commitment.   |
+| Member                | Team, identity/display fields, role, `fte_factor`, Location. PO and SM do not contribute development capacity; FTE handles part-time/new-joiner capacity.                                                                                                  |
+| User / Role           | Admin, RTE, SM, PO, Team member, tentative Business Owner. Single operator now; RBAC later. Retain actor/timestamp provenance.                                                                                                                             |
+| PI                    | Train, name, configured start/end, lifecycle. Admin/RTE configures boundaries and uses Start PI for participating Team commitments.                                                                                                                        |
+| Iteration / Sprint    | PI, custom name, scheduled dates, development/IP kind. Admin/RTE configures count, dates, and 2/3/4-week lengths. YYWW naming is optional and based on ISO ending week. Sample dates/counts are illustrative.                                              |
+| Team Sprint schedule  | Team/iteration scheduled dates or relative working-day offset; stagger does not create a new ART iteration identity.                                                                                                                                       |
+| Location / Holiday    | Country/subdivision, IANA zone, calendar source; dated holiday portion/source/confirmation with library seed and company/manual overrides. Member location controls local holidays.                                                                        |
+| Absence / AbsenceType | Member/date/portion/type/planned/active-or-cancelled, `affects_capacity`, optional `extra_hours`. Leave/sick deduct; WFH/business trip are attendance-only; planned overtime adds hours. Reserved leave still uses a placeholder date that can later move. |
+| SprintCeremony        | Team/iteration/date/name/duration, entered per Sprint with dates, not a fixed-day template. Whole Team attends; calendar cells and date tint reflect it.                                                                                                   |
+| Meeting               | Team/date/name/duration with whole-Team or named attendees; deduct only each attendee's time that day.                                                                                                                                                     |
+| Milestone             | Team/date/name, generic type, no capacity effect. `scope=team` now; `train` reserved for ART board. SM/PO enters it on the calendar; milestone red takes precedence over ceremony tint.                                                                    |
+
+## Capacity and work allocation
+
+| Concept                       | Rule                                                                                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Category                      | Train name/short label/color/kind/default allocation. Development categories, including Bugs, divide post-overhead capacity and total 100%. Use full names when ambiguous with Feature entities.                               |
+| TeamCategoryAllocation        | Team/PI/category override or inheritance. Unset inherits Train default rather than zero; preserve that PI's committed allocations.                                                                                             |
+| OverheadReserve               | Member/Sprint/overhead category reserved hours, source `pi_plan` or `sprint_adjusted`. Set at PI planning, adjustable at Sprint Planning, deducted once, never SP/velocity.                                                    |
+| OverheadTicket                | Team/Sprint/category/title/member/hours/optional date/notes. Draws against the member's reserve; reserve may remain unticketed. Exceeding it warns. Dated tickets appear on the calendar; the flow is not implemented in F001. |
+| UnplannedDeduction / activity | Member(s)/date/duration/category/note for actual Sprint overhead; no Project or Story parent.                                                                                                                                  |
+| Buffer                        | Team/Sprint/category/title/holder/SP/PI-planned SP. Reserves unknown work, counts toward planned load, remains outside commitment. Revisit at Sprint Planning; release unused SP at closure; never velocity credit.            |
+| BufferDraw                    | Buffer/work item/SP. Replaces reserved SP with traceable actual work so planned load stays flat; overdraw warns.                                                                                                               |
+
+Canonical durations should use integer minutes where feasible. PI planning presents days; Sprint Planning presents hours. **8.0 hours per workday by default**, with Team setting override, is the only hours/day conversion; there is **no focus factor**. Normalized velocity bridges time and points; SP is not directly converted to hours except the display-only buffer rule below.
+
+For each capacity-contributing member `m` and Team Sprint `i`, following the v0.6 formula (normalize dated time amounts to days at PI level):
+
+```text
+working_days(m,i) = NETWORKDAYS(Team scheduled start, Team scheduled end, Location holidays)
+available_days(m,i) = working_days(m,i) - active capacity-affecting absences
+planned_overhead(m,i) = overhead reserves + ceremonies + meetings attended
+dev_days(m,i) = fte_factor(m) * (available_days(m,i) - planned_overhead(m,i)) + planned overtime
+team_dev_days(i) = sum(dev_days(m,i)), excluding PO and SM
+velocity(i) = Sprint override ?? PI override ?? rolling normalized velocity
+forecast_sp(i) = team_dev_days(i) * velocity(i)
+category_budget(c,i) = forecast_sp(i) * development_category_pct(c)
+planned_sp(i) = committed and Stretch slice SP + buffer SP
+load(i) = planned_sp(i) / forecast_sp(i)       # 85–115% is on target
+```
+
+Normalized velocity is the **ratio of sums** of completed development SP to actual development days over the last four completed Sprints, using available history or a manual seed when none exists. Team deduction mode supports percent of available days or fixed days per member/Sprint; Sprint Planning refines ceremonies/meetings without double deduction. Use one canonical golden dataset; the sample Palawan 291.25 days × 0.92 ≈ 268 SP is illustrative, not a fixed cadence rule.
+
+- **Owner planning:** member load = (owned Story SP + held buffer SP) / (member dev days × velocity).
+- **Distributed planning:** member load = (assigned task hours + held buffer SP × `hours_per_sp`) / member dev hours, where `hours_per_sp = team_dev_hours / forecast_sp`. This buffer conversion is display-only, derived, not stored, and never feeds capacity/velocity. Untasked stories warn because their SP is on nobody's member load.
+
+## Work items, layouts, and execution
+
+| Concept                        | Fields and rules                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project / Feature              | Project has Train/name/color/description. Feature adds Project/owning Team/PI/key/name/target/estimate revisions/color; span derives from child slices, ordering from rank.                                                                                                                                                                                                   |
+| Story                          | Project/Team, optional Feature/PI, category, current/actual SP, designation/stretch reason, state, owner required once in a Sprint, full-story `as_a`/`i_want`/`so_that`, description, target date, optional milestone, blocked flag/reason, Removed reason/note, rank.                                                                                                       |
+| Bug                            | Shared planning/ownership/history fields, Bugs category, distinct type/workflow; severity S1 Critical/S2 Major/S3 Moderate/S4 Minor; environment production/staging/qa/development; version; device/OS; expected/actual result; description; ordered ReproSteps. Severity is set at triage. No story statement or AC list; expected result supplies its acceptance criterion. |
+| ReproStep                      | Bug/order/text, add/remove/reorder.                                                                                                                                                                                                                                                                                                                                           |
+| StorySlice                     | Work allocation per occupied iteration with planned/confirmed actual share; no cross-PI slices. Carry-over derives from a previous unfinished slice.                                                                                                                                                                                                                          |
+| Task                           | Story/Bug parent, optional slice, assignee, title, estimate/remaining hours, state; refined at Sprint Planning rather than PI board. Defaults to work-item owner; assigning a Story to a member defaults its tasks to that member.                                                                                                                                            |
+| ChecklistItem                  | Work item/list (`ac`, `dor`, `dod`)/text/order/from-template/state (`not_done`, `done`, `na`). N/A excluded from counts. Close review warns on remaining AC where present plus DoD, not hard-blocks.                                                                                                                                                                          |
+| ChecklistTemplate              | Team/list (`dor`, `dod`)/kind (`story_full`, `story_light`, `bug`)/ordered text. Copy applicable defaults into new items; allow item additions. Light stories receive no DoR template.                                                                                                                                                                                        |
+| Tag / WorkItemTag              | Universal app-wide unique lower-case hyphenated tag names, linked many-to-many across Teams/Trains.                                                                                                                                                                                                                                                                           |
+| Dependency                     | Directed internal link: **A → B means A is predecessor, completed before B starts**. Cross-Team/Project/Feature allowed; Stretch dependency applies to whole Story, not slice. Ordering violations warn. Existing conceptual `from_story`/`to_story` names do not settle future Bug relationship typing.                                                                      |
+| ExternalDependency             | Outside-ART owner/department/description/availability/status and links to internal dependent work. Never fabricate an internal Story for an external prerequisite.                                                                                                                                                                                                            |
+| Workflow / State               | Per type, ordered active/waiting/done typing, optional WIP, `counts_as_completed`. Record every transition in StateChange.                                                                                                                                                                                                                                                    |
+| BoardInstance / BoardPlacement | View type, PI, Team/ART scope and coordinates. Position is view-specific and independent of scheduling/capacity.                                                                                                                                                                                                                                                              |
+| Discussion / history           | Shared work-item discussion and traceable events; detailed physical design belongs to its feature.                                                                                                                                                                                                                                                                            |
+
+| Derived layout                              | Content                                                   | Checklists   | Close action                           |
+| ------------------------------------------- | --------------------------------------------------------- | ------------ | -------------------------------------- |
+| Full Story: Feature development category    | Statement and description                                 | AC, DoR, DoD | Close story                            |
+| Light Story: Enabler, Estimation, Tech debt | Description                                               | AC, DoD      | Close enabler / estimation / tech debt |
+| Bug                                         | Report/environment/repro/expected/actual, severity header | DoR, DoD     | Close bug                              |
+
+Layout derives from type/category, not a stored flag. Category changes keep hidden statement/DoR content instead of deleting it. Story ↔ Bug is a real type conversion retaining shared and hiding type-specific fields. All variants share planning, tasks, dependencies, trail, discussion, history, and removal/deletion controls.
+
+Story flow: **New → Active → Quality Check → Acceptance → Closed**. Bug flow: **Triage (waiting) → Investigating (active) → Correcting (active) → Verification (waiting) → Closed**. Both have terminal **Removed**, done-type with `counts_as_completed=false`. Transferred is Move to team, not a Bug state; On hold is Blocked, not a state.
+
+Removed retains item/history, hides it by default from plans/boards, and excludes it from velocity, throughput, and say/do, including removal after commitment. Require a reason and optional note. Story reasons: Not needed anymore, Duplicate of another item, Superseded by another item, Moved out of scope by the PO. Bug reasons: Not reproducible, Duplicate of another bug, Works as designed, Won't fix, Not needed anymore. Delete is reserved for accidental creation.
+
+Derived values include layout, carry-over, target-after-milestone warning, aging from StateChange (amber ≥3 days, red ≥5), and missed target when today exceeds target before Acceptance/Verification. Do not add redundant persisted fields merely for a screen.
+
+## Versions, commitments, Actuals, and lifecycle dates
+
+| Concept                 | Event and immutable meaning                                                                                                                                                                                                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PlanVersion             | Explicitly saved full current PI planning snapshot, including unchanged records and revisions, relationships/dependencies, capacity assumptions/allocations, objectives, risks, milestones, layout. A mid-PI v3 replan retains earlier versions and is not an official commitment. |
+| PICommitment            | Admin/RTE **Start PI** captures participating Teams' current plans, member × Sprint capacity totals, overhead reserves, buffers. No separate manual baseline action.                                                                                                               |
+| SprintCommitment        | SM **Start Sprint** captures the current reviewed Sprint Plan: member capacity totals, velocity value/source (rolling/PI/Sprint override), forecast, planning style, buffers/reserves. Never silently reconstruct an earlier plan from a backdated effective date.                 |
+| SprintClosure / Actuals | SM **Close Sprint** confirms final Story/slice actual SP, actual capacity/outcomes, released buffers. Removed-after-commitment items remain informational and never count in say/do.                                                                                               |
+| StateChange             | Immutable item/from/to/when/by transition event independent of snapshots.                                                                                                                                                                                                          |
+
+Commitments retain capacity totals in integer minutes, remain immutable, and are not overwritten by Plan Versions or finalized Actuals. The trail is **PI Commitment → Sprint Commitment → Actuals**, plus mutable **Current**. Removed trails end in Removed. Added-after-PI items have no PI entry; Stretch can have separate Sprint slice commitments. Shared snapshot infrastructure is allowed, but these business meanings remain distinct and queryable; full planning snapshots and independent lifecycle commitments are settled requirements.
+
+The suggested normalized storage/read-model concepts are `plan_version` with queryable version entries, `pi_commitment`, `sprint_commitment`, `sprint_closure`, execution/state-change records, and a `plan_trail` comparison model. They describe future access patterns, not F001 tables. Arbitrary Plan Version comparisons must be labeled as such rather than presented as official commitments.
+
+Store three Sprint date concepts separately: **Team scheduled start/end**, **SM-selected effective start/close date**, and **action timestamp**. Early/late closure or retroactive entry never rewrites the scheduled cadence. Start review shows Story count, committed scope/SP, Stretch, buffers, forecast/load, dependencies, and advisory warnings. If Monday's 40 SP became 48 SP by Wednesday, backdating Start Sprint to Monday after reviewing 48 commits **48 SP**, with Monday effective date and Wednesday action timestamp. Close review confirms prefilled Actuals and preserves transition/planning history.
+
+Other PI artifacts: `PIObjective` (Team/PI/text, committed flag, planned/actual BV, scoring owner, Feature links), `Risk` (Team/PI/text, ROAM, owner), and `ConfidenceVote` (Team/Train, PI, counts for votes 1–5). Objective commitment is independent from Story designation.
+
+## Metrics, boards, and feature ownership
+
+Compare PI/Sprint commitment capacities with Actuals at the same level. Velocity uses completed point-bearing work and confirmed Stretch slice Actuals; buffers and Removed items earn no velocity. Bug SP/velocity treatment must be clarified in work-item/metrics work. Say/do counts committed items only, excluding Stretch, buffers, and Removed. Throughput counts each Closed item once by type/category. PI predictability compares actual/planned BV on committed objectives. Sprint predictability formula belongs to F016/operator clarification and must use Sprint Commitment, not latest PlanVersion. Flow efficiency uses active time/total cycle time, with typing/threshold decisions in metrics work. Severity/environment enable later defect metrics.
+
+Team PI board is Project × Iteration; ART board is Team × Iteration with each Feature only in its owning Team row. Feature bars derive from slices. Freehand placement does not schedule work; predecessor links may cross Teams/Projects and external dependencies may use a dedicated swimlane. Stretch spans stay inside the PI. Plan warnings are advisory.
+
+| Roadmap v0.2           | Owning features and responsibilities                                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0 Foundations         | F001 infrastructure; F002 organization/cadence; F003 categories/allocation; F004 capacity; F005 dated calendar/availability                              |
+| M1 Team PI Planning    | F006 registry; F007 work items; F008 backlog; F009 Team PI board/allocation; F010 dependencies; F011 PI brief; F012 full Plan Versions and PI Commitment |
+| M2 Sprint Execution    | F013 planning/Start Sprint; F014 iteration workflow/history and buffer draws; F015 closure/Actuals                                                       |
+| M3 Metrics & Reporting | F016 metrics and chart evaluation; F017 Team dashboard; F018 ART dashboard/reporting                                                                     |
+| M4 ART-Level Planning  | F019 owning-Team ART board, shared cadence/offsets, cross-Team/external dependencies, Train milestones                                                   |
+
+Remaining chart/UI, holiday-source, WIP enforcement, dependency physical typing, and metric details are decisions for their owning feature. They do not reopen the settled ownership, capacity, full-version, or commitment rules above.
