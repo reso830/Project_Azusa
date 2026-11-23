@@ -1,5 +1,7 @@
 # Pre-Implementation Plan Review Checklist: Application Foundation (F001 — v0.2)
 
+**Historical layout clarification (2026-11-23):** the centering decision recorded below is superseded by the operator instruction to follow v2 right-aligned placement immediately before Search. Current brief/spec/plan/tasks and visual tests define that layout; the earlier review notes remain a historical record.
+
 **Gate result**: PASS — CHK001–CHK017 verified. Reviewer follow-up date: 2026-11-20. V2-1 resolved; historical finding below is superseded by this verification.
 
 **Purpose**: Pre-implementation review gate verifying spec/plan scope alignment, architecture soundness, data-model integrity, contract completeness, test strategy, and constitution compliance before any code is written.  

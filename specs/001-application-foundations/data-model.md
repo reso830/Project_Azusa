@@ -72,7 +72,7 @@ Infrastructure-owned table verifying PGlite restart durability (`AC07`), Drizzle
 | `actor` | `string` | Active local actor (`"local:sm"`) |
 | `database` | `{ initialized: boolean; dbDir: string; pgVersion: string \| null; metadataCount: number }` | Local PGlite status |
 | `migrations` | `{ applied: boolean; count: number; latestTag: string \| null }` | Drizzle migration state |
-| `backup` | `{ backupDir: string; lastBackupId: string \| null; lastBackupAt: string \| null; lastBackupTrigger: 'startup' \| 'manual' \| 'skipped_cold_start' \| 'skipped_unverified' \| null; backupCount: number; retentionLimit: 10 }` | Startup/manual backup state |
+| `backup` | `{ backupDir: string; lastBackupId: string \| null; lastBackupAt: string \| null; lastBackupTrigger: 'startup' \| 'manual' \| 'skipped_cold_start' \| 'skipped_unverified' \| null; backupCount: number; retentionLimit: 10 }` | The ID, timestamp, and trigger refer to the newest completed startup or manual backup; `backupCount` counts startup backups only, matching the retention limit. When none exists, the trigger reports the current skipped startup state. |
 | `latestDiagnostic` | `{ id, key, note, checkCount, createdAt, updatedAt, createdBy, updatedBy } \| null` | Latest `'diagnostic.last_check'` record |
 | `errors` | `Array<{ stage: 'init' \| 'backup' \| 'migration' \| 'query'; message: string; recoveryHint: string }>` | Structured diagnostics rendered in `<ErrorAlertBanner role="alert" />` when `status === 'error'` |
 
@@ -96,11 +96,11 @@ Infrastructure-owned table verifying PGlite restart durability (`AC07`), Drizzle
    - **Fail-Closed**: Live lock or malformed lock artifact fails closed immediately (`ELOCKED`).
 2. **Pre-Migration Automatic Startup Backup & Deferred Pruning**:
    - After lock acquisition + `> 2000ms` wait, startup inspects `<parent(dbDir)>/.azusa-promote-journal.json` to recover any interrupted active promotion.
-   - Cold start (`PG_VERSION` absent): skips backup cleanly (`lastBackupTrigger: 'skipped_cold_start'`).
+   - Cold start (`PG_VERSION` absent): skips backup cleanly; `lastBackupTrigger` is `'skipped_cold_start'` when no completed backup exists.
    - Existing healthy cluster (`PG_VERSION` + `.azusa-last-healthy.json`): copies `dbDir` before opening PGlite into `<backupDir>/.tmp-<backupId>`, writes `manifest.json`, and atomically renames to `<backupId>`.
    - **Deferred Pruning**: Only **after** PGlite mounts, all migrations succeed, and `.azusa-last-healthy.json` is written does startup prune completed `-startup` snapshots beyond 10 (never pruning `-manual` snapshots).
 3. **Safe CLI Restore Path, Staged Verification & Recoverable Active Promotion**:
-   - Canonicalizes `sourceBackupDir`, `activeDbDir`, `backupRootDir`, and `targetDir` (`path.resolve` + `realpathSync.native` on existing ancestors, stripping trailing slashes, lowercased on Windows).
+   - Canonicalizes `sourceBackupDir`, `activeDbDir`, `backupRootDir`, and `targetDir` (`path.resolve` + `realpathSync.native` on existing ancestors, stripping trailing slashes; comparisons are case-insensitive on Windows while operational paths preserve casing).
    - **Refusal Rules (Before Any Mutation)**:
      - `targetDir` overlaps (equals, contains, or sits inside) `sourceBackupDir` or `backupRootDir` → refuse (even with `--force-overwrite-active`).
      - `targetDir` strictly contains or sits inside `activeDbDir` → refuse (even with `--force-overwrite-active`).

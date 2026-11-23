@@ -1,5 +1,7 @@
 # Azusa — Feature Brief F001: Application Foundation
 
+Operator alignment decision (2026-11-23): follow the v2 prototype. Place the Today widget in normal flow on the right, immediately before Search, with both rows right-aligned. This supersedes the earlier centering requirement and its base-handoff justification. Retain the viewer-local clock and layout-preserving search-overlap hiding below 1100px.
+
 **Milestone:** M0 — Foundations  
 **Feature ID:** F001  
 **Version:** 0.2  
@@ -76,8 +78,7 @@ Implement the approved floating shell. Do not substitute a conventional sidebar 
 **Header structure:**
 
 - **Left:** Azusa logo button opening the primary navigation dropdown.
-- **Centre:** Today widget.
-- **Right:** expandable search control and local operator profile control.
+- **Right:** Today widget in normal flow immediately before the expandable search control and local operator profile control. Both widget rows align to the right, following the v2 prototype.
 
 The shell remains a single row. The page title row is the location for page-specific selectors, actions, and controls; the global header should not accumulate page-specific controls.
 
@@ -140,7 +141,7 @@ The Dashboard and ART Program Board screens are also placeholders in F001. Exist
 ### 3.7 Responsive behavior and accessibility
 
 - Preserve the single-row floating header at the agreed desktop/narrow test widths (1440px, 1024px, and 768px).
-- When expanded search would overlap the centered Today widget below the agreed breakpoint, hide the widget using a layout-preserving visibility treatment and restore it when search collapses.
+- When expanded search would overlap the right-aligned Today widget below the agreed breakpoint, hide the widget using a layout-preserving visibility treatment and restore it when search collapses.
 - Use accessible disclosure navigation semantics, keyboard operation, visible focus indicators, accessible labels, and semantic status/error announcements.
 - Verify the shell with automated accessibility checks and browser tests.
 

@@ -1,5 +1,7 @@
 # Tasks: Application Foundation (F001 — v0.2)
 
+Operator decision (2026-11-21): use clock color `#A65307` from the v2 prototype. The v2 prototype overrides the base handoff's stale token table; the change also corrects clock-text contrast on the page background.
+
 **Branch**: `001-application-foundations` | **Date**: 2026-11-20 (Regenerated against Feature Brief v0.2, Handoff v2, Data Model v0.6, and Roadmap v0.2)  
 **Spec**: [spec.md](./spec.md) · **Plan**: [plan.md](./plan.md) · **Data Model**: [data-model.md](./data-model.md) · **Contracts**: [contracts/api.md](./contracts/api.md)
 
@@ -29,7 +31,7 @@
 
 **Purpose**: Initialize the single strict-TypeScript Next.js 15 (App Router) project bound to `127.0.0.1`, configure linting/formatting/Tailwind/font tokens, configure Vitest (`passWithNoTests: true`) and Drizzle Kit, and install the supplied Azusa logo assets so `npm run test:run` and `npm run lint` exit `0` from Phase 01 onward.
 
-- [ ] **T001** `[US5]` Initialize Next.js, React, strict TypeScript, and package scripts
+- [x] **T001** `[US5]` Initialize Next.js, React, strict TypeScript, and package scripts
   - **Target files/components**: `package.json`, `package-lock.json`, `tsconfig.json`, `next.config.ts`, `.gitignore`
   - **Expected behavior**:
     - Define `package.json` (`name: "azusa"`, `version: "0.1.0"`, `private: true`) with dependencies (`next`, `react`, `react-dom`, `@electric-sql/pglite`, `drizzle-orm`, `proper-lockfile`, `zod`, `@fontsource/zen-kaku-gothic-new`, `@fontsource/ibm-plex-sans`, `@fontsource/ibm-plex-mono`) and devDependencies (`typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `@types/proper-lockfile`, `drizzle-kit`, `tailwindcss`, `@tailwindcss/postcss`, `eslint`, `eslint-config-next`, `prettier`, `vitest`, `@playwright/test`, `@axe-core/playwright`, `tsx`).
@@ -41,26 +43,26 @@
   - **Validation/test location**: `npm install` and `npm run typecheck` exit `0`.
   - **Out-of-scope files/components**: UI components, database schema files, and `docs/`.
 
-- [ ] **T002** `[P]` `[US1, US5]` Configure ESLint, Prettier, PostCSS/Tailwind CSS, Handoff v2 design tokens, and local `@fontsource` imports
+- [x] **T002** `[P]` `[US1, US5]` Configure ESLint, Prettier, PostCSS/Tailwind CSS, Handoff v2 design tokens, and local `@fontsource` imports
   - **Target files/components**: `eslint.config.mjs`, `.prettierrc`, `postcss.config.mjs`, `src/app/globals.css`, `src/app/layout.tsx`, `src/app/page.tsx`
   - **Expected behavior**:
     - Configure ESLint and Prettier for Next.js + strict TypeScript; configure `postcss.config.mjs` with `@tailwindcss/postcss`.
-    - In `src/app/globals.css`, define CSS custom properties for all Azusa v2 design tokens (`AZUSA_HANDOFF.md` §14.2–§14.3 and `AZUSA_HANDOFF_UPDATE_2026-11-20.md` §14): page `#F4F1EC`, surface `#FFFFFF`, ink `#1A1B22`, brand orange `#E07F24`, orange text `#A65307`, clock orange `#C2650E`, muted `#67635C`, secondary `#3F3C37`, active tint `#FCEFE2`, carry-over tint `#FBF1DF`, milestone red `#FF0000`, hairlines (`#E7E2DA`, `#EFEAE3`, `#F3EFE9`), asanoha stroke `#E2D9CC`, severity swatches (`#D9443A`, `#E8890C`, `#E9C46A`, `#A9ACB4`), default category/workflow/pastel tokens, and `:focus-visible` outline rules (`2px solid #E07F24`, `border: 0` at rest).
+    - In `src/app/globals.css`, define CSS custom properties for all Azusa v2 design tokens (`AZUSA_HANDOFF.md` §14.2–§14.3 and `AZUSA_HANDOFF_UPDATE_2026-11-20.md` §14): page `#F4F1EC`, surface `#FFFFFF`, ink `#1A1B22`, brand orange `#E07F24`, orange text `#A65307`, clock orange `#A65307`, muted `#67635C`, secondary `#3F3C37`, active tint `#FCEFE2`, carry-over tint `#FBF1DF`, milestone red `#FF0000`, hairlines (`#E7E2DA`, `#EFEAE3`, `#F3EFE9`), asanoha stroke `#E2D9CC`, severity swatches (`#D9443A`, `#E8890C`, `#E9C46A`, `#A9ACB4`), default category/workflow/pastel tokens, and `:focus-visible` outline rules (`2px solid #E07F24`, `border: 0` at rest).
     - In `src/app/layout.tsx`, import `@fontsource/zen-kaku-gothic-new/{500,700}.css`, `@fontsource/ibm-plex-sans/{400,500,600,700}.css`, and `@fontsource/ibm-plex-mono/{500,600}.css`; add minimal `src/app/page.tsx` bootstrap so `lint` and `build` succeed.
   - **Constraints**: Zero external Google Fonts requests (`Deviation D2`).
   - **Validation/test location**: `npm run lint`, `npm run format:check`, and `npm run typecheck`.
   - **Out-of-scope files/components**: `src/persistence/`, `src/domain/`.
 
-- [ ] **T003** `[P]` `[US5]` Configure Vitest (`passWithNoTests: true`) and Drizzle Kit
-  - **Target files/components**: `vitest.config.ts`, `drizzle.config.ts`
+- [x] **T003** `[P]` `[US5]` Configure Vitest (`passWithNoTests: true`) and Drizzle Kit
+  - **Target files/components**: `vitest.config.mts`, `drizzle.config.ts`
   - **Expected behavior**:
-    - Configure `vitest.config.ts` with `@/*` path resolution, `node` environment, `passWithNoTests: true`, and inclusion of `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`.
+    - Configure `vitest.config.mts` with `@/*` path resolution, `node` environment, `passWithNoTests: true`, and inclusion of `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`.
     - Configure `drizzle.config.ts` with `schema: './src/persistence/schema/index.ts'`, `out: './src/persistence/migrations'`, and `dialect: 'postgresql'`.
   - **Constraints**: Keep Vitest suites separate from Playwright (`tests/visual/`, `tests/e2e/`).
   - **Validation/test location**: `npm run test:run` and `npm run typecheck` exit `0`.
   - **Out-of-scope files/components**: `playwright.config.ts` (handled in `T008`).
 
-- [ ] **T004** `[P]` `[US1]` Copy supplied Azusa logo assets from Handoff v2 into `public/assets/`
+- [x] **T004** `[P]` `[US1]` Copy supplied Azusa logo assets from Handoff v2 into `public/assets/`
   - **Target files/components**: `public/assets/azusa-logo.png`, `public/assets/azusa-logo-256.png`
   - **Expected behavior**: Extract `azusa-handoff/assets/azusa-logo.png` and `azusa-handoff/assets/azusa-logo-256.png` from `docs/handoffs/azusa-handoff-v2.zip` into `public/assets/` byte-for-byte without modification.
   - **Constraints**: Use only supplied brand assets.
@@ -69,11 +71,13 @@
 
 ---
 
+**Phase 01 verification — 2026-11-20**: T001–T004 implemented. npm install, typecheck, lint (zero warnings), format:check, test:run, and production build passed on Node 24.14.1 / npm 11.11.0. Vitest intentionally finds no tests (passWithNoTests); behavioral suites begin in Phase 02. Both supplied logos match the v2 ZIP byte-for-byte. TypeScript is constrained to 5.x; dependency ranges and lockfile record the installed versions. Added direct @eslint/eslintrc dependency for the ESLint flat-compat configuration. Independent Phase 01 review completed and its dependency/format findings were addressed. No later-phase code was implemented. Database and Playwright scripts are declared but await their assigned phases. npm audit reports six advisories (five moderate, one high), in the approved Next.js 15/PostCSS and Drizzle Kit/esbuild dependency trees; no force upgrades were applied. Vitest emits a forward-looking native-config-loader warning; current execution succeeds.
+
 ## Phase 02: Foundational Domain Modules, Schemas & Visual Harness
 
 **Purpose**: Implement pure TypeScript domain modules (`actor.ts`, `iso-week.ts`, `schemas.ts`) with full unit test coverage (Constitution Principle V) and stand up the isolated Playwright configuration (`port 3100`, `reuseExistingServer: false`) and reusable `npm run test:visual` Tier-1 harness.
 
-- [ ] **T005** `[P]` `[US3]` Implement pre-authentication local actor domain module and unit tests
+- [x] **T005** `[P]` `[US3]` Implement pre-authentication local actor domain module and unit tests
   - **Target files/components**: `src/domain/audit/actor.ts`, `tests/unit/actor.test.ts`
   - **Expected behavior**:
     - Export `DEFAULT_LOCAL_ACTOR = 'local:sm'` and `resolveActor(explicitActor?: string | null, envActor?: string | null): string` returning trimmed `explicitActor`, else trimmed `envActor ?? process.env.AZUSA_ACTOR_ID`, else `'local:sm'`.
@@ -82,7 +86,7 @@
   - **Validation/test location**: `tests/unit/actor.test.ts` via `npm run test:run`.
   - **Out-of-scope files/components**: `src/persistence/`, auth libraries.
 
-- [ ] **T006** `[P]` `[US2]` Implement pure ISO-8601 calendar week, local date, timezone formatting, and viewer clock module with unit tests
+- [x] **T006** `[P]` `[US2]` Implement pure ISO-8601 calendar week, local date, timezone formatting, and viewer clock module with unit tests
   - **Target files/components**: `src/domain/calendar/iso-week.ts`, `tests/unit/iso-week.test.ts`
   - **Expected behavior**:
     - Export `normalizeTimeZone(tz?: string | null): string` mapping legacy aliases (`Asia/Calcutta` → `Asia/Kolkata`, `US/Central` → `America/Chicago`) and validating via `Intl.DateTimeFormat`, falling back deterministically to `'UTC'` on null/empty/invalid IDs.
@@ -95,7 +99,7 @@
   - **Validation/test location**: `tests/unit/iso-week.test.ts` via `npm run test:run`.
   - **Out-of-scope files/components**: React components (`TodayWidget.tsx` is built in `T021`).
 
-- [ ] **T007** `[P]` `[US3, US4]` Implement strict Zod validation schemas for metadata, health responses, diagnostic requests, and backup manifests with unit tests
+- [x] **T007** `[P]` `[US3, US4]` Implement strict Zod validation schemas for metadata, health responses, diagnostic requests, and backup manifests with unit tests
   - **Target files/components**: `src/domain/health/schemas.ts`, `tests/unit/schemas.test.ts`
   - **Expected behavior**:
     - Export `AppMetadataValueSchema`, `DiagnosticCheckRequestSchema` (`z.object({ note: z.string().trim().min(1).max(280).optional().default('Manual diagnostic check') }).strict()`, rejecting `actor` or any unknown keys), `BackupManifestSchema`, `HealthErrorItemSchema`, and `HealthResponseSchema` (`status: z.enum(['healthy', 'error'])`) matching `contracts/api.md` and `data-model.md`.
@@ -104,23 +108,25 @@
   - **Validation/test location**: `tests/unit/schemas.test.ts` via `npm run test:run`.
   - **Out-of-scope files/components**: Route handlers and Drizzle tables.
 
-- [ ] **T008** `[US1, US5]` Stand up strictly isolated Playwright configuration (`playwright.config.ts`), install Chromium, and create reusable Tier-1 visual-fidelity helpers
-  - **Target files/components**: `playwright.config.ts`, `tests/visual/shell-fidelity.spec.ts`
+- [x] **T008** `[US1, US5]` Stand up strictly isolated Playwright configuration (`playwright.config.ts`), install Chromium, and create reusable Tier-1 visual-fidelity helpers
+  - **Target files/components**: `playwright.config.ts`, `tests/support/visual-helpers.ts`
   - **Expected behavior**:
     - Run `npx playwright install chromium`.
     - Configure `playwright.config.ts` with `visual` (`./tests/visual`) and `e2e` (`./tests/e2e`) projects, `baseURL: 'http://127.0.0.1:3100'`, `timezoneId: 'Asia/Manila'`, `locale: 'en-US'`, `webServer: { command: 'npx tsx scripts/test/start-playwright-server.ts', url: 'http://127.0.0.1:3100', reuseExistingServer: false, env: { PORT: '3100', AZUSA_NEXT_DIST_DIR: '.next-playwright', AZUSA_DB_DIR: '.azusa/test-playwright/db', AZUSA_BACKUP_DIR: '.azusa/test-playwright/backups', AZUSA_ALLOW_TEST_FAULT_INJECTION: '1', NEXT_TELEMETRY_DISABLED: '1' } }`.
-    - Create reusable Tier-1 geometry, non-overlap, RGB/hex, font-family, and frozen clock (`2026-11-08T11:30:00.000Z`) helpers in `tests/visual/shell-fidelity.spec.ts`.
+    - Create reusable Tier-1 geometry, non-overlap, RGB/hex, font-family, and frozen clock (`2026-11-08T11:30:00.000Z`) helpers in `tests/support/visual-helpers.ts` (call `freezeClock` before navigation).
   - **Constraints**: Never touch `.azusa/data/` or `.next/`.
   - **Validation/test location**: `npm run test:run`, `npm run lint`, and `npm run typecheck`.
   - **Out-of-scope files/components**: `scripts/test/start-playwright-server.ts` (`T015`) and full shell assertions (`T027`).
 
 ---
 
+**Phase 02 verification — 2026-11-20**: T005–T008 implemented. Seven unit tests passed; lint, typecheck, format:check and git diff --check passed. Playwright Chromium installed. Visual test listing reports no tests yet: T008 creates helpers only; T027 and T015 supply assertions and the isolated server respectively. The browser end-to-end suites are intentionally deferred to their assigned phases.
+
 ## Phase 03: Local PGlite Persistence, Race-Safe Lock, Migrations & Health API
 
 **Purpose**: Implement `auditColumns()` + `app_metadata`, the race-safe `proper-lockfile` lock manager (`<parent(dir)>/<basename(dir)>.azusa-lock`, empty `.lock/` dir, `> 2000ms` heartbeat grace wait across every lock holder, server/CLI `onCompromised` handlers), configurable Drizzle migrations, once-per-process PGlite singleton, `db:migrate` CLI, and `/api/health` + `/api/health/check` endpoints.
 
-- [ ] **T009** `[US3]` Create reusable `auditColumns()` helper (UUIDv4 + `$onUpdate`), `app_metadata` Drizzle schema, and initial SQL migration
+- [x] **T009** `[US3]` Create reusable `auditColumns()` helper (UUIDv4 + `$onUpdate`), `app_metadata` Drizzle schema, and initial SQL migration
   - **Target files/components**: `src/persistence/schema/common.ts`, `src/persistence/schema/app-metadata.ts`, `src/persistence/schema/index.ts`, `src/persistence/migrations/0000_foundation_init.sql`, `src/persistence/migrations/meta/_journal.json`
   - **Expected behavior**:
     - Export `auditColumns()` (`id` UUIDv4 via `crypto.randomUUID()`, UTC `created_at` and `$onUpdate(() => new Date())` `updated_at`, `created_by`/`updated_by` defaulting to `'local:sm'`).
@@ -129,7 +135,7 @@
   - **Validation/test location**: `tests/integration/persistence-restart.test.ts` and `tests/integration/migration-upgrade.test.ts`.
   - **Out-of-scope files/components**: Domain tables (`F002`–`F019`).
 
-- [ ] **T010** `[US3]` Implement race-safe cross-process lock manager (`lock.ts`), configurable Drizzle migration runner (`migrate.ts`), once-per-process PGlite singleton (`client.ts`), and `db:migrate` CLI
+- [x] **T010** `[US3]` Implement race-safe cross-process lock manager (`lock.ts`), configurable Drizzle migration runner (`migrate.ts`), once-per-process PGlite singleton (`client.ts`), and `db:migrate` CLI
   - **Target files/components**: `src/persistence/lock.ts`, `src/persistence/migrate.ts`, `src/persistence/client.ts`, `scripts/db/migrate.ts`
   - **Expected behavior**:
     - In `src/persistence/lock.ts`, implement `acquireDbLock(dir, processType, options?)` using `proper-lockfile` (`realpath: false, retries: 0, stale: options?.staleMs ?? 10000, update: 2000, onCompromised`) on per-directory canonical sentinel `path.resolve(path.dirname(dir), `${path.basename(dir)}.azusa-lock`)`. Keep `<sentinelPath>.lock/` strictly empty so `rmdir`/`rmdirSync` unlock, stale takeover, and exit cleanup succeed without `ENOTEMPTY`; optional non-authoritative diagnostics `{ pid, processType, acquiredAt }` may be written outside to `${dir}.azusa-owner.json`. Implement `onCompromised` for server (close PGlite, set `__azusaDbState` to `status: 'error'`, `stage: 'init'`, serve `503`) and for CLI (abort immediately, clean up `.tmp-*`/`.restore-tmp-*`, roll back active promotion if underway, log to stderr, exit `1`). **After acquiring the lock, every lock holder (`server`, `db:migrate`, `db:backup`, `db:restore`) waits `> 2000ms` (just over one `2000ms` heartbeat interval, e.g., `2100ms`) to confirm the heartbeat succeeded and `onCompromised` has not fired before opening PGlite or reading, copying, or modifying the database folder.** Fail closed (`ELOCKED`) on live locks or malformed lock artifacts.
@@ -140,16 +146,16 @@
   - **Validation/test location**: `tests/integration/persistence-restart.test.ts`, `tests/integration/migration-upgrade.test.ts`, `tests/integration/backup-restore.test.ts`.
   - **Out-of-scope files/components**: UI components.
 
-- [ ] **T011** `[US3]` Implement foundation health and diagnostic check application service
+- [x] **T011** `[US3]` Implement foundation health and diagnostic check application service
   - **Target files/components**: `src/application/health/health-service.ts`
   - **Expected behavior**:
     - Export `getFoundationHealth(options?)` returning Zod-validated `HealthResponse` (honoring `simulatedErrorStage` only when `AZUSA_ALLOW_TEST_FAULT_INJECTION === '1'` and `NODE_ENV !== 'production'`).
-    - Export `recordDiagnosticCheck(input, options?)` validating via strict `DiagnosticCheckRequestSchema`, resolving actor via `resolveActor(options?.actor)`, upserting `'diagnostic.last_check'` (UUIDv4, `$onUpdate`, incremented `checkCount`), and returning `{ ok: true, record, health }` or `{ ok: false, statusCode: 503, error, stage, recoveryHint }`.
+    - Export `recordDiagnosticCheck(input, options?)` validating via strict `DiagnosticCheckRequestSchema`, resolving actor via `resolveActor(options?.actor)`, validating metadata key/value pairs via `AppMetadataEntrySchema` before persistence, and upserting `'diagnostic.last_check'` (UUIDv4, `$onUpdate`, incremented `checkCount`), and returning `{ ok: true, record, health }` or `{ ok: false, statusCode: 503, error, stage, recoveryHint }`.
   - **Constraints**: Never swallow init/lock/backup/migration/query errors.
   - **Validation/test location**: `tests/integration/persistence-restart.test.ts`.
   - **Out-of-scope files/components**: React components.
 
-- [ ] **T012** `[US3]` Implement `GET /api/health` and `POST /api/health/check` JSON Route Handlers
+- [x] **T012** `[US3]` Implement `GET /api/health` and `POST /api/health/check` JSON Route Handlers
   - **Target files/components**: `src/app/api/health/route.ts`, `src/app/api/health/check/route.ts`
   - **Expected behavior**:
     - `GET /api/health`: Calls `getFoundationHealth()` (forwarding `x-azusa-test-simulate-error` when fault injection enabled), returns `200` (`healthy`) or `503` (`error`) with `Cache-Control: no-store`.
@@ -158,7 +164,7 @@
   - **Validation/test location**: `tests/integration/persistence-restart.test.ts` and `tests/e2e/foundation-smoke.spec.ts`.
   - **Out-of-scope files/components**: UI shell files.
 
-- [ ] **T013** `[US3]` Add integration tests for PGlite restart durability (`AC07`), real `init`-stage failure, and configurable-folder migration safety
+- [x] **T013** `[US3]` Add integration tests for PGlite restart durability (`AC07`), real `init`-stage failure, and configurable-folder migration safety
   - **Target files/components**: `tests/integration/persistence-restart.test.ts`, `tests/integration/migration-upgrade.test.ts`
   - **Expected behavior**:
     - `persistence-restart.test.ts`: Verifies diagnostic record survives full `closeDbContext()` + reopen with intact UUIDv4, timestamps, `"local:sm"`, and `$onUpdate` advancement on second check; verifies real `init`-stage failure on corrupted cluster (`PG_VERSION` / `global/pg_control`) surfaces `status: 'error'`, `stage: 'init'`, and non-empty `recoveryHint`.
@@ -169,11 +175,13 @@
 
 ---
 
+**Phase 03 verification — 2026-11-20**: T009–T013 implemented and 16 tests passed; lint, typecheck, format:check and diff checks passed. Per operator direction, `requirePhase03MigrationSafety` permits fresh clusters and existing clusters with no pending migrations, rejects pending migrations with `stage: backup` until Phase 04, and rejects promotion journals; corrupt cluster detection precedes the journal guard. Incremental upgrade/invalid-SQL coverage invokes the migration runner directly with isolated migration folders. **Known gap:** reopening an unchanged existing cluster does not create the automatic per-start snapshot in Phase 03. T014 must replace the guard with promotion recovery, pre-migration backup, migration and deferred pruning; T016 must cover those paths. Playwright E2E tests remain deferred to Phase 06.
+
 ## Phase 04: Deferred-Prune Backup-on-Start, Safe CLI Restore & Active Promotion
 
 **Purpose**: Implement atomic pre-migration startup backup with deferred pruning, non-mutating SHA-256 manual backup, safe disjoint-path CLI restore with staged `.restore-tmp-<uuid>` verification and recoverable active promotion preserving `db-replaced-<timestamp>` intact on disk, the Playwright test-server bootstrap script, and full lock/lost-lock/recovery integration tests.
 
-- [ ] **T014** `[US4]` Implement atomic pre-migration backup manager with deferred pruning, non-mutating manual backup, disjoint restore engine, and recoverable active promotion
+- [x] **T014** `[US4]` Implement atomic pre-migration backup manager with deferred pruning, non-mutating manual backup, disjoint restore engine, and recoverable active promotion
   - **Target files/components**: `src/persistence/backup.ts`, `src/persistence/client.ts`, `src/application/health/health-service.ts`
   - **Expected behavior**:
     - `recoverInterruptedPromotionIfNeeded(dbDir)`: Inspects `<parent(dbDir)>/.azusa-promote-journal.json`. If `dbDir` is missing `PG_VERSION` (or fails verification) while `replacedDir` (`db-replaced-<timestamp>`) has a valid cluster, removes partial `dbDir`/`.restore-tmp-*`, renames `replacedDir` back to `dbDir`, and deletes the journal; if `dbDir` is already healthy, cleans up only the leftover journal while **preserving `replacedDir` (`db-replaced-<timestamp>`)** intact on disk.
@@ -185,7 +193,7 @@
   - **Validation/test location**: `tests/integration/backup-restore.test.ts`.
   - **Out-of-scope files/components**: UI backup/restore screens.
 
-- [ ] **T015** `[US4, US5]` Implement `db:backup`, `db:restore` CLI scripts, and Playwright pre-seeded server bootstrap (`scripts/test/start-playwright-server.ts`)
+- [x] **T015** `[US4, US5]` Implement `db:backup`, `db:restore` CLI scripts, and Playwright pre-seeded server bootstrap (`scripts/test/start-playwright-server.ts`)
   - **Target files/components**: `scripts/db/backup.ts`, `scripts/db/restore.ts`, `scripts/test/start-playwright-server.ts`
   - **Expected behavior**:
     - `scripts/db/backup.ts`: Invokes `createManualBackup()`, handles `onCompromised` by cleaning up partial `.tmp-*` and exiting `1`, prints JSON summary, and exits `0` (or `1` on error).
@@ -195,7 +203,7 @@
   - **Validation/test location**: `tests/integration/backup-restore.test.ts` and `npm run test:e2e`.
   - **Out-of-scope files/components**: UI components.
 
-- [ ] **T016** `[US4]` Add integration tests for locking, lost-lock simulation, deferred pruning, non-eviction, path safety, active promotion rollback, and full recovery
+- [x] **T016** `[US4]` Add integration tests for locking, lost-lock simulation, deferred pruning, non-eviction, path safety, active promotion rollback, and full recovery
   - **Target files/components**: `tests/integration/backup-restore.test.ts`
   - **Expected behavior**:
     - **Test 1 (Cold start)**: Uninitialized `dbDir` skips backup (`skipped_cold_start`) and initializes cleanly.
@@ -222,11 +230,15 @@
 
 ---
 
+**Phase 04 verification - 2026-11-20**: T014-T016 implemented. The Phase 03 migration guard is replaced by promotion recovery, pre-migration snapshots, migration, and deferred pruning; unverified clusters skip pruning. All 37 unit and integration tests passed across serial test runs, with the final real-snapshot non-eviction fixture and four-process lock barrier rerun separately. Lint, typecheck, format:check, production build, and `git diff --check` passed. The isolated Playwright bootstrap was started and `/api/health` reported one startup backup. `npm run test:e2e` has no tests to run yet; the browser tests are assigned to T028 in Phase 06.
+
+**Phase 04 review follow-up - 2026-11-20**: Vitest defaults use a unique temporary database and backup root; the identified stray test snapshot was removed after verifying its manifest. Backup/restore CLI contention messages, Windows path casing, and backup health summary semantics were corrected. Integration suites reuse initialized fixtures and run with bounded file-level parallelism. The full 39-test run passed in 431.71 seconds; the final mixed-case path regression and an isolation check with production paths supplied in the parent environment also passed. Lint, typecheck, formatting, and production build passed.
+
 ## Phase 05: Application Shell, 42 Kumiko Icons, Today Widget, 9 Routes, Profile Menu & Tier-1 Visual Suite
 
 **Purpose**: Implement the Handoff v2 visual shell using the **Visual-Fidelity Task Pattern** (one visual scene/component per task, direct prototype references, breakpoints/checkpoints, translation notes, provenance tags, and Tier-1 + Tier-2 completion gates) and complete `npm run test:visual`.
 
-- [ ] **T017** `[P]` `[US1]` Implement the complete 42-icon Kumiko SVG registry, `<KumikoIcon />` component, and icon unit tests
+- [x] **T017** `[P]` `[US1]` Implement the complete 42-icon Kumiko SVG registry, `<KumikoIcon />` component, and icon unit tests
   - **Target files/components**: `src/ui/icons/kumiko-icons.ts`, `src/ui/icons/KumikoIcon.tsx`, `tests/unit/icons.test.ts`
   - **Match**: `icons/icons.json` and `prototype/Icons.dc.html#L25-L37` (Handoff v2, incorporating approved Deviation `D1`: replace `stroke="#FFFFFF"` on `delivery-flow`'s `M12 12L19.79 7.5` divider path with `stroke="var(--kumiko-surface, #FFFFFF)"`).
   - **Breakpoints/checkpoints**: Size ramp `16`, `18`, `20`, `24`, `32`, `40` px; states: default `#1A1B22` / `#67635C`, active `#A65307`, disabled `#B9B2A8`, orange accent `#E07F24`, and fixed semantic colours for the 6 solid badges.
@@ -235,7 +247,7 @@
   - **Done when**: `tests/unit/icons.test.ts` passes, Tier-1 `test:visual` geometry green, and Tier-2 screenshot reviewed against `screenshots/08-icon-set.png`.
   - **Out-of-scope files/components**: Shell header layout (`T023`).
 
-- [ ] **T018** `[P]` `[US1]` Implement top-right radial-masked `asanoha` SVG lattice background
+- [x] **T018** `[P]` `[US1]` Implement top-right radial-masked `asanoha` SVG lattice background
   - **Target files/components**: `src/ui/shell/AsanohaBackground.tsx`
   - **Match**: `prototype/Main.dc.html#L20-L21` (Handoff v2).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px` (top-right square `width: 80%`, `aspect-ratio: 1 / 1`, `pointer-events: none`, `aria-hidden="true"`).
@@ -244,7 +256,7 @@
   - **Done when**: Tier-1 `test:visual` geometry green at `1440px`, `1024px`, `768px` and Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Header controls.
 
-- [ ] **T019** `[P]` `[US1]` Implement 9-destination navigation config and disclosure `<NavigationMenu />`
+- [x] **T019** `[P]` `[US1]` Implement 9-destination navigation config and disclosure `<NavigationMenu />`
   - **Target files/components**: `src/ui/shell/nav-config.ts`, `src/ui/shell/NavigationMenu.tsx`
   - **Match**: `prototype/Main.dc.html#L27-L34` (Handoff v2, incorporating approved Deviation `D5`: `<nav aria-label="Primary navigation">` disclosure button with `aria-expanded`/`aria-controls` and `<a aria-current="page">` links + `:focus-visible` `2px solid #E07F24`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; closed (`64×64px` button, `60px` logo) and open (`290px` white card, `border-radius: 16px`, `top: 70px`).
@@ -253,7 +265,7 @@
   - **Done when**: Tier-1 `test:visual` green at all breakpoints and Tier-2 screenshot reviewed against `screenshots/01b-nav-menu-open.png`.
   - **Out-of-scope files/components**: `ProfileMenu.tsx` (`T022`), header context breadcrumb (omitted per `D6`).
 
-- [ ] **T020** `[P]` `[US1]` Implement expandable search control `<ExpandableSearch />`
+- [x] **T020** `[P]` `[US1]` Implement expandable search control `<ExpandableSearch />`
   - **Target files/components**: `src/ui/shell/ExpandableSearch.tsx`
   - **Match**: `prototype/Main.dc.html#L49-L50` (Handoff v2).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; collapsed `40×40px` white circle (`16px` `search` icon) and expanded `280px` pill (`min-height: 40px`, `border-radius: 20px`, placeholder `"Search stories, features…"`).
@@ -262,34 +274,34 @@
   - **Done when**: Tier-1 `test:visual` green at all breakpoints and Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Search indexing/results.
 
-- [ ] **T021** `[P]` `[US2]` Implement viewer-local `<TodayWidget />`
+- [x] **T021** `[P]` `[US2]` Implement viewer-local `<TodayWidget />`
   - **Target files/components**: `src/ui/shell/TodayWidget.tsx`
-  - **Match**: `prototype/Main.dc.html#L41-L48` (Handoff v2, incorporating Deviations `D3` & `D5`: `"No active PI · No active Sprint"`, single viewer-local clock in `#C2650E`, centered layout `align-items: center` instead of v2's right-aligned `align-items: flex-end`, and `hiddenForSearchOverlap` applying `visibility: hidden; pointer-events: none`).
-  - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; height `64px`, `tabular-nums`, `white-space: nowrap`, Line 1 `12.5px` `#3F3C37`, Line 2 `18px` `IBM Plex Mono` `#C2650E` + `10.5px` `#67635C`.
+  - **Match**: `prototype/Main.dc.html#L41-L48` (Handoff v2, incorporating Deviations `D3` & `D5`: `"No active PI · No active Sprint"`, single viewer-local clock in `#A65307`, right-aligned in-flow layout `align-items: flex-end` matching v2, and `hiddenForSearchOverlap` applying `visibility: hidden; pointer-events: none`).
+  - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; height `64px`, `tabular-nums`, `white-space: nowrap`, Line 1 `12.5px` `#3F3C37`, Line 2 `18px` `IBM Plex Mono` `#A65307` + `10.5px` `#67635C`.
   - **Translation note**: On mount, read the browser's IANA timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone` (inside a `try/catch` falling back to `undefined` → `'UTC'` only if discovery fails) and pass it to `getTodayWidgetModel(now, browserTimeZone)` from `src/domain/calendar/iso-week.ts` so date, ISO week, and clock all use the viewer's local timezone; render a fixed-height SSR placeholder then hydrate on mount with a `15000ms` interval to prevent hydration mismatch and CLS.
-  - **Provenance**: Typography, height, and colour tokens `lifted from prototype CSS` (`Main.dc.html#L42-L46`); centered alignment (`align-items: center`) and `visibility: hidden` overlap toggle `recreated manually` (reason: `D5` / Feature Brief v0.2 §3.4 & §3.7).
+  - **Provenance**: Typography, height, and colour tokens `lifted from prototype CSS` (`Main.dc.html#L42-L46`); right-aligned placement/row alignment `lifted from prototype CSS` per operator decision 2026-11-23; `visibility: hidden` overlap toggle `recreated manually` (reason: `D5` / Feature Brief v0.2 §3.7).
   - **Done when**: Tier-1 `test:visual` green at all breakpoints and Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: PI/Sprint domain data (`F002`).
 
-- [ ] **T022** `[P]` `[US1]` Implement local operator `<ProfileMenu />` with disabled non-navigating `Settings` placeholder
+- [x] **T022** `[P]` `[US1]` Implement local operator `<ProfileMenu />` with disabled non-navigating `Settings` placeholder
   - **Target files/components**: `src/ui/shell/ProfileMenu.tsx`
   - **Match**: `prototype/Main.dc.html#L51` and `prototype/Icons.dc.html#L36` (Handoff v2, incorporating Deviations `D5` & `D6`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; closed (`40×40px` `#1A1B22` circle displaying `"SM"`) and open (`250px` white card, `border-radius: 16px`, `top: 48px`, `right: 0`).
-  - **Translation note**: Replicate the `Main.dc.html#L51` trigger (`aria-label="Account menu"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`) and dropdown header (`36px` `"SM"` avatar, Title **`Scrum Master`**, Subtitle **`No ART or team configured`** — never exposing `local:sm`), followed by a **disabled, non-navigating `Settings` placeholder** (`aria-disabled="true"`, styled per `Icons.dc.html#L36`: `#8A847C` text, `#B9B2A8` `18px` `settings` Kumiko icon) with visible muted helper text (`"Configured per feature (F002–F014)"`) linked via `aria-describedby` (not hover-only). Support `Escape` closing and focus restoration.
+  - **Translation note**: Replicate the `Main.dc.html#L51` trigger (`aria-label="Account menu for SM"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`) and dropdown header (`36px` `"SM"` avatar, Title **`Scrum Master`**, Subtitle **`No ART or team configured`** — never exposing `local:sm`), followed by a **disabled, non-navigating `Settings` placeholder** (`aria-disabled="true"`, styled per `Icons.dc.html#L36`: `#8A847C` text, `#B9B2A8` `18px` `settings` Kumiko icon) with visible muted helper text (`"Configured per feature (F002–F014)"`) linked via `aria-describedby` (not hover-only). Support `Escape` closing and focus restoration.
   - **Provenance**: `lifted from prototype CSS` (`Main.dc.html#L51`, `Icons.dc.html#L36`); disabled non-navigating state & unconfigured subtitle `recreated manually` (reason: Clarifications Q1, Q2 / `D5`, `D6`).
   - **Done when**: Tier-1 `test:visual` green at all breakpoints and Tier-2 screenshot reviewed against `prototype/Main.dc.html#L51`.
   - **Out-of-scope files/components**: `/settings` route (explicitly out of scope in F001), auth/RBAC.
 
-- [ ] **T023** `[US1, US2]` Implement single-row `<FloatingHeader />` coordinating overlays and `< 1100px` search overlap hiding
+- [x] **T023** `[US1, US2]` Implement single-row `<FloatingHeader />` coordinating overlays and `< 1100px` search overlap hiding
   - **Target files/components**: `src/ui/shell/FloatingHeader.tsx`
   - **Match**: `prototype/Main.dc.html#L25-L52` (Handoff v2, incorporating Deviations `D5` & `D6`: omit sample ART/Team/PI context breadcrumb, enforce mutual exclusion between `NavigationMenu` and `ProfileMenu`, and hide `TodayWidget` via `visibility: hidden` when search is expanded `< 1100px`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px` (single row, zero bounding-box overlap in both collapsed and expanded search states).
-  - **Translation note**: Replicate the sticky header (`position: sticky; top: 0; z-index: 20`) with masked `asanoha` fade backdrop (`Main.dc.html#L25-L26`) composing `NavigationMenu` (left), `TodayWidget` wrapped in an absolutely centered slot (`position: absolute; left: 50%; transform: translateX(-50%)` per `D5`), and `ExpandableSearch` + `ProfileMenu` (right).
-  - **Provenance**: Sticky header and fade backdrop `lifted from prototype CSS` (`Main.dc.html#L25-L26`); absolute centering of `TodayWidget`, mutual exclusion, and `< 1100px` overlap-hiding state `recreated manually` (reason: `D5`, `D6`).
+  - **Translation note**: Replicate the sticky header (`position: sticky; top: 0; z-index: 20`) with masked `asanoha` fade backdrop (`Main.dc.html#L25-L26`) composing `NavigationMenu` (left), `TodayWidget` in normal flow on the right immediately before `ExpandableSearch`, both widget rows right-aligned, followed by `ProfileMenu`.
+  - **Provenance**: Sticky header, fade backdrop, and right-aligned Today widget placement `lifted from prototype CSS` (`Main.dc.html#L25-L26`, `L40-L48`); mutual exclusion and `< 1100px` overlap-hiding state `recreated manually` (reason: `D5`, `D6`).
   - **Done when**: Tier-1 `test:visual` green at `1440px`, `1024px`, `768px` and Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Header context breadcrumb (`F002`).
 
-- [ ] **T024** `[P]` `[US3]` Implement `<ErrorAlertBanner />` (`role="alert"`) and `<FoundationStatusCard />`
+- [x] **T024** `[P]` `[US3]` Implement `<ErrorAlertBanner />` (`role="alert"`) and `<FoundationStatusCard />`
   - **Target files/components**: `src/ui/shell/ErrorAlertBanner.tsx`, `src/ui/shell/FoundationStatusCard.tsx`
   - **Expected behavior**:
     - `ErrorAlertBanner`: Renders visible accessible alert (`role="alert"`) displaying failing `stage`, `message`, and `recoveryHint` (referencing `docs/operations/database-and-recovery.md`) whenever `health.status === 'error'`.
@@ -298,7 +310,7 @@
   - **Validation/test location**: `tests/e2e/foundation-smoke.spec.ts` (`T028`).
   - **Out-of-scope files/components**: Domain cards or charts.
 
-- [ ] **T025** `[US1, US3]` Implement `<PlaceholderScreen />`, `<AppShell />`, and root layout wiring
+- [x] **T025** `[US1, US3]` Implement `<PlaceholderScreen />`, `<AppShell />`, and root layout wiring
   - **Target files/components**: `src/ui/shell/PlaceholderScreen.tsx`, `src/ui/shell/AppShell.tsx`, `src/app/layout.tsx`
   - **Match**: `prototype/Main.dc.html#L20-L24`, `#L54-L59` (Handoff v2, incorporating Deviation `D4`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`.
@@ -307,17 +319,17 @@
   - **Done when**: Tier-1 `test:visual` green at all breakpoints and Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Operational domain screens.
 
-- [ ] **T026** `[US1, US2, US3]` Wire all 9 primary App Router placeholder routes
+- [x] **T026** `[US1, US2, US3]` Wire all 9 primary App Router placeholder routes
   - **Target files/components**: `src/app/page.tsx`, `src/app/program-board/page.tsx`, `src/app/pi-brief/page.tsx`, `src/app/calendar/page.tsx`, `src/app/capacity/page.tsx`, `src/app/backlog/page.tsx`, `src/app/sprint-planning/page.tsx`, `src/app/iteration/page.tsx`, `src/app/dashboard/page.tsx`
   - **Expected behavior**: Each route renders `<PlaceholderScreen />` with its metadata from `nav-config.ts` and server-loaded `getFoundationHealth()`.
   - **Constraints**: Do **not** create `src/app/settings/page.tsx` (`Clarification Q1`).
   - **Validation/test location**: `npm run build`, `npm run test:visual`, and `npm run test:e2e`.
   - **Out-of-scope files/components**: `/settings` route, domain CRUD routes.
 
-- [ ] **T027** `[US1, US2]` Complete Tier-1 `npm run test:visual` geometry, token, 42-icon, profile-dropdown, and single-row non-overlap suite
+- [x] **T027** `[US1, US2]` Complete Tier-1 `npm run test:visual` geometry, token, 42-icon, profile-dropdown, and single-row non-overlap suite
   - **Target files/components**: `tests/visual/shell-fidelity.spec.ts`
   - **Expected behavior**:
-    - Assert Azusa tokens (`#F4F1EC`, `#FFFFFF`, `#1A1B22`, `#E07F24`, `#A65307`, `#C2650E`), local font families (`Zen Kaku Gothic New`, `IBM Plex Sans`, `IBM Plex Mono`), sticky header (`position: sticky; top: 0px`), horizontally centered `TodayWidget` bounding box, bounding boxes (`60px` logo inside `64×64px` button, `290px` nav menu, `250px` profile menu, `40px`→`280px` search, `40px` `"SM"` badge, `80%` `asanoha` lattice), absence of header context breadcrumb, and disabled `Settings` item with visible `aria-describedby`-linked helper text in profile dropdown.
+    - Assert Azusa tokens (`#F4F1EC`, `#FFFFFF`, `#1A1B22`, `#E07F24`, `#A65307`, `#A65307`), local font families (`Zen Kaku Gothic New`, `IBM Plex Sans`, `IBM Plex Mono`), sticky header (`position: sticky; top: 0px`), right-aligned `TodayWidget` bounding box with a 20px gap before Search and right-aligned clock row, bounding boxes (`60px` logo inside `64×64px` button, `290px` nav menu, `250px` profile menu, `40px`→`280px` search, `40px` `"SM"` badge, `80%` `asanoha` lattice), absence of header context breadcrumb, and disabled `Settings` item with visible `aria-describedby`-linked helper text in profile dropdown.
     - Assert single-row non-overlap at `1440px`, `1024px`, and `768px` (collapsed search: `TodayWidget` visible with zero overlap; expanded search: zero overlap at `1440px`, `TodayWidget` `visibility: hidden` at `1024px` and `768px`, restored to `visibility: visible` on collapse).
   - **Constraints**: Runs against isolated port `3100` (`reuseExistingServer: false`) with frozen clock `2026-11-08T11:30:00.000Z` and `Asia/Manila`.
   - **Validation/test location**: `npm run test:visual`, `npm run test:run`, and `npm run lint`.
@@ -325,11 +337,15 @@
 
 ---
 
+**Phase 05 verification - 2026-11-21**: T017-T027 implemented. The supplied 42-icon paths are preserved with D1's divider correction. The shared shell, local clock, disclosure navigation, search, profile placeholder, nine server-loaded route placeholders, diagnostic card and structured error banner follow approved D1-D6. Tier-1 visual checks passed at 1440/1024/768 (six tests including all routes/icons and injected error scenes); Tier-2 screenshots were compared with the handoff's shell, navigation and icon references, with the approved placeholder/clock/profile differences. Full `test:run` passed 44 tests; the later independent review's exact semantic-color assertions passed in the final 16-test unit run. Lint (zero warnings), typecheck, format:check, production build and diff checks passed. A direct isolated browser check verified diagnostic HTTP 201 and preservation of an init-stage response in the alert banner. Independent Phase 05 review has no remaining findings. The shell CSS module and server page-health helper support the named components/routes; Vitest JSX configuration supports icon component tests, and Next development indicators are disabled for visual fidelity. No additional product deviations were introduced. `test:e2e -- --list` reports no tests: browser acceptance/accessibility is assigned to T028 in Phase 06 and was not implemented here. A Next development-server MaxListeners warning was observed after compiling all route bundles; the visual suite and production build passed.
+
+**Phase 05 operator review - 2026-11-21**: Applied the v2 prototype clock color (#A65307) to correct contrast and supersede the base token table. Placeholder/status cards are borderless, the primary diagnostic button uses ink/white, and the timer has the full FR-005 accessible label. Also added per-route document titles, closing menus when focus leaves, and repaired invalid Windows-1252 bytes in these task notes. All 45 unit/integration tests, six visual tests, lint, typecheck, format:check and diff checks passed. Refreshed Tier-2 captures were reviewed and saved under `.azusa/phase05-review-2026-11-21/`.
+
 ## Phase 06: End-to-End Browser Smoke & `@axe-core/playwright` Accessibility Suite
 
 **Purpose**: Verify all 5 User Stories (`US1`–`US5`) and `SC-005` accessibility requirements end-to-end in headless Chromium against the isolated port `3100` test server.
 
-- [ ] **T028** `[US1, US2, US3, US4, US5]` Implement Playwright E2E smoke and `@axe-core/playwright` accessibility suite
+- [x] **T028** `[US1, US2, US3, US4, US5]` Implement Playwright E2E smoke and `@axe-core/playwright` accessibility suite
   - **Target files/components**: `tests/e2e/foundation-smoke.spec.ts`
   - **Expected behavior**:
     - **US1 & SC-005**: Assert zero external network requests; test keyboard-only operation (`Tab`, `Shift+Tab`, `Enter`, `Space`, `ArrowDown`/`ArrowUp`/`Home`/`End`, `Escape`) across logo menu (all 9 primary routes in `PI`/`Capacity`/`Sprint`/`Insights`, confirming `Settings` is absent from logo menu), search control, and `"SM"` profile dropdown (`"Scrum Master"`, `"No ART or team configured"`, disabled non-navigating `Settings`, mutual exclusion with logo menu); verify Roadmap v0.2 badges on all 9 routes; run `new AxeBuilder({ page }).analyze()` asserting `violations` is `[]` on `/` (default, logo menu open, profile dropdown open, expanded search) and representative routes.
@@ -342,39 +358,43 @@
 
 ---
 
+**Phase 06 verification - 2026-11-21**: T028 implemented in `tests/e2e/foundation-smoke.spec.ts`. Six Chromium tests cover keyboard-only shell navigation across all nine routes and their roadmap badges, search/profile behavior, mutually exclusive overlays, zero external browser requests, Axe scans of the required shell states and representative routes, Manila/UTC clock rollover, diagnostic HTTP 201 and reload persistence, structured init/migration/backup HTTP 503 responses and visible alerts, and a real sibling restore while the server retains its active database lock. The restore verifies the recovered foundation record and byte-for-byte preservation of the active cluster. All browser storage stays under `.azusa/test-playwright/`. The operator approved minimal production fixes exposed by this suite: the profile accessible name now includes its visible SM text, and restore/recovery directory renames retry transient Windows sharing/permission errors at most five attempts (1.5 seconds of delay), retaining lock checks and preserving persistent errors. Eight focused retry regression tests cover recovery, bounded failure, lock loss, and platform/error filtering. Final gates passed: `test:e2e` (6 tests, 1.2 minutes), `test:run` (53 tests, 129 seconds), lint, typecheck, format:check and diff checks. Existing Next development-server listener warnings remain non-fatal. No required checks were skipped; Phase 07 was not started.
+
+**Phase 06 review remediation - 2026-11-21**: Browser bootstrap now retries only `ELOCKED` for up to 15 seconds before resetting its isolated database; production locking is unchanged. Four regression tests cover stale-lock recovery, the deadline, and immediate propagation of other errors. Snapshot publishing also uses the bounded Windows directory-rename retry with lock checks. Removed inserted task-file blank lines without dropping content, restored the Phase Summary table, and aligned all six documented profile labels with the approved `Account menu for SM` correction (WCAG 2.5.3). Prior operator-approved production changes remain accepted. Verification passed: E2E (6 tests) immediately followed by visual (6 tests), with no intervening delay or lock cleanup; full unit/integration suite (57 tests, 135 seconds); lint, typecheck, format:check, Markdown table parsing and diff checks. Existing non-fatal Next development listener warnings remain.
+
 ## Phase 07: Release Prep (MANDATORY)
 
 **Purpose**: Synchronize version metadata and author all required Constitution Principle VI documentation artifacts aligned with **Data Model v0.6** and **Roadmap v0.2**, verified by an automated documentation completeness test (`T035`). *(Per `docs/feature-roadmap.md` v0.2 line 12, `F001` remains unchecked in `docs/feature-roadmap.md` until conformance review and explicit operator UAT acceptance complete in `T040`.)*
 
-- [ ] **T029** `[US5]` Synchronize version (`0.1.0`) and create `CHANGELOG.md`
+- [x] **T029** `[US5]` Synchronize version (`0.1.0`) and create `CHANGELOG.md`
   - **Target files/components**: `package.json`, `package-lock.json`, `CHANGELOG.md`
   - **Expected behavior**: Sync `version: "0.1.0"` across `package.json` and `package-lock.json`; create `CHANGELOG.md` with `0.1.0 (2026-11-20)` summarizing F001 (Next.js 15 + strict TS on `127.0.0.1`, PGlite + Drizzle + `proper-lockfile` locking, `app_metadata` + `"local:sm"` audit plumbing, deferred-prune startup backup + safe restore preserving `db-replaced-<timestamp>`, Handoff v2 design tokens, local `@fontsource` fonts, 42-icon Kumiko set, 9-destination shell + profile dropdown, quality gates, and Data Model v0.6 documentation).
   - **Constraints**: Keep app changelog distinct from internal PI Plan Versioning.
   - **Validation/test location**: Inspect `package.json`, `package-lock.json`, and `CHANGELOG.md`.
   - **Out-of-scope files/components**: Application source code.
 
-- [ ] **T030** `[P]` `[US5]` Update `README.md` with setup, CLI commands, quality gates, and documentation index
+- [x] **T030** `[P]` `[US5]` Update `README.md` with setup, CLI commands, quality gates, and documentation index
   - **Target files/components**: `README.md`
-  - **Expected behavior**: Document Node 20+ prerequisites, `npm install`, `npx playwright install chromium`, optional env vars (`AZUSA_DB_DIR`, `AZUSA_BACKUP_DIR`, `AZUSA_ACTOR_ID`, `AZUSA_NEXT_DIST_DIR`, `NEXT_TELEMETRY_DISABLED`), `npm run db:migrate`, `npm run dev` (`http://127.0.0.1:3000`), stop-server backup/restore commands, all 7 quality gate commands, and clickable links to all `docs/` artifacts.
+  - **Expected behavior**: Document Node 22.12+ (22.x), 24.x, or 26+ and npm 10+ prerequisites, `npm install`, `npx playwright install chromium`, optional env vars (`AZUSA_DB_DIR`, `AZUSA_BACKUP_DIR`, `AZUSA_ACTOR_ID`, `AZUSA_NEXT_DIST_DIR`, `NEXT_TELEMETRY_DISABLED`), `npm run db:migrate`, `npm run dev` (`http://127.0.0.1:3000`), stop-server backup/restore commands, all 7 quality gate commands, and clickable links to all `docs/` artifacts.
   - **Constraints**: Match `quickstart.md` and `package.json` scripts exactly (`AC01`, `AC10`).
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` (`T035`).
   - **Out-of-scope files/components**: `src/`.
 
-- [ ] **T031** `[P]` `[US5]` Create `docs/REPO_MAP.md`
+- [x] **T031** `[P]` `[US5]` Create `docs/REPO_MAP.md`
   - **Target files/components**: `docs/REPO_MAP.md`
   - **Expected behavior**: Architectural navigation guide covering major directories, entry points (`src/app/`, `src/ui/`, `src/domain/`, `src/application/`, `src/persistence/`, `scripts/`, `tests/`, `docs/`, `specs/`), layer boundaries, and common modification paths for `F002`–`F019`.
   - **Constraints**: Concise navigation guide, not an exhaustive file dump.
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` (`T035`).
   - **Out-of-scope files/components**: `src/`.
 
-- [ ] **T032** `[P]` `[US5]` Create `docs/architecture/overview.md` and ADR `0001-local-first-nextjs-pglite-foundation.md`
+- [x] **T032** `[P]` `[US5]` Create `docs/architecture/overview.md` and ADR `0001-local-first-nextjs-pglite-foundation.md`
   - **Target files/components**: `docs/architecture/overview.md`, `docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md`
   - **Expected behavior**: Document runtime architecture, layer boundaries, `proper-lockfile` locking (`<parent(dir)>/<basename(dir)>.azusa-lock`, empty `.lock/`, `> 2000ms` grace wait, server/CLI `onCompromised`), startup failure state machine, deferred-prune backup, safe restore + preserved `db-replaced-<timestamp>`, and ADR 0001 rationale/alternatives/consequences.
   - **Constraints**: Reflect implemented F001 accurately.
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` (`T035`).
   - **Out-of-scope files/components**: `src/`.
 
-- [ ] **T033** `[P]` `[US5]` Create `docs/architecture/domain-model.md` (Data Model v0.6) and `docs/architecture/data-dictionary.md`
+- [x] **T033** `[P]` `[US5]` Create `docs/architecture/domain-model.md` (Data Model v0.6) and `docs/architecture/data-dictionary.md`
   - **Target files/components**: `docs/architecture/domain-model.md`, `docs/architecture/data-dictionary.md`
   - **Expected behavior**:
     - `docs/architecture/domain-model.md`: Codify **Data Model v0.6** (`docs/azusa-data-model.md` in `azusa-handoff-v2.zip`), **Roadmap v0.2 (`M0`–`M4`, `F001`–`F019`)**, and Constitution Principle III (8.0h workday with no focus factor, `Team.planning_style`, dated `SprintCeremony`/`Meeting`/`Milestone`/`Absence` overtime, `OverheadReserve`/`OverheadTicket` vs `Buffer`/`BufferDraw`, `Story` full/light layouts vs `Bug` with severity/environment/repro steps, `ChecklistItem`/`ChecklistTemplate`, universal `Tag`, `Removed` terminal state, rank as priority, strict separation of `PlanVersion`/`PICommitment`/`SprintCommitment`/`SprintClosure`/`StateChange`, and 3 Sprint lifecycle date concepts).
@@ -383,14 +403,14 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` (`T035`).
   - **Out-of-scope files/components**: `src/`.
 
-- [ ] **T034** `[P]` `[US5]` Create `docs/operations/database-and-recovery.md`
+- [x] **T034** `[P]` `[US5]` Create `docs/operations/database-and-recovery.md`
   - **Target files/components**: `docs/operations/database-and-recovery.md`
-  - **Expected behavior**: Step-by-step runbook for DB initialization, `db:migrate`, `proper-lockfile` locking (`<parent(dir)>/<basename(dir)>.azusa-lock`, `> 2000ms` heartbeat grace wait, operational note on the `10s` stale threshold and `2s` heartbeat interval), startup backup + deferred 10-snapshot pruning, stop-server `db:backup`, sibling `db:restore`, `--force-overwrite-active` recoverable promotion + retention and manual cleanup of `db-replaced-<timestamp>`, and troubleshooting `ErrorAlertBanner` diagnostics.
+  - **Expected behavior**: Step-by-step runbook for DB initialization, `db:migrate`, `proper-lockfile` locking (`<parent(dir)>/<basename(dir)>.azusa-lock`, `> 2000ms` heartbeat grace wait, operational note on the `10s` stale threshold and `2s` heartbeat interval), startup backup + deferred 10-snapshot pruning, stop-server `db:backup`, sibling `db:restore`, `--force-overwrite-active` recoverable promotion + retention and manual cleanup of `db-replaced-<timestamp>`, and troubleshooting `ErrorAlertBanner` diagnostics. Note that the initial PGlite cluster was measured at roughly 40 MB per snapshot (around 400 MB for ten startup backups); actual usage grows with the database and manual backups are retained separately.
   - **Constraints**: Match implemented CLI flags and safety rules (`AC08`, `AC10`).
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` (`T035`).
   - **Out-of-scope files/components**: `src/`.
 
-- [ ] **T035** `[US5]` Add automated documentation completeness & link verification test
+- [x] **T035** `[US5]` Add automated documentation completeness & link verification test
   - **Target files/components**: `tests/unit/docs-completeness.test.ts`
   - **Expected behavior**: Verify all 8 Constitution Principle VI docs exist, are non-empty, contain zero `TBD`/`TODO` placeholders, every relative markdown link in `README.md` resolves, and `docs/feature-roadmap.md` lists `F001`–`F019` across `M0`–`M4` with `F002`–`F019` unchecked.
   - **Constraints**: Read-only test; do not tick `F001` in `docs/feature-roadmap.md` before `T040`.
@@ -399,31 +419,39 @@
 
 ---
 
+**Phase 07 verification - 2026-11-21**: T029-T035 complete. Version 0.1.0 already matched package.json, both package-lock release fields, and application metadata; the new changelog uses T029's prescribed 2026-11-20 version date and records pending acceptance separately. README now documents actual setup, configuration, CLI commands, all seven gates, scope, and links to every current documentation artifact. Added the repository map, architecture overview, ADR 0001, complete Data Model v0.6 conceptual blueprint, F001-only physical dictionary, and recovery runbook including the roughly 40 MB snapshot / 400 MB startup-retention disk cost. T030's stale Node 20 wording was aligned with the prior approved engine/quickstart decision. Twelve read-only documentation tests verify all eight required documents, placeholders/encoding, README links/index, version consistency, runtime/gate documentation, and the nineteen-feature/five-milestone roadmap. Final full suite passed 69 tests (112 seconds); lint, typecheck, format:check, 58 local documentation links, 17 Markdown tables, and diff checks passed. Application code and the roadmap were not edited; F001 remains unchecked. Build, browser walkthroughs, conformance review, and operator UAT remain assigned to Phase 08; no required Phase 07 checks were skipped.
+
+**Phase 07 review remediation - 2026-11-21**: README and runbook active-replacement commands now require an explicitly selected `<backup-id>` and explain that the latest startup snapshot can contain the problem state. `latest` remains in sibling-verification examples. The documentation test name now reflects the proposed roadmap without claiming operator approval. Removed the unreleased development-fix section from the initial-release changelog; development verification history remains in the earlier phase notes. All 12 documentation checks, lint, format:check, and diff checks passed. No database or browser behavior changed.
+
+**Test stability follow-up - 2026-11-21**: Raised the per-child watchdog in the existing CLI lock-loss cleanup/promotion integration test from 60 to 150 seconds so slow 40 MB cluster copy/hash/validation can reach its checkpoint. The overall 300-second test budget, failure behavior, and cleanup/rollback assertions are unchanged; production code was not modified. Two consecutive full `test:run` executions passed all 69 tests (145.66 and 147.38 seconds), with no edits between runs. Scoped ESLint, formatting, and diff checks passed.
+
+**Today widget alignment correction - 2026-11-23**: Per operator instruction, follow Handoff v2 right-side placement immediately before Search with both rows right-aligned, superseding the earlier centering override. Updated the feature brief, specification (scope/US2/FR-005/D5), plan, research, T021/T023/T027/T037, quickstart, and architecture overview; marked historical centering review notes as superseded. CSS now uses normal flex flow, auto left margin and the prototype spacing; hidden narrow-search content may shrink so fixed-size controls stay in bounds. Retained the existing viewer-local clock and below-1100px visibility rule. The updated geometry test first failed against the old centered layout, then final combined visual/E2E verification passed all 12 tests at 1440/1024/768, including keyboard and Axe checks. Refreshed captures are in `test-results/`; wide/narrow shell and narrow expanded-search screenshots were visually reviewed. Sixteen focused documentation/calendar unit tests, lint, typecheck, format:check, and scoped diff checks passed. No manual acceptance boxes were changed.
+
 ## Phase 08: Browser Smoke Test & Post-UAT Roadmap Acceptance (MANDATORY)
 
 **Purpose**: Walk each user story's Independent Test in a real browser against the to-be-merged state (`http://127.0.0.1:3000`), run all 7 quality gates, complete conformance review (`agent-06`) and operator UAT, and tick `F001` in `docs/feature-roadmap.md` only upon acceptance.
 
-- [ ] **T036** `[US1]` Live browser smoke test — Application shell, 9-destination navigation, profile dropdown & design foundations
+- [x] **T036** `[US1]` Live browser smoke test — Application shell, 9-destination navigation, profile dropdown & design foundations
   - **Target files/components**: Live app at `http://127.0.0.1:3000` (no code edits)
   - **Expected behavior**: Walk US1 Independent Test: verify `#F4F1EC`, radial-masked `asanoha` lattice, local fonts, zero external network requests, no header context breadcrumb, 9 primary routes in `PI`/`Capacity`/`Sprint`/`Insights` (confirming `Settings` is absent from logo menu) with Roadmap v0.2 badges, `"SM"` profile dropdown (`"Scrum Master"`, `"No ART or team configured"`, disabled non-navigating `Settings`, mutual exclusion), search expand/collapse, and keyboard/focus operation.
   - **Validation/test location**: Manual live browser walk-through.
 
-- [ ] **T037** `[US2]` Live browser smoke test — Viewer-local Today widget & narrow-viewport overlap hiding
+- [x] **T037** `[US2]` Live browser smoke test — Viewer-local right-aligned Today widget & narrow-viewport overlap hiding
   - **Target files/components**: Live app at `http://127.0.0.1:3000` (no code edits)
-  - **Expected behavior**: Walk US2 Independent Test: verify viewer-local date, `CWww.d`, `"No active PI · No active Sprint"`, single `#C2650E` clock `HHMMh ZONE`, and `visibility: hidden` when search expands at `< 1100px`.
+  - **Expected behavior**: Walk US2 Independent Test: verify Today widget placement immediately before Search with both rows right-aligned; verify viewer-local date, `CWww.d`, `"No active PI · No active Sprint"`, single `#A65307` clock `HHMMh ZONE`, and `visibility: hidden` when search expands at `< 1100px`.
   - **Validation/test location**: Manual live browser walk-through.
 
-- [ ] **T038** `[US3]` Live browser smoke test — Local persistence & restart durability
+- [x] **T038** `[US3]` Live browser smoke test — Local persistence & restart durability
   - **Target files/components**: Live app at `http://127.0.0.1:3000` (no code edits)
   - **Expected behavior**: Walk US3 Independent Test: trigger **"Record diagnostic check"**, stop server (`Ctrl+C`), restart (`npm run dev`), reload `/`, and confirm UUIDv4, `checkCount`, UTC timestamps, and `"local:sm"` survive intact.
   - **Validation/test location**: Manual live browser walk-through.
 
-- [ ] **T039** `[US4]` Live browser smoke test — Startup backup, active-lock refusal & safe sibling restore
+- [x] **T039** `[US4]` Live browser smoke test — Startup backup, active-lock refusal & safe sibling restore
   - **Target files/components**: Live app at `http://127.0.0.1:3000` and CLI (no code edits)
   - **Expected behavior**: Walk US4 Independent Test: confirm startup backup appears on `FoundationStatusCard`; while server runs, verify `npm run db:backup` refuses (`exit 1`) due to `<parent(AZUSA_DB_DIR)>/<basename(AZUSA_DB_DIR)>.azusa-lock` and verify sibling `npm run db:restore -- --from latest` succeeds into `.azusa/data/restored-<timestamp>` without touching `.azusa/data/db`; stop server and verify `npm run db:backup` succeeds.
   - **Validation/test location**: Manual live CLI + browser walk-through.
 
-- [ ] **T040** `[US1, US2, US3, US4, US5]` Run full quality gates, conformance review, operator UAT, and tick `F001` in `docs/feature-roadmap.md`
+- [x] **T040** `[US1, US2, US3, US4, US5]` Run full quality gates, conformance review, operator UAT, and tick `F001` in `docs/feature-roadmap.md`
   - **Target files/components**: `docs/feature-roadmap.md` (updated only after acceptance)
   - **Expected behavior**:
     - Run and confirm exit code `0` for all 7 gates: `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test:run`, `npm run build`, `npm run test:visual`, and `npm run test:e2e`.
@@ -431,3 +459,16 @@
     - Only after conformance review and explicit operator UAT pass, check off `- [x] **F001 — Application Foundation**` in `docs/feature-roadmap.md`.
   - **Constraints**: Never check off `F001` before quality gates, conformance review, and operator UAT succeed.
   - **Validation/test location**: All 7 npm quality gate commands + conformance review + operator UAT sign-off.
+
+### Phase 01 review remediation - 2026-11-20
+
+- Node compatibility: package engines now require Node `^22.12.0 || ^24.0.0 || >=26.0.0` and npm >=10; `.npmrc` enables engine-strict installation checks. Node type definitions use the 22.x baseline. Plan and quickstart prerequisites match. Test, typecheck and lint were independently run with Node 22.12.0 as well as the local Node 24 runtime.
+- Formatting: `format:check` now runs `prettier --check .`; `.prettierignore` excludes documents/specifications, prompt files, assets, dependency lockfile and generated output. Verified future tests/, scripts/db/, scripts/test/ and playwright.config.ts paths are not ignored. README received formatting-only normalization as part of the repository-wide gate.
+- Vitest: renamed config to `vitest.config.mts`, aligned task/plan references and TypeScript includes; the native-loader warning is gone. No behavioral tests exist yet, as required for Phase 01.
+- Tokens: chose Tailwind v4 `@theme static` so the existing tokens remain emitted as CSS custom properties and also generate utilities. Verified bg-page-bg, text-brand-orange and font-heading compile. Reset input borders alongside buttons.
+- Next build isolation: predeclared `.next-playwright/types/**/*.ts` so the isolated build does not rewrite tracked tsconfig.json.
+- Audit INFO: refreshed npm audit still reports six advisories (five moderate, one high) in Next 15/PostCSS and Drizzle Kit/esbuild trees. Retained the approved Next 15 stack rather than applying npm's breaking upgrade/downgrade suggestions. Revisit on the Next-major migration or a compatible upstream fix; do not process untrusted CSS through the affected build tooling. This records the residual advisory status, not a claim of zero vulnerabilities.
+
+**Phase 02 review remediation**: Added timezone and schema regression cases, health status/error consistency validation, key-specific metadata entry validation (assigned to T011), case-insensitive named-zone lookup, and shared visual helpers in `tests/support/visual-helpers.ts`. `freezeClock` uses `setFixedTime` before navigation. Nine unit tests, lint, typecheck, formatting, and diff checks passed. Browser integration remains assigned to T027/T028.
+
+**Phase 03 review remediation — 2026-11-20**: Regenerated the initial Drizzle migration and `0000_snapshot.json` with a generated journal timestamp; a subsequent no-change generation reports nothing to migrate. Health now reads applied migration count/latest tag from the database and journal, and reports version-read and stored-diagnostic failures as structured query errors. CLI initialization uses the CLI lock-loss handler and actionable lock-contention guidance. Added real corrupt-control-file, UUID/timestamp restart, CLI success/contention, malformed metadata, missing version, migration-count, atomic concurrent diagnostic increment, and non-cacheable 400-response coverage. Lock loss handlers are required; optional owner diagnostics include process type. Phase 03's existing-database pending-migration guard remains; for an uninitialized cluster it now advises inspection and careful recovery/removal instead of implying an existing usable backup. Automatic snapshots and restore remain Phase 04 work. Validation: 23 tests passed, lint, typecheck, format:check, no-change Drizzle generation and diff checks passed.

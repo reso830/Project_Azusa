@@ -1,5 +1,7 @@
 # Research & Architectural Decisions: Application Foundation (F001)
 
+Operator decision (2026-11-21): use clock color `#A65307` from the v2 prototype. The v2 prototype overrides the base handoff's stale token table; the change also corrects clock-text contrast on the page background.
+
 **Feature**: `001-application-foundations`  
 **Date**: 2026-11-20 (Regenerated against Feature Brief v0.2, Handoff v2, Data Model v0.6, and Roadmap v0.2)  
 **Spec**: [spec.md](./spec.md)
@@ -112,7 +114,7 @@
     - Deterministic timezone label resolution: fixed-offset lookup table (`Asia/Manila` → `'PHT'`, `Asia/Kolkata` → `'IST'`, `Asia/Tokyo` → `'JST'`, `Asia/Singapore` → `'SGT'`, `UTC`/`Etc/UTC`/`Etc/GMT` → `'UTC'`), all other valid zones via `Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'shortOffset' })` replacing `'GMT'` with `'UTC'` (never `'GMT'`).
     - Invalid/missing timezone ID fallback: computes **both** the formatted clock time (`HHMMh`) and the timezone badge (`'UTC'`) in `UTC`.
   - `TodayWidget` reads the browser's IANA timezone on mount via `Intl.DateTimeFormat().resolvedOptions().timeZone` (catching errors and falling back to `'UTC'` only on failure/invalid zone) and passes it to `getTodayWidgetModel(now, browserTimeZone)` so local date, ISO week, and clock reflect the viewer's actual timezone.
-  - Sticky single-row floating header at `1440px`, `1024px`, `768px` with `TodayWidget` absolutely centered (`position: absolute; left: 50%; transform: translateX(-50%)`); when expanded search (`280px`) would overlap `TodayWidget` below `1100px`, set `visibility: hidden` (`pointer-events: none`) on `TodayWidget` and restore `visibility: visible` on collapse.
+  - Sticky single-row floating header at `1440px`, `1024px`, `768px` with `TodayWidget` in normal flow on the right immediately before Search, both rows right-aligned (`align-items: flex-end`) per the operator decision of 2026-11-23; when expanded search (`280px`) would overlap `TodayWidget` below `1100px`, set `visibility: hidden` (`pointer-events: none`) on `TodayWidget` and restore `visibility: visible` on collapse.
 
 ---
 
@@ -120,7 +122,7 @@
 
 - **Decision**:
   - **Primary Navigation**: Disclosure pattern (`<nav aria-label="Primary navigation">` with `aria-expanded`/`aria-controls` on the logo button and `<a aria-current="page">` links across the 9 destinations in 4 groups: `PI`, `Capacity`, `Sprint`, `Insights`).
-  - **Profile Dropdown (`src/ui/shell/ProfileMenu.tsx`)**: `40px` `"SM"` button (`aria-label="Account menu"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`) toggling a `250px` white dropdown showing `"Scrum Master"`, `"No ART or team configured"`, and a disabled non-navigating `Settings` placeholder (`aria-disabled="true"`). Mutually exclusive with `NavigationMenu` (opening one closes the other; `Escape` closes and returns focus).
+  - **Profile Dropdown (`src/ui/shell/ProfileMenu.tsx`)**: `40px` `"SM"` button (`aria-label="Account menu for SM"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`) toggling a `250px` white dropdown showing `"Scrum Master"`, `"No ART or team configured"`, and a disabled non-navigating `Settings` placeholder (`aria-disabled="true"`). Mutually exclusive with `NavigationMenu` (opening one closes the other; `Escape` closes and returns focus).
   - **Isolated Playwright Harness**:
     - Dedicated port `3100` (`http://127.0.0.1:3100`), `reuseExistingServer: false`, `AZUSA_NEXT_DIST_DIR: '.next-playwright'`, `AZUSA_DB_DIR: '.azusa/test-playwright/db'`, `AZUSA_BACKUP_DIR: '.azusa/test-playwright/backups'`, `AZUSA_ALLOW_TEST_FAULT_INJECTION: '1'`, `NEXT_TELEMETRY_DISABLED: '1'`.
     - Pre-server bootstrap script (`scripts/test/start-playwright-server.ts`) resets `.azusa/test-playwright/`, seeds and closes `'foundation.init'` + `.azusa-last-healthy.json`, and then spawns `next dev --hostname 127.0.0.1 --port 3100` so the server boots with a real `backup-*-startup` snapshot (`backupCount: 1`) for US4 E2E verification.

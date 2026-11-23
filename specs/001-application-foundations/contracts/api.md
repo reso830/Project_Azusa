@@ -131,7 +131,7 @@ Non-active `db:restore` (targeting a disjoint staging directory `targetDir`) loc
   - `--to <target-dir>` *(optional)*: Destination directory; defaults to `.azusa/data/restored-<YYYYMMDD-HHmmss-fff>`.
   - `--force-overwrite-active` *(optional)*: Required only if `--to` resolves to the exact canonical path of `AZUSA_DB_DIR` (with server stopped).
 - **Safety, Verification & Recoverable Replacement Contract**:
-  1. **Path Normalization**: Canonicalizes `source`, `activeDbDir`, `backupRootDir`, `target` (`path.resolve` + `realpathSync.native` on existing ancestors, stripping trailing slashes, lowercased on Windows).
+  1. **Path Normalization**: Canonicalizes `source`, `activeDbDir`, `backupRootDir`, `target` (`path.resolve` + `realpathSync.native` on existing ancestors, stripping trailing slashes; comparisons are case-insensitive on Windows and operational paths preserve casing).
   2. **Disjoint & Non-Populated Checks (Refuse Before Any Mutation)**:
      - `target` overlaps `source` or `backupRootDir` → exit `1` (even with `--force-overwrite-active`).
      - `target` strictly contains or sits inside `activeDbDir` → exit `1` (even with `--force-overwrite-active`).
@@ -176,7 +176,7 @@ All 9 primary navigation destinations render within `src/ui/shell/AppShell.tsx` 
 
 ### 3.2 Profile Dropdown Contract (`src/ui/shell/ProfileMenu.tsx`)
 
-- **Trigger**: `40px` `#1A1B22` circle button displaying `"SM"`, `aria-label="Account menu"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`.
+- **Trigger**: `40px` `#1A1B22` circle button displaying `"SM"`, `aria-label="Account menu for SM"`, `aria-expanded`, `aria-controls="azusa-profile-menu"`.
 - **Mutual Exclusion**: Opening the profile dropdown closes the primary navigation dropdown, and vice versa. Pressing `Escape` closes the dropdown and returns focus to the `"SM"` button.
 - **Dropdown Content (`250px`, white surface, `border-radius: 16px`)**:
   - **Operator Identity Header**: `36px` `"SM"` avatar circle + Title **`Scrum Master`** + Subtitle **`No ART or team configured`** (internal `local:sm` actor is never shown in this header).

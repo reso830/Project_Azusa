@@ -10,7 +10,7 @@ This guide walks through installing, running, backing up, restoring, and verifyi
 
 ## 1. Prerequisites
 
-- **Node.js**: v20.x LTS or newer (`node -v`)
+- **Node.js**: 22.12+ (22.x), 24.x, or 26+ (matching package.json engines) (`node -v`)
 - **npm**: v10.x or newer (`npm -v`)
 - **External Services**: **None.** Azusa runs 100% locally on `127.0.0.1` using embedded PGlite (WASM Postgres) and locally bundled `@fontsource` typography.
 
@@ -116,7 +116,7 @@ npm run test:e2e
    - Click the `"SM"` profile button; confirm the `250px` profile dropdown opens (closing any open logo menu), displays `"Scrum Master"` and `"No ART or team configured"` (no `local:sm` shown), and displays `Settings` as a disabled, non-navigating placeholder (`aria-disabled="true"`).
    - Click the `40px` search button; verify it expands to `280px` with autofocus and placeholder `"Search stories, features…"` (hiding the Today widget with `visibility: hidden` below `1100px`) and collapses on blur or `Escape` (restoring Today widget visibility).
 2. **US2 — Viewer-Local Today Widget & Unconfigured Calendar State**:
-   - On `/`, verify the centered Today widget displays `YYYY/MM/DD · CWww.d | No active PI · No active Sprint` on Line 1 and your local 24-hour clock `HHMMh ZONE` in `#C2650E` on Line 2.
+   - On `/`, verify the right-aligned Today widget immediately before Search displays `YYYY/MM/DD · CWww.d | No active PI · No active Sprint` on Line 1 and your local 24-hour clock `HHMMh ZONE` in `#A65307` on Line 2.
 3. **US3 — Local Persistence & Restart Durability**:
    - Click **"Record diagnostic check"** on the Foundation Status Card, note the UUIDv4 and `checkCount: 1`, stop the server (`Ctrl+C`), restart (`npm run dev`), reload `/`, and confirm the record survives intact.
 4. **US4 — Automatic Backup-on-Start & Safe Restore**:

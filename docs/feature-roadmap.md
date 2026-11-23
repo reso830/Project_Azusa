@@ -1,15 +1,15 @@
 # Azusa — Milestone & Feature Roadmap
 
-**Version:** 0.2 (proposed refresh)  
+**Version:** 0.2  
 **Date:** 2026-11-20  
-**Status:** Proposed — pending operator approval  
+**Status:** Approved by the operator — 2026-11-21  
 **Supersedes:** Previous six-milestone / 21-feature proposal
 
 ## Purpose
 
 This roadmap organizes Azusa's implementation into milestones and numbered features for the Milestone → Feature SDD cadence. A milestone groups related capabilities and provides an integration/validation boundary. A feature is the unit of specification, implementation, verification, and UAT.
 
-The current proposal contains **5 milestones and 19 features**. Feature checkboxes should only be marked complete after implementation, required verification, conformance review, and explicit operator UAT acceptance.
+The roadmap contains **5 milestones and 19 features**. Feature checkboxes should only be marked complete after implementation, required verification, conformance review, and explicit operator UAT acceptance.
 
 ## Roadmap at a glance
 
