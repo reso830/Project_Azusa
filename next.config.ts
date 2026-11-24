@@ -4,7 +4,7 @@ process.env.NEXT_TELEMETRY_DISABLED = '1';
 
 const config: NextConfig = {
   devIndicators: false,
-  serverExternalPackages: ['@electric-sql/pglite'],
+  serverExternalPackages: ['@electric-sql/pglite', 'date-holidays'],
   distDir: process.env.AZUSA_NEXT_DIST_DIR || '.next',
 };
 

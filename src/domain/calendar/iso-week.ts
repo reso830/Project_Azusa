@@ -81,7 +81,11 @@ export function formatViewerClock(date: Date, timeZone?: string) {
     zone: resolveTimeZoneAbbreviation(date, zone),
   };
 }
-export function getTodayWidgetModel(date: Date, timeZone?: string) {
+export function getTodayWidgetModel(
+  date: Date,
+  timeZone?: string,
+  cadenceOverride = 'No active PI · No active Sprint',
+) {
   const dateText = formatLocalDate(date, timeZone);
   const [y, m, d] = dateText.split('/').map(Number);
   const cwText = computeIsoCalendarWeek(y!, m!, d!).formatted;
@@ -89,8 +93,15 @@ export function getTodayWidgetModel(date: Date, timeZone?: string) {
   return {
     dateText,
     cwText,
-    piSprintText: 'No active PI · No active Sprint',
+    piSprintText: cadenceOverride,
     clockTime: clock.time,
     clockZone: clock.zone,
   };
+}
+
+export function getServerTodayIsoDate(now = new Date()): string {
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

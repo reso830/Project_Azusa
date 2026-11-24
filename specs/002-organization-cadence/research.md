@@ -66,7 +66,7 @@
     - If `latestRow.start_date > today` (a pending move exists) and `effectiveDate < latestRow.start_date` → reject with `400 VALIDATION_ERROR` stating that the existing pending move must be cancelled first.
     - **Unified cancel-pending-move check (before active-destination-Team check)**: If `latestRow.start_date > today`, `effectiveDate === latestRow.start_date`, and destination `teamId` equals the immediately preceding row's `team_id`, execute the exact same cancel-pending-move path as `DELETE /pending-move` (delete pending row and reopen preceding row with `end_date = NULL`), succeeding even if the original Team has since been archived.
     - Otherwise, destination Team must be active (`409`):
-      - If `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → update `latestRow.team_id` in place.
+      - If `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → update `latestRow.team_id` in place. Correcting today's move back to the preceding active Team deletes today's row and reopens the preceding assignment.
       - If `effectiveDate > latestRow.start_date` → if `latestRow.start_date > today` (a pending move already exists), reject with `409 CONFLICT` (at most one pending move); otherwise close `latestRow` with `end_date = effectiveDate - 1 day` and insert a new open row (`start_date = effectiveDate, end_date = NULL`).
   - **Cancel pending move (`OD-8`)**: Deletes the future row (`start_date > today`) and reopens the immediately preceding row (`end_date = NULL`) atomically.
   - F004 MUST use date-aware membership lookups from `member_team_assignments` (recorded in ADR `0002` as required, no longer deferred).

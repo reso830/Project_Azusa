@@ -1,6 +1,6 @@
 # Repository map
 
-Azusa 0.1.0 / F001 foundation. Start here, then read the current feature's exact task slice. This guide identifies responsibilities and change paths rather than listing every file. F002–F019 capabilities below are future ownership, not implemented functionality.
+Azusa 0.2.0 includes the F001 foundation and F002 organization and cadence. Start here, then read the current feature's task slice. F003–F019 entries identify future ownership.
 
 ## Entry points and boundaries
 
@@ -24,6 +24,18 @@ Azusa 0.1.0 / F001 foundation. Start here, then read the current feature's exact
 | `.specify/`, `scripts/prompts/`                                               | Constitution/templates and per-step workflow instructions.                                                                                                                                                                                                                                 |
 
 Request flow: `app adapter → application service → domain validation + persistence → UI/HTTP response`. Client components never open database files. Server startup and `db:migrate` share backup/recovery orchestration through `getDbContext()`; the migration runner assumes its caller owns the lock.
+
+## F002 organization and cadence
+
+| Path | Responsibility |
+| --- | --- |
+| [`src/app/organization/`](../src/app/organization/) and [`src/ui/organization/`](../src/ui/organization/) | Server health entry point and the client workspace with ARTs & PI Cadence, Teams & Members, and Locations tabs. |
+| [`src/app/api/organization/`](../src/app/api/organization/) | `http.ts` handles request validation and errors. Routes cover `trains`, `teams`, `members`, `pis`, and `locations` collections and records, `members/[id]/pending-move`, `pis/[id]/iterations`, `iterations/[id]`, `locations/[id]/holidays`, and `context`. |
+| [`src/domain/organization/`](../src/domain/organization/) | Zod schemas, roles, cadence and membership rules, holiday selection, and header context resolution. |
+| [`src/application/organization/`](../src/application/organization/) | `organization-service.ts` manages ARTs, Teams, and dated membership. `cadence-service.ts` manages PIs and Iterations. `calendar-reference-service.ts` manages Locations and calendar reference data. |
+| [`src/persistence/schema/`](../src/persistence/schema/) and [`src/persistence/migrations/`](../src/persistence/migrations/) | `organization.ts`, `calendar.ts`, `0001_organization_cadence.sql`, the Drizzle journal, and `meta/0001_snapshot.json`. `seed.ts` fills reference data during migration. `version.ts` supplies `APP_VERSION` to migration and restore. |
+| [`src/ui/shell/`](../src/ui/shell/) | `OrganizationContext.tsx` loads and reconciles context. `HeaderContextSelector.tsx` renders Team and PI pickers. `TodayWidget.tsx` presents Team cadence. |
+| [`specs/002-organization-cadence/`](../specs/002-organization-cadence/) | F002 specification, plan, tasks, and API contract. Tests cover domain rules, real PGlite migrations/services, HTTP routes, and the Organization browser flow. |
 
 ## Common modification paths
 

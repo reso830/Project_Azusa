@@ -12,6 +12,7 @@ import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { z } from 'zod';
 import { restoreBackup } from '../../src/persistence/backup';
+import { APP_VERSION } from '../../src/persistence/version';
 import {
   AppMetadataEntrySchema,
   BackupManifestSchema,
@@ -81,6 +82,11 @@ test('keyboard-only shell navigation reaches all nine honest placeholders', asyn
   page,
 }) => {
   test.setTimeout(90000); // Includes navigation and compilation across nine routes.
+  // Compile the routes before testing keyboard navigation in the browser.
+  for (const { href } of destinations) {
+    const response = await page.request.get(href);
+    await expect(response, `Warm ${href}`).toBeOK();
+  }
   await ready(page);
   const nav = page.getByRole('button', { name: 'Open navigation' });
   await page.keyboard.press('Tab');
@@ -123,7 +129,9 @@ test('keyboard-only shell navigation reaches all nine honest placeholders', asyn
       menu.getByRole('link', { name: destination.title, exact: true }),
     );
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(`${origin}${destination.href}`);
+    await expect(page).toHaveURL(`${origin}${destination.href}`, {
+      timeout: 15000,
+    });
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       destination.title,
     );
@@ -165,6 +173,10 @@ test('keyboard-only shell navigation reaches all nine honest placeholders', asyn
   await expect(account).toContainText('Scrum Master');
   await expect(account).toContainText('No ART or team configured');
   await expect(account).not.toContainText('local:sm');
+  await page.keyboard.press('ArrowDown');
+  const organization = account.getByRole('menuitem', { name: 'Organization' });
+  await expect(organization).toBeFocused();
+  await expect(organization).toHaveAttribute('href', '/organization');
   await page.keyboard.press('ArrowDown');
   const settings = account.getByRole('menuitem', { name: 'Settings' });
   await expect(settings).toBeFocused();
@@ -396,7 +408,10 @@ test('startup snapshot is visible and sibling restore preserves the running data
       expect(row.id).toBe(restored.foundationRecordId);
       expect(AppMetadataEntrySchema.parse(row)).toMatchObject({
         key: 'foundation.init',
-        value: { schemaVersion: '0000_foundation_init', appVersion: '0.1.0' },
+        value: {
+          schemaVersion: '0000_foundation_init',
+          appVersion: APP_VERSION,
+        },
       });
       expect([row.created_by, row.updated_by]).toEqual([
         'local:sm',

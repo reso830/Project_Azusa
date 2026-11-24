@@ -1,18 +1,17 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { KumikoIcon } from '../icons/KumikoIcon';
 import styles from './shell.module.css';
 export function ExpandableSearch({
+  expanded,
+  placeholder,
   onExpandedChange,
 }: {
+  expanded: boolean;
+  placeholder: string;
   onExpandedChange: (expanded: boolean) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
-  function change(next: boolean) {
-    setExpanded(next);
-    onExpandedChange(next);
-  }
   return expanded ? (
     <label className={styles.searchField}>
       <KumikoIcon name="search" size={15} color="var(--color-muted)" />
@@ -20,12 +19,12 @@ export function ExpandableSearch({
       <input
         type="search"
         autoFocus
-        placeholder="Search stories, features…"
-        onBlur={() => change(false)}
+        placeholder={placeholder}
+        onBlur={() => onExpandedChange(false)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault();
-            change(false);
+            onExpandedChange(false);
             requestAnimationFrame(() => trigger.current?.focus());
           }
         }}
@@ -36,7 +35,7 @@ export function ExpandableSearch({
       ref={trigger}
       className={styles.searchButton}
       aria-label="Search"
-      onClick={() => change(true)}
+      onClick={() => onExpandedChange(true)}
     >
       <KumikoIcon name="search" size={16} />
     </button>

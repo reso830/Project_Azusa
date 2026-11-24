@@ -1,8 +1,10 @@
 # Azusa
 
-Azusa is a personal, local-first learning project for Team- and ART-level Agile/SAFe planning, execution, and reporting. Version **0.1.0** provides Next.js 15, React 19, strict TypeScript, embedded PGlite/PostgreSQL with Drizzle, local fonts, and the Azusa shell. No cloud services, credentials, paid APIs, or external runtime fonts are required.
+Azusa is a personal, local-first learning project for Team- and ART-level Agile/SAFe planning, execution, and reporting. Version **0.2.0** runs locally with Next.js 15, React 19, strict TypeScript, embedded PGlite/PostgreSQL with Drizzle, and bundled fonts. No cloud services, credentials, paid APIs, or external runtime fonts are required.
 
-The nine destinations currently show honest feature placeholders and database diagnostics. Organization, capacity/calendar, work items, planning/execution, and reporting belong to F002–F019. Search only expands/focuses/collapses; Settings is a disabled profile-menu item. The operator personally completed the Phase 08 tests and confirmed completion on 2026-11-23; the acceptance and review follow-up are recorded in the F001 task notes.
+Open **Organization** from the profile menu or visit `/organization` to manage ARTs, Teams, Members, PIs, Iterations, and Locations, and inspect seeded holidays. The header remembers Team and PI selections in the browser and shows the active Sprint on the Team's shifted schedule. The nine planning destinations remain placeholders with database diagnostics. Search supports expansion, focus, and dismissal. Settings remains disabled.
+
+Migration and startup seed six default Locations and standard Absence Types, then fill missing years of public and bank holidays from the bundled `date-holidays` data. The process runs locally, keeps existing reference edits and overrides, and creates no sample ARTs, Teams, or Members.
 
 ## Install and run
 
@@ -79,25 +81,27 @@ For a production-mode local run, use `npm run build` followed by `npm run start`
 
 Start with the repository map to find relevant modules before making changes.
 
-| Document                                                                             | Responsibility                                                     |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| [Repository map](docs/REPO_MAP.md)                                                   | Entry points, boundaries, focused change paths                     |
-| [Changelog](CHANGELOG.md)                                                            | Application history, separate from PI Plan Versions                |
-| [Architecture overview](docs/architecture/overview.md)                               | Runtime, startup state machine, data flow                          |
-| [Conceptual domain model](docs/architecture/domain-model.md)                         | Data Model v0.6 blueprint; future business capabilities            |
-| [Physical data dictionary](docs/architecture/data-dictionary.md)                     | Implemented F001 fields, files, constraints                        |
-| [ADR 0001](docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md) | Foundation decision, alternatives, consequences                    |
-| [Database and recovery](docs/operations/database-and-recovery.md)                    | Initialization, migration, backup, restore, cleanup                |
-| [Feature roadmap](docs/feature-roadmap.md)                                           | Roadmap v0.2, M0–M4 and F001–F019; acceptance checklist            |
-| [F001 feature brief](docs/features/001-application-foundations.md)                   | Foundation scope and acceptance criteria                           |
-| [Design handoff v2](docs/handoffs/azusa-handoff-v2.zip)                              | Current prototype, icons, Data Model v0.6, cross-feature decisions |
-| [Design handoff v1](docs/handoffs/azusa-handoff-v1.zip)                              | Historical reference, superseded by v2 where they differ           |
-| [F001 specification](specs/001-application-foundations/spec.md)                      | Functionality and operator clarifications                          |
-| [Implementation plan](specs/001-application-foundations/plan.md)                     | Technical design                                                   |
-| [Tasks and verification](specs/001-application-foundations/tasks.md)                 | Phase scope and recorded checks                                    |
-| [Quickstart](specs/001-application-foundations/quickstart.md)                        | Setup and acceptance walkthrough                                   |
-| [API contract](specs/001-application-foundations/contracts/api.md)                   | Health, diagnostic, CLI contracts                                  |
-| [Project constitution](.specify/memory/constitution.md)                              | Governing principles and acceptance rules                          |
+| Document                                                                                 | Responsibility                                                     |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [Repository map](docs/REPO_MAP.md)                                                       | Entry points, boundaries, focused change paths                     |
+| [Changelog](CHANGELOG.md)                                                                | Application history, separate from PI Plan Versions                |
+| [Architecture overview](docs/architecture/overview.md)                                   | Runtime, startup state machine, data flow                          |
+| [Conceptual domain model](docs/architecture/domain-model.md)                             | Data Model v0.6 blueprint; future business capabilities            |
+| [Physical data dictionary](docs/architecture/data-dictionary.md)                         | Implemented F001–F002 fields, files, and constraints               |
+| [ADR 0001](docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md)     | Foundation decision, alternatives, consequences                    |
+| [ADR 0002](docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md) | Cadence, membership history, and holiday seeding                   |
+| [Database and recovery](docs/operations/database-and-recovery.md)                        | Initialization, migration, backup, restore, cleanup                |
+| [Feature roadmap](docs/feature-roadmap.md)                                               | Roadmap v0.2, M0–M4 and F001–F019; acceptance checklist            |
+| [F001 feature brief](docs/features/001-application-foundations.md)                       | Foundation scope and acceptance criteria                           |
+| [F002 feature brief](docs/features/002-organization-cadence.md)                          | Organization and PI cadence scope and acceptance criteria          |
+| [Design handoff v2](docs/handoffs/azusa-handoff-v2.zip)                                  | Current prototype, icons, Data Model v0.6, cross-feature decisions |
+| [Design handoff v1](docs/handoffs/azusa-handoff-v1.zip)                                  | Historical reference, superseded by v2 where they differ           |
+| [F001 specification](specs/001-application-foundations/spec.md)                          | Functionality and operator clarifications                          |
+| [Implementation plan](specs/001-application-foundations/plan.md)                         | Technical design                                                   |
+| [Tasks and verification](specs/001-application-foundations/tasks.md)                     | Phase scope and recorded checks                                    |
+| [Quickstart](specs/001-application-foundations/quickstart.md)                            | Setup and acceptance walkthrough                                   |
+| [API contract](specs/001-application-foundations/contracts/api.md)                       | Health, diagnostic, CLI contracts                                  |
+| [Project constitution](.specify/memory/constitution.md)                                  | Governing principles and acceptance rules                          |
 
 ## Development workflow
 

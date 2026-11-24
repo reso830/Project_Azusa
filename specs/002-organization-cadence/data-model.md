@@ -104,7 +104,7 @@ Index: `members_location_id_idx` on `(location_id)`.
 
 Partial unique index: `member_team_assignments_member_open_unique` on `(member_id) WHERE end_date IS NULL` (at most one open row per Member).  
 Indexes: `member_team_assignments_member_idx` on `(member_id, start_date)`, `member_team_assignments_team_idx` on `(team_id, start_date)`.  
-Date lookup rule (`OD-8`, `OD-9`, `OD-11`): On date `D` (defaulting to server local `today`), a Member's Team is the row with `start_date <= D AND (end_date IS NULL OR end_date >= D)`. At most one pending row (`start_date > today`) per Member is allowed. Backdating (`effectiveDate < today`) is rejected (`400`); same-day correction (`OD-9`) applies only to rows starting `today` or pending rows, and correcting a pending move back to the preceding Team cancels the pending move and reopens the preceding row.
+Date lookup rule (`OD-8`, `OD-9`, `OD-11`): On date `D` (defaulting to server local `today`), a Member's Team is the row with `start_date <= D AND (end_date IS NULL OR end_date >= D)`. At most one pending row (`start_date > today`) per Member is allowed. Backdating (`effectiveDate < today`) is rejected (`400`); same-day correction (`OD-9`) applies only to rows starting `today` or pending rows, and correcting back to the preceding Team removes the pending or same-day move and reopens the preceding row. A same-day correction requires the preceding Team to be active.
 
 ### 2.6 `pis` (Program Increments) (`F6`)
 

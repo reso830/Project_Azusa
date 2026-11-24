@@ -29,16 +29,17 @@
 
 **Purpose**: Install `date-holidays` (ISC, offline), configure Next.js `serverExternalPackages`, and implement all pure TypeScript domain rules (roles, holiday seed/override/unconfirmed rules, Mon–Fri Sprint weekday validation & offset math, PI/Iteration overlap & containment, `YYWW` helper, Today cadence resolver & Sprint prefix formatting, active-context reconciliation, strict Zod v4 schemas) with deterministic Vitest unit tests before touching persistence or UI.
 
-- [ ] **T001** `[US3, US5]` Add `date-holidays` dependency and Next.js `serverExternalPackages` entry
+- [x] **T001** `[US3, US5]` Add `date-holidays` dependency and Next.js `serverExternalPackages` entry
   - **Target files/components**: `package.json`, `package-lock.json`, `next.config.ts`
   - **Expected behavior**:
     - Install `date-holidays` (ISC licence) into `dependencies` in `package.json` and update `package-lock.json`.
+    - Index the F002 brief in `README.md` to satisfy the existing documentation completeness check.
     - Add `'date-holidays'` alongside `'@electric-sql/pglite'` in `serverExternalPackages` in `next.config.ts`.
   - **Constraints**: Offline local library only; do not modify `distDir`, `NEXT_TELEMETRY_DISABLED`, or existing F001 scripts.
   - **Validation/test location**: `npm run typecheck`, `npm run lint`, and `npm run test:run` exit `0`.
   - **Out-of-scope files/components**: `src/persistence/`, `src/ui/`.
 
-- [ ] **T002** `[P]` `[US1, US3, US5]` Implement Member roles, Holiday domain rules, and strict Zod v4 schemas with unit tests
+- [x] **T002** `[P]` `[US1, US3, US5]` Implement Member roles, Holiday domain rules, and strict Zod v4 schemas with unit tests
   - **Target files/components**: `src/domain/organization/roles.ts`, `src/domain/organization/holidays.ts`, `src/domain/organization/schemas.ts`, `tests/unit/organization-roles-schemas.test.ts`
   - **Expected behavior**:
     - In `roles.ts`, export `MEMBER_ROLES = ['Admin', 'RTE', 'SM', 'PO', 'Team member'] as const` (excluding tentative `Business Owner`) and `contributesToDevCapacity(role): boolean` returning `false` for `'PO'` and `'SM'` and `true` for `'Admin'`, `'RTE'`, and `'Team member'`.
@@ -52,7 +53,7 @@
   - **Validation/test location**: `tests/unit/organization-roles-schemas.test.ts` via `npm run test:run`.
   - **Out-of-scope files/components**: Persistence tables and API routes.
 
-- [ ] **T003** `[P]` `[US2, US4, US5]` Implement pure cadence date math, Mon–Fri Sprint boundary validation, weekday Team offset, `YYWW` helper, overlap/containment validators, and Today cadence resolver with unit tests
+- [x] **T003** `[P]` `[US2, US4, US5]` Implement pure cadence date math, Mon–Fri Sprint boundary validation, weekday Team offset, `YYWW` helper, overlap/containment validators, and Today cadence resolver with unit tests
   - **Target files/components**: `src/domain/organization/cadence.ts`, `src/domain/calendar/iso-week.ts`, `tests/unit/organization-cadence.test.ts`
   - **Expected behavior**:
     - In `cadence.ts`:
@@ -60,7 +61,7 @@
       - Export `shiftWorkdays(isoDate: string, offsetWorkdays: -1 | 0 | 1): string` shifting Monday–Friday weekdays only (Mon `-1` → previous Fri; Fri `+1` → next Mon; `0` unchanged).
       - Export `computeTeamIterationSchedule(iteration, teamId, offsetWorkdays)` returning `TeamIterationSchedule` with canonical dates and Team-scheduled dates kept distinct.
       - Export `suggestYywwName(endDate: string): string` using `computeIsoCalendarWeek` on `endDate` (`YYWW`, ISO week-year accurate).
-      - Export `dateRangesOverlap(a, b)`, `validatePiNoOverlap(candidate, activeSiblings)`, `validateIterationInPi(candidate, pi, siblings)`, and `validatePiContainsIterations(updatedPi, childIterations)`.
+      - Export `dateRangesOverlap(a, b)`, `validatePiNoOverlap(candidate, activeSiblings)`, `validateIterationInPi(candidate, pi, siblings)`, and `validatePiContainsIterations(updatedPi, childIterations)`. The three validators return `null` on success or a failure reason, including the conflicting record when applicable.
       - Export `formatTodaySprintLabel(name: string): string` (`OD-5`: returns `Sprint <name>`, skipping `Sprint ` when `/^sprint\b/i.test(name)`, no IP marker) and `resolveTodayCadenceStatus(todayIsoDate, selectedPi, teamSchedules)` (`OD-2`, `OD-5`: matches `todayIsoDate` against **Team-shifted** dates including days just outside canonical PI bounds, with safety-net tie-break preferring the Sprint whose canonical range contains `todayIsoDate`, never implying commitment).
     - Extend `getTodayWidgetModel(date, timeZone?, cadenceOverride?)` in `src/domain/calendar/iso-week.ts` keeping `"No active PI · No active Sprint"` as default.
     - Write unit tests in `tests/unit/organization-cadence.test.ts` covering:
@@ -74,7 +75,7 @@
   - **Validation/test location**: `tests/unit/organization-cadence.test.ts` and `tests/unit/iso-week.test.ts` via `npm run test:run`.
   - **Out-of-scope files/components**: Capacity engine (`F004`), `NETWORKDAYS` with holidays (`F004`).
 
-- [ ] **T004** `[P]` `[US4]` Implement pure active-context reconciliation and profile subtitle formatter with unit tests
+- [x] **T004** `[P]` `[US4]` Implement pure active-context reconciliation and profile subtitle formatter with unit tests
   - **Target files/components**: `src/domain/organization/context.ts`, `tests/unit/organization-context.test.ts`
   - **Expected behavior**:
     - Export `reconcileActiveContext(tree, stored)` resolving valid `{ train, team, pi }` from active ARTs that have `>= 1` active Team (`OD-7`), with deterministic fallback when stored IDs are missing, archived, or deleted (returning nulls when no active Teams exist).
@@ -90,7 +91,7 @@
 
 **Purpose**: Create the 10 physical Drizzle tables (including `member_team_assignments`), generate and commit SQL migration `0001_organization_cadence.sql`, share `APP_VERSION` across migrate and restore, implement the idempotent `date-holidays` seeder inside `runMigrations()`, and verify F001→F002 upgrade, frozen 2027 golden holiday fixtures, and backup/restore round-trip integrity.
 
-- [ ] **T005** `[US1, US2, US3]` Define Drizzle schemas for all 10 organization/calendar tables and commit SQL migration `0001_organization_cadence.sql`
+- [x] **T005** `[US1, US2, US3]` Define Drizzle schemas for all 10 organization/calendar tables and commit SQL migration `0001_organization_cadence.sql`
   - **Target files/components**: `src/persistence/schema/organization.ts`, `src/persistence/schema/calendar.ts`, `src/persistence/schema/index.ts`, `src/persistence/migrations/0001_organization_cadence.sql`, `src/persistence/migrations/meta/_journal.json`, `src/persistence/migrations/meta/0001_snapshot.json`
   - **Expected behavior**:
     - Define `trains`, `teams`, `members` (**without** `team_id`, per `OD-8`), `member_team_assignments` (`OD-4`, `OD-8`, `OD-9`), `pis` (with separate `lifecycle_status` and `record_status`, `F6`), `iterations` in `organization.ts`, and `locations` (with `record_status`, `seeded_years`, `library_seed_cutoff_date`, `OD-3`, `R2-1`), `holidays`, `absence_types`, `absences` in `calendar.ts`.
@@ -101,7 +102,7 @@
   - **Validation/test location**: `tests/integration/organization-migration-seed.test.ts` (`T007`).
   - **Out-of-scope files/components**: `src/persistence/schema/app-metadata.ts`, `src/persistence/lock.ts`.
 
-- [ ] **T006** `[US3, US5]` Implement shared `APP_VERSION`, idempotent reference-data seeder (`seed.ts`), and wire into `runMigrations()` and `backup.ts`
+- [x] **T006** `[US3, US5]` Implement shared `APP_VERSION`, idempotent reference-data seeder (`seed.ts`), and wire into `runMigrations()` and `backup.ts`
   - **Target files/components**: `src/persistence/version.ts`, `src/persistence/seed.ts`, `src/persistence/migrate.ts`, `src/persistence/backup.ts`
   - **Expected behavior**:
     - Create `src/persistence/version.ts` exporting `APP_VERSION = '0.1.0'` (bumped to `'0.2.0'` in Phase 07 `T025`) and use it in both `src/persistence/migrate.ts` and `src/persistence/backup.ts` (replacing hardcoded `'0.1.0'` at `backup.ts:467`) so migration and restore markers stay synchronized (`F10`). Keep `foundation.init.schemaVersion = '0000_foundation_init'` intentionally (initial seed label).
@@ -115,10 +116,10 @@
   - **Validation/test location**: `tests/integration/organization-migration-seed.test.ts` (`T007`).
   - **Out-of-scope files/components**: UI holiday editing (`F005`).
 
-- [ ] **T007** `[US3, US5]` Add integration tests for F001→F002 migration upgrade, frozen 2027 golden holiday fixtures, cutoff/rollover/override rules, and backup/restore round-trip
+- [x] **T007** `[US3, US5]` Add integration tests for F001→F002 migration upgrade, frozen 2027 golden holiday fixtures, cutoff/rollover/override rules, and backup/restore round-trip
   - **Target files/components**: `tests/integration/organization-migration-seed.test.ts`
   - **Expected behavior**:
-    - Test 1 (Upgrade & golden 2027 holiday fixtures, `F9`, `R2-3`): Pass fixed `today = '2026-11-23'`, apply `0000_foundation_init.sql` + insert `diagnostic.last_check`, then upgrade via `0001_organization_cadence.sql` + `seedReferenceData({ today })`; assert 100% of F001 `app_metadata` rows survive, all 6 Locations and 6 `AbsenceType` records exist, and assert the pinned `date-holidays` 2027 golden fixtures from Handoff §10 (`AU-WA`: Jan 26, Mar 1; `US-TX`: Jan 18, Feb 15; `SG`: Feb 8 confirmed, Mar 10 `confirmed = false`; `IN`: Jan 26; `PH`: Feb 25 — dropping/documenting any fixture the pinned library does not produce).
+    - Test 1 (Upgrade & golden 2027 holiday fixtures, `F9`, `R2-3`): Pass fixed `today = '2026-11-23'`, apply `0000_foundation_init.sql` + insert `diagnostic.last_check`, then upgrade via `0001_organization_cadence.sql` + `seedReferenceData({ today })`; assert 100% of F001 `app_metadata` rows survive, all 6 Locations and 6 `AbsenceType` records exist, and assert the pinned `date-holidays` 2027 golden fixtures from Handoff §10 (`AU-WA`: Jan 26, Mar 1; `US-TX`: Jan 18, Feb 15; `SG`: Feb 8 confirmed and Mar 9 Hari Raya Puasa with `confirmed = false`; `IN`/`KA`: Jan 26). The pinned `date-holidays@3.39.2` supports Karnataka, places SG Hari Raya Puasa on Mar 9 instead of the handoff's Mar 10, and classifies PH Feb 25 as an observance. Exclude PH Feb 25 under the public/bank-only seed rule.
     - Test 2 (Idempotency, immutable `code`, `last_refreshed_at` stability & override preservation, `F3`, `F4`, `R2-2`): Insert a `company` holiday override and a `confirmed: false` manual holiday on a seeded Location, edit a seeded Location's display name (`code` stays immutable), re-run `seedReferenceData({ today })`; assert zero duplicate Locations or Holidays, `last_refreshed_at` did NOT change on no-op re-seed, operator Location edit preserved, and `company`/`manual` overrides untouched and supersede `library` rows via `resolveEffectiveLocationHolidays()`.
     - Test 3 (Region-change cutoff & year-rollover seeding, `R2-1`): Edit a Location's `country_code`/`subdivision_code` at `today = '2026-11-23'`, asserting `library_seed_cutoff_date === '2026-11-23'` and past library rows preserved; simulate restart (`seedReferenceData({ today: '2026-11-23' })`) and year rollover (`seedReferenceData({ today: '2027-01-10' })` adding `2029` to the seed window), asserting zero library rows are ever inserted before `'2026-11-23'`.
     - Test 4 (Backup/restore round-trip & synchronized `appVersion`, `F10`): Insert F002 records (ART, Team, Member + assignment, PI, Iteration, Absence), run `createManualBackup()` + `restoreBackup()` into a disjoint staging directory, and verify 100% of F002 rows recover intact, active DB is untouched, and restored `.azusa-last-healthy.json` records `APP_VERSION`.
@@ -132,11 +133,11 @@
 
 **Purpose**: Implement transactional application services enforcing all F002 domain invariants, Member Team transfers (`member_team_assignments`), Location archiving & jurisdiction re-seeding, archive/reactivate/delete guards, and F004/F005 reference-data contracts, backed by comprehensive PGlite integration tests.
 
-- [ ] **T008** `[P]` `[US1]` Implement typed organization errors and ART / Team / Member service (date-resolved membership, future moves, same-day correction, cancel pending move)
+- [x] **T008** `[P]` `[US1]` Implement typed organization errors and ART / Team / Member service (date-resolved membership, future moves, same-day correction, cancel pending move)
   - **Target files/components**: `src/application/organization/errors.ts`, `src/application/organization/organization-service.ts`
   - **Expected behavior**:
     - Define `OrganizationError` subclasses (`ValidationError` → `400`, `NotFoundError` → `404`, `ConflictError` → `409`) with consistent `{ code, message, details }` formatting.
-    - All date-sensitive methods accept injectable `today?: string` (defaulting to server local `YYYY-MM-DD`, `R2-3`).
+    - All date-sensitive methods accept injectable `today?: string` (defaulting to server local `YYYY-MM-DD` via `getServerTodayIsoDate()` in `src/domain/calendar/iso-week.ts`, shared with the Phase 02 seeder, `R2-3`).
     - Implement `listTrains`, `createTrain`, `updateTrain`, `deleteTrain`, `listTeams`, `createTeam`, `updateTeam`, `deleteTeam`, `listMembers` (date-resolved by `asOf ?? today` from `member_team_assignments`, `OD-8`), `createMember`, `updateMember`, `cancelPendingMemberMove` (`OD-8`), `deleteMember`:
       - Reject creating a Team under an archived ART (`409`), creating a Member under an archived Team or archived Location (`409`), archiving a Team with pending incoming moves (`start_date > today`, `409`, `OD-8`), or reactivating a child whose parent ART/current Team is archived (`409`, `F7`); allow reactivating a Member whose Location is archived (they keep their archived Location).
       - `teams.train_id` is immutable after creation.
@@ -146,7 +147,7 @@
         - `latestRow.start_date > today && effectiveDate < latestRow.start_date` → `400 VALIDATION_ERROR` stating the pending move must be cancelled first.
         - **Unified cancel-pending-move check (before active-destination-Team check)**: if `latestRow.start_date > today`, `effectiveDate === latestRow.start_date`, and destination `teamId` equals the immediately preceding row's `team_id`, delegate to the exact same cancel-pending-move logic as `cancelPendingMemberMove` (delete pending row and reopen preceding row with `end_date = null`), succeeding even if the original Team has since been archived.
         - Otherwise verify destination Team is active (`409`; cross-ART and moving an archived Member allowed):
-          - `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → update `latestRow.team_id` in place.
+          - `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → update `latestRow.team_id` in place. Correcting today's move back to the preceding active Team deletes today's row and reopens the preceding assignment.
           - `effectiveDate > latestRow.start_date` → if `latestRow.start_date > today` (pending move already exists) reject `409 CONFLICT`; else close `latestRow` at `effectiveDate - 1 day` and insert new open row (`start_date = effectiveDate, end_date = null`).
       - On `cancelPendingMemberMove(memberId, { today, actor })`: delete the pending row (`start_date > today`, `404` if none) and reopen the immediately preceding row (`end_date = null`) atomically.
       - Hard delete guards: ART blocked if Teams/PIs exist (`409`); Team blocked if any `member_team_assignments` row (past, current, or pending) references it (`409`); Member blocked if `absences` exist (`409`), otherwise deletes its own `member_team_assignments` rows and Member in one transaction.
@@ -154,7 +155,7 @@
   - **Validation/test location**: `tests/integration/organization-persistence.test.ts` (`T011`).
   - **Out-of-scope files/components**: HTTP Route Handlers (`T012`).
 
-- [ ] **T009** `[P]` `[US2, US4]` Implement PI, Iteration, Team-schedule, and active context tree service
+- [x] **T009** `[P]` `[US2, US4]` Implement PI, Iteration, Team-schedule, and active context tree service
   - **Target files/components**: `src/application/organization/cadence-service.ts`
   - **Expected behavior**:
     - Implement `listPis`, `createPi`, `updatePi`, `deletePi`, `listIterations` (validating PI exists `404`, and when `teamId` supplied validating Team exists `404` and `team.trainId === pi.trainId` else `409`, `F7`), `createIteration`, `updateIteration`, `deleteIteration`, and `getOrganizationContextTree()` (returning only active ARTs with `>= 1` active Team, their active Teams, and their active PIs with canonical Iterations, `OD-7`).
@@ -163,7 +164,7 @@
   - **Validation/test location**: `tests/integration/organization-persistence.test.ts` (`T011`).
   - **Out-of-scope files/components**: `Start PI` / `Start Sprint` commitments (`F012`/`F013`).
 
-- [ ] **T010** `[P]` `[US3]` Implement Location (with immutable `code`, archive & cutoff jurisdiction re-seed), Holiday, AbsenceType, and Absence reference service
+- [x] **T010** `[P]` `[US3]` Implement Location (with immutable `code`, archive & cutoff jurisdiction re-seed), Holiday, AbsenceType, and Absence reference service
   - **Target files/components**: `src/application/organization/calendar-reference-service.ts`
   - **Expected behavior**:
     - Accept injectable `today?: string` (defaulting to server local `YYYY-MM-DD`, `R2-3`).
@@ -172,7 +173,7 @@
   - **Validation/test location**: `tests/integration/organization-persistence.test.ts` (`T011`).
   - **Out-of-scope files/components**: Team Calendar UI (`F005`).
 
-- [ ] **T011** `[US1, US2, US3, US5]` Add comprehensive PGlite integration tests for organization, cadence, future/same-day Team moves, Location archive/cutoff, and capacity-only Absence conflicts
+- [x] **T011** `[US1, US2, US3, US5]` Add comprehensive PGlite integration tests for organization, cadence, future/same-day Team moves, Location archive/cutoff, and capacity-only Absence conflicts
   - **Target files/components**: `tests/integration/organization-persistence.test.ts`
   - **Expected behavior**:
     - Use explicit fixed `today` dates (`R2-3`) across all assertions.
@@ -197,21 +198,21 @@
 
 **Purpose**: Expose thin Next.js App Router Route Handlers wrapping Phase 03 services with strict path/query/body Zod validation, actor isolation, `Cache-Control: no-store`, and structured `400`/`404`/`409`/`503` error responses per `contracts/api.md`.
 
-- [ ] **T012** `[P]` `[US1]` Implement ART, Team, and Member HTTP Route Handlers (including cancel pending move)
+- [x] **T012** `[P]` `[US1]` Implement ART, Team, and Member HTTP Route Handlers (including cancel pending move)
   - **Target files/components**: `src/app/api/organization/trains/route.ts`, `src/app/api/organization/trains/[id]/route.ts`, `src/app/api/organization/teams/route.ts`, `src/app/api/organization/teams/[id]/route.ts`, `src/app/api/organization/members/route.ts`, `src/app/api/organization/members/[id]/route.ts`, `src/app/api/organization/members/[id]/pending-move/route.ts`
   - **Expected behavior**: Implement `GET`/`POST`/`PATCH`/`DELETE` handlers per `contracts/api.md` §§2–4 (validating UUIDv4 path/query params, `?asOf=YYYY-MM-DD`, and strict JSON bodies; supporting Member `teamId`/`effectiveDate` future/same-day moves and `DELETE /api/organization/members/[id]/pending-move`; mapping `OrganizationError` and `FoundationError` (`503`) to structured JSON error envelopes; never reading actor fields from request bodies).
   - **Constraints**: Thin handlers only — all validation and business rules live in `src/domain/` and `src/application/`.
   - **Validation/test location**: `npm run typecheck`, `npm run lint`, and `npm run test:run`.
   - **Out-of-scope files/components**: UI components.
 
-- [ ] **T013** `[P]` `[US2, US4]` Implement Context, PI, and Iteration HTTP Route Handlers (consistent `[id]` segment — `F1`)
+- [x] **T013** `[P]` `[US2, US4]` Implement Context, PI, and Iteration HTTP Route Handlers (consistent `[id]` segment — `F1`)
   - **Target files/components**: `src/app/api/organization/context/route.ts`, `src/app/api/organization/pis/route.ts`, `src/app/api/organization/pis/[id]/route.ts`, `src/app/api/organization/pis/[id]/iterations/route.ts`, `src/app/api/organization/iterations/[id]/route.ts`
   - **Expected behavior**: Implement `GET /api/organization/context` (active ARTs with `>= 1` active Team) and PI/Iteration CRUD handlers per `contracts/api.md` §§1, 5, using the consistent `[id]` dynamic segment under `pis/[id]/iterations/route.ts` (`F1`) and validating `?teamId=<uuid>` (returning `400` on invalid UUID, `404` on missing PI/Team, `409` on cross-ART Team, `F7`).
   - **Constraints**: `Cache-Control: no-store` on all responses; strict Zod path/query/body parsing.
   - **Validation/test location**: `npm run typecheck`, `npm run lint`, and `npm run test:run`.
   - **Out-of-scope files/components**: UI components.
 
-- [ ] **T014** `[P]` `[US3]` Implement Location and Holiday read HTTP Route Handlers
+- [x] **T014** `[P]` `[US3]` Implement Location and Holiday read HTTP Route Handlers
   - **Target files/components**: `src/app/api/organization/locations/route.ts`, `src/app/api/organization/locations/[id]/route.ts`, `src/app/api/organization/locations/[id]/holidays/route.ts`
   - **Expected behavior**: Implement Location `GET`/`POST`/`PATCH`/`DELETE` (supporting `includeArchived`, `recordStatus`, and jurisdiction re-seed on `PATCH`) and `GET /api/organization/locations/[id]/holidays?year=...` per `contracts/api.md` §6.
   - **Constraints**: Read-only holiday endpoint in F002 (operational holiday editing belongs to F005).
@@ -224,7 +225,7 @@
 
 **Purpose**: Wire `OrganizationContextProvider` into `AppShell`, implement the faithful `Main.dc.html` header context breadcrumb on primary routes, match `Settings.dc.html`'s uncluttered header on `/organization` (`OD-6`), update `ProfileMenu` and `TodayWidget`, and verify visual fidelity and backwards compatibility using the **Visual-Fidelity Task Pattern**.
 
-- [ ] **T015** `[US4]` Implement `OrganizationContextProvider` with `localStorage` persistence and wire into `AppShell`
+- [x] **T015** `[US4]` Implement `OrganizationContextProvider` with `localStorage` persistence and wire into `AppShell`
   - **Target files/components**: `src/ui/shell/OrganizationContext.tsx`, `src/ui/shell/AppShell.tsx`
   - **Expected behavior**:
     - Fetch `GET /api/organization/context` on mount, reconcile with `localStorage` key `azusa:active-context:v1` via `reconcileActiveContext()`, expose `{ trains, selected, setTeamId, setPiId, refresh, loading }` (selecting a Team automatically sets its parent ART and reconciles the PI for that ART per `OD-7`).
@@ -233,7 +234,7 @@
   - **Validation/test location**: `npm run typecheck`, `npm run lint`, and `npm run test:run`.
   - **Out-of-scope files/components**: `/organization` panels (`Phase 06`).
 
-- [ ] **T016** `[US4]` Implement `HeaderContextSelector` (`ART › Team › PI`) and route-aware `FloatingHeader` + `ExpandableSearch`
+- [x] **T016** `[US4]` Implement `HeaderContextSelector` (`ART › Team › PI`) and route-aware `FloatingHeader` + `ExpandableSearch`
   - **Target files/components**: `src/ui/shell/HeaderContextSelector.tsx`, `src/ui/shell/FloatingHeader.tsx`, `src/ui/shell/ExpandableSearch.tsx`, `src/ui/shell/shell.module.css`
   - **Match**: `prototype/Main.dc.html#L35-L39` (`screenshots/01-team-pi-board.png`) on the 9 primary routes (`OD-7`: plain-text `<ART>` link to `/program-board`, `›`, Team dropdown listing active Teams grouped under ART headings, `›`, PI dropdown for that ART; omitted completely when zero active Teams exist), AND `prototype/Settings.dc.html#L24-L38` (`screenshots/07-settings-locations-holidays.png`) on `/organization` (`OD-6`: logo + search with placeholder `"Search organization…"` + profile only, omitting `HeaderContextSelector` and `TodayWidget`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: empty-org (hidden), primary-route populated collapsed, Team/PI picker open (mutually exclusive with logo menu, profile menu, and search), `/organization` header (no breadcrumb, no Today widget, `"Search organization…"`), keyboard `Enter`/`Space`/`ArrowDown`/`ArrowUp`/`Escape`, `:focus-visible`.
@@ -242,7 +243,7 @@
   - **Done when**: Tier-1 `npm run test:visual` geometry green at `1440px`, `1024px`, `768px` AND Tier-2 frozen-state screenshots reviewed against `screenshots/01-team-pi-board.png` and `screenshots/07-settings-locations-holidays.png`.
   - **Out-of-scope files/components**: Primary 9-destination `NavigationMenu.tsx` (unchanged).
 
-- [ ] **T017** `[US4]` Update `ProfileMenu` with dynamic `Team · ART` subtitle and enabled `Organization` link above disabled `Settings`
+- [x] **T017** `[US4]` Update `ProfileMenu` with dynamic `Team · ART` subtitle and enabled `Organization` link above disabled `Settings`
   - **Target files/components**: `src/ui/shell/ProfileMenu.tsx`, `src/ui/shell/shell.module.css`
   - **Match**: `prototype/Main.dc.html#L51` (`screenshots/01-team-pi-board.png`) incorporating approved Deviation `D1` (add enabled **`Organization`** link navigating to `/organization` using Kumiko `members` `18px` icon, while retaining disabled non-navigating **`Settings`** with `aria-disabled="true"` and `aria-describedby="settings-help"`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: empty-org (`"No ART or team configured"`), populated (`"<Team> · <ART>"` on both primary routes and `/organization`), active route `/organization` (`aria-current="page"` with `#FCEFE2` tint / `#A65307` icon), keyboard navigation (`ArrowDown`/`ArrowUp`/`Home`/`End`/`Escape`).
@@ -251,7 +252,7 @@
   - **Done when**: Tier-1 `npm run test:visual` green at all breakpoints AND Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Enabling `Settings` or creating `/settings`.
 
-- [ ] **T018** `[US4]` Update `TodayWidget` to display `<PI> · Sprint <name>` matched against Team-shifted Sprint dates
+- [x] **T018** `[US4]` Update `TodayWidget` to display `<PI> · Sprint <name>` matched against Team-shifted Sprint dates
   - **Target files/components**: `src/ui/shell/TodayWidget.tsx`
   - **Match**: `prototype/Main.dc.html#L41-L48` (`screenshots/01-team-pi-board.png`) incorporating approved Deviation `D3` (keep single viewer-local clock `HHMMh ZONE` in `#A65307` from F001 `CF1`; derive `<piSprintText>` via `resolveTodayCadenceStatus()` from viewer-local `YYYY-MM-DD`, selected PI, and `computeTeamIterationSchedule()` for the selected Team's offset — rendering `<PI> · Sprint <name>` skipping `Sprint ` if already prefixed, matching Team-shifted dates including days just outside canonical PI bounds, never implying formal commitment; omitted on `/organization` per `OD-6`).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: unconfigured (`"No active PI · No active Sprint"`), active PI + matching Team-shifted Sprint (`"<PI> · Sprint 2706"` / `"<PI> · Sprint 5"`), active PI + gap (`"<PI> · No active Sprint"`), hidden via `visibility: hidden` when expanded search overlaps `< 1100px`.
@@ -260,7 +261,7 @@
   - **Done when**: Tier-1 `npm run test:visual` green at all breakpoints AND Tier-2 screenshot reviewed against `screenshots/01-team-pi-board.png`.
   - **Out-of-scope files/components**: Multi-team clocks, commitment badges (`F012`/`F013`).
 
-- [ ] **T019** `[US4]` Update Tier-1 visual-fidelity suite and F001 smoke assertions for populated header context, `/organization` header, and profile menu `Organization` entry
+- [x] **T019** `[US4]` Update Tier-1 visual-fidelity suite and F001 smoke assertions for populated header context, `/organization` header, and profile menu `Organization` entry
   - **Target files/components**: `tests/visual/shell-fidelity.spec.ts`, `tests/e2e/foundation-smoke.spec.ts`
   - **Expected behavior**:
     - Update profile-dropdown assertions in `shell-fidelity.spec.ts` / `foundation-smoke.spec.ts` to expect the enabled **`Organization`** link above the disabled **`Settings`** placeholder.
@@ -275,18 +276,18 @@
 
 **Purpose**: Deliver the dedicated `/organization` route with Kumiko-styled management panels for ARTs & PI Cadence, Teams & Members (including Team moves), and Locations (including archive/reactivate and read-only seeded Holiday inspection), and verify all user stories end-to-end with `@axe-core/playwright`.
 
-- [ ] **T020** `[P]` `[US1, US2]` Implement `TrainsAndCadencePanel` (ART CRUD + PI & weekday Iteration cadence editor)
+- [x] **T020** `[P]` `[US1, US2]` Implement `TrainsAndCadencePanel` (ART CRUD + PI & weekday Iteration cadence editor)
   - **Target files/components**: `src/ui/organization/TrainsAndCadencePanel.tsx`
   - **Expected behavior**:
     - List ARTs (with `"Show archived"` toggle), create/edit ART name, archive/reactivate, and delete unreferenced ART with inline validation/conflict errors.
     - For the selected ART, list PIs (with `"Show archived"` toggle and read-only `lifecycleStatus` badge), create/edit PI (`name`, explicit `startDate`, `endDate`), archive/reactivate, and delete unreferenced PI.
     - For the selected PI, list canonical Iterations (`name`, `kind: development | ip`, `startDate`, `endDate`), add/edit/delete Iterations (surfacing weekday validation errors inline), provide a one-click **`Suggest YYWW`** button calling `suggestYywwName(endDate)` (never modifying dates when name is edited), and show an optional Team-offset schedule preview selector demonstrating canonical vs Team-adjusted dates.
     - Call `onMutated()` after successful writes so the global header context updates immediately.
-  - **Constraints**: Use Kumiko design tokens, custom accessible controls, and visible `:focus-visible` outlines; never hardcode quarter boundaries or parse dates from names.
+  - **Constraints**: Use Kumiko design tokens, styled, keyboard-operable native controls, and visible `:focus-visible` outlines; never hardcode quarter boundaries or parse dates from names.
   - **Validation/test location**: `tests/e2e/organization-cadence.spec.ts` (`T024`).
   - **Out-of-scope files/components**: `Start PI` button (`F012`), work categories (`F003`).
 
-- [ ] **T021** `[P]` `[US1]` Implement `TeamsAndMembersPanel` (Team CRUD with offset + unlimited Member roster & Team move)
+- [x] **T021** `[P]` `[US1]` Implement `TeamsAndMembersPanel` (Team CRUD with offset + unlimited Member roster & Team move)
   - **Target files/components**: `src/ui/organization/TeamsAndMembersPanel.tsx`
   - **Expected behavior**:
     - Filter/select ART; list Teams (with `"Show archived"` toggle), create/edit Team (`name`, `sprintOffsetWorkdays` picker restricted to `-1`, `0`, `+1` with clear working-day explanation, read-only `8.0 h/day` default indicator), archive/reactivate, and delete unreferenced Team.
@@ -296,7 +297,7 @@
   - **Validation/test location**: `tests/e2e/organization-cadence.spec.ts` (`T024`).
   - **Out-of-scope files/components**: Capacity Planner (`F004`), Team Calendar (`F005`).
 
-- [ ] **T022** `[P]` `[US3]` Implement `LocationsPanel` (Location registry CRUD, archive/reactivate & read-only Holiday inspection)
+- [x] **T022** `[P]` `[US3]` Implement `LocationsPanel` (Location registry CRUD, archive/reactivate & read-only Holiday inspection)
   - **Target files/components**: `src/ui/organization/LocationsPanel.tsx`
   - **Match**: `prototype/Settings.dc.html#L64-L81` (`screenshots/07-settings-locations-holidays.png`) incorporating approved Deviation `D2` (keep the white `14px`-radius card, uppercase `#FAF8F5` header row, `Code` badge pill, `Location`, `Calendar source`, `Time zone`, `Members`, `Holidays`, and `Last refreshed` columns; omit `Hours / day` input and operational holiday-editing/refresh buttons).
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: 6 seeded Locations list, `"Show archived"` toggle (`OD-3`), create/edit Location form (`code` editable on create, immutable/read-only on edit per `R2-2`), archive/reactivate/delete actions, read-only Holiday inspection drawer/table showing `date`, `name`, `portion`, `source`, and `confirmed` (`est.` badge for `confirmed === false`).
@@ -305,7 +306,7 @@
   - **Done when**: Tier-1 `npm run test:visual` green at all breakpoints AND Tier-2 screenshot reviewed against `screenshots/07-settings-locations-holidays.png`.
   - **Out-of-scope files/components**: Operational Holiday CRUD/refresh or Absence entry UI (`F005`).
 
-- [ ] **T023** `[US1, US2, US3, US4]` Assemble `/organization` page route and Kumiko workspace shell
+- [x] **T023** `[US1, US2, US3, US4]` Assemble `/organization` page route and Kumiko workspace shell
   - **Target files/components**: `src/app/organization/page.tsx`, `src/ui/organization/OrganizationWorkspace.tsx`, `src/ui/organization/organization.module.css`
   - **Expected behavior**:
     - Render `/organization` inside the root `AppShell` with `Zen Kaku Gothic New` `28px` title (`Organization`), underline section tabs (`ARTs & PI Cadence`, `Teams & Members`, `Locations`) with `role="tablist"` / `role="tab"` / `role="tabpanel"` keyboard support, empty/loading/error states, and `OrganizationContext.refresh()` synchronization on mutations.
@@ -314,7 +315,7 @@
   - **Validation/test location**: `npm run build`, `npm run lint`, and `tests/e2e/organization-cadence.spec.ts` (`T024`).
   - **Out-of-scope files/components**: Any `/settings` route.
 
-- [ ] **T024** `[US1, US2, US3, US4]` Add end-to-end Playwright and `@axe-core/playwright` accessibility suite for F002
+- [x] **T024** `[US1, US2, US3, US4]` Add end-to-end Playwright and `@axe-core/playwright` accessibility suite for F002
   - **Target files/components**: `tests/e2e/organization-cadence.spec.ts`
   - **Expected behavior**:
     - Walk US1–US4 against isolated port `3100` with zero external network requests:
@@ -334,14 +335,14 @@
 
 **Purpose**: Synchronize application version across manifest, lockfile, migration, and restore markers (`F10`), and update all affected Constitution Principle VI living documentation before the final Browser Smoke Test.
 
-- [ ] **T025** `[US5]` Bump application version (`0.1.0` → `0.2.0`)
+- [x] **T025** `[US5]` Bump application version (`0.1.0` → `0.2.0`)
   - **Target files/components**: `package.json`, `package-lock.json`, `src/persistence/version.ts`
   - **Expected behavior**: Bump root `version` to `"0.2.0"` in `package.json` and `package-lock.json` (both top-level and `packages[""]`), and update `APP_VERSION = '0.2.0'` in `src/persistence/version.ts` (consumed by both `src/persistence/migrate.ts` and `src/persistence/backup.ts`, `F10`). Keep `foundation.init.schemaVersion = '0000_foundation_init'`.
   - **Constraints**: Keep existing `'foundation.init'` records intact on upgrade; assert `appVersion === '0.2.0'` in `tests/integration/organization-migration-seed.test.ts`.
   - **Validation/test location**: `npm run test:run` and `npm run build`.
   - **Out-of-scope files/components**: Feature UI code.
 
-- [ ] **T026** `[P]` `[US5]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md` (`F10`)
+- [x] **T026** `[P]` `[US5]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md` (`F10`)
   - **Target files/components**: `CHANGELOG.md`, `README.md`, `docs/operations/database-and-recovery.md`
   - **Expected behavior**:
     - Add `0.2.0` entry to `CHANGELOG.md` summarizing F002 additions/changes.
@@ -351,14 +352,14 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` and `npm run format:check`.
   - **Out-of-scope files/components**: `specs/`.
 
-- [ ] **T027** `[P]` `[US5]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md` (`F10`)
+- [x] **T027** `[P]` `[US5]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md` (`F10`)
   - **Target files/components**: `docs/REPO_MAP.md`, `docs/architecture/overview.md`
   - **Expected behavior**: Document all new F002 directories, schemas, migration `0001`, seeder, `version.ts`, domain/application modules, `/api/organization/*` endpoints, `/organization` route, and shell context components in `docs/REPO_MAP.md` and update the system/data-flow overview in `docs/architecture/overview.md`.
   - **Constraints**: Reflect actual implemented paths accurately.
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T028** `[P]` `[US5]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
+- [x] **T028** `[P]` `[US5]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
   - **Target files/components**: `docs/architecture/domain-model.md`, `docs/architecture/data-dictionary.md`
   - **Expected behavior**:
     - Update `domain-model.md` implementation-status banner to reflect F002 organizational, team-assignment, and calendar entities now implemented (while keeping F003–F019 conceptual).
@@ -367,7 +368,7 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T029** `[P]` `[US5]` Add ADR `0002-organization-cadence-and-holiday-seeding.md`
+- [x] **T029** `[P]` `[US5]` Add ADR `0002-organization-cadence-and-holiday-seeding.md`
   - **Target files/components**: `docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md`
   - **Expected behavior**: Record key F002 architectural decisions, rationale, and deferred improvements:
     - ISO `YYYY-MM-DD` calendar dates and Mon–Fri weekday Sprint boundaries + **OD-1's no-overlap guarantee** (non-overlapping weekday Sprints shifted ±1 weekday strictly preserve order and never share a day, including across consecutive PIs in the same ART).
@@ -379,12 +380,14 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T030** `[US5]` Run docs sanity check and full quality-gate suite
+- [x] **T030** `[US5]` Run docs sanity check and full quality-gate suite
   - **Target files/components**: `tests/unit/docs-completeness.test.ts` (update if needed for new ADR/version)
   - **Expected behavior**: Verify zero stale references or `TBD`/`TODO` markers across `docs/` and run all 7 quality gates (`lint`, `format:check`, `typecheck`, `test:run`, `build`, `test:visual`, `test:e2e`), confirming every command exits `0`.
   - **Constraints**: Leave `F002` unchecked in `docs/feature-roadmap.md` until Phase 08 UAT acceptance.
   - **Validation/test location**: All 7 npm quality-gate commands exit `0`.
   - **Out-of-scope files/components**: `docs/feature-roadmap.md` (`T035`).
+
+**Phase 07 verification (2026-11-24)** — All seven npm gates exited 0. Vitest passed 96 tests, Playwright visual passed 9, and Playwright E2E passed 7. The upgrade test preserves the original 0.1.0 initialization row and checks the 0.2.0 healthy marker. The full Vitest rerun used a Windows process permitted to create temporary junctions. The format check passed after local CRLF-to-LF normalization with no content changes.
 
 ---
 
@@ -392,25 +395,25 @@
 
 **Purpose**: Walk every user story's **Independent Test** in a real browser against the to-be-merged state (after Release Prep), confirm accessibility and error/empty states, and update `docs/feature-roadmap.md` only after conformance review and explicit operator UAT acceptance.
 
-- [ ] **T031** `[US1]` Walk US1 Independent Test in a real browser; record verification result
+- [x] **T031** `[US1]` Walk US1 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` (ARTs, Teams, ±1 offsets, >13 multi-location Members, Member Team moves, `PO`/`SM` capacity metadata, archive/reactivate/delete guards, post-edit reload persistence)
   - **Expected behavior**: Confirm every step of US1's Independent Test passes on the to-be-merged build; record pass/fail evidence.
   - **Constraints**: Test against `127.0.0.1` local build with zero external network requests.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T032** `[US2]` Walk US2 Independent Test in a real browser; record verification result
+- [x] **T032** `[US2]` Walk US2 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` (independent ARTs, non-overlapping active PIs, weekday-only configurable dev + IP Iterations, `YYWW` helper + custom rename, `-1`/`0`/`+1` Mon–Fri Team schedule preview leaving canonical ART dates unchanged)
   - **Expected behavior**: Confirm every step of US2's Independent Test passes; record evidence.
   - **Constraints**: Confirm dates are never derived from Sprint/PI names and Sat/Sun Sprint boundaries are rejected.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T033** `[US3]` Walk US3 Independent Test in a real browser; record verification result
+- [x] **T033** `[US3]` Walk US3 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` → **Locations** (6 seeded Locations, IANA timezones, read-only seeded `date-holidays` inspection with confirmed CNY vs est. Hari Raya, create/edit/archive/reactivate Location, persistence across reload)
   - **Expected behavior**: Confirm every step of US3's Independent Test passes; record evidence.
   - **Constraints**: Confirm no F005 operational holiday/absence editor or per-location workday-hours input is exposed.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T034** `[US4]` Walk US4 Independent Test in a real browser; confirm empty/loading/error states, keyboard operation, and non-color status cues
+- [x] **T034** `[US4]` Walk US4 Independent Test in a real browser; confirm empty/loading/error states, keyboard operation, and non-color status cues
   - **Target files/components**: Runtime verification across `/`, `/organization`, and primary routes (profile menu `Organization` link + disabled `Settings`, `/organization` Settings-style header without Today widget or context breadcrumb, primary-route plain-text ART link + grouped Team dropdown + PI dropdown, dynamic profile subtitle, live Today widget `<PI> · Sprint <name>` using Team-shifted dates without commitment wording, empty/error states, keyboard navigation, `1440px`/`1024px`/`768px` layout)
   - **Expected behavior**: Confirm every step of US4's Independent Test passes with zero console/hydration errors and zero `@axe-core/playwright` violations; record evidence.
   - **Constraints**: Confirm no primary navigation destination is highlighted on `/organization`.
@@ -421,3 +424,18 @@
   - **Expected behavior**: Only after conformance review and explicit operator UAT acceptance, tick `- [x] **F002 — Organization & PI Cadence**` and update the roadmap progress summary (`2 / 19`).
   - **Constraints**: Do not tick `F002` before operator UAT acceptance.
   - **Validation/test location**: `docs/feature-roadmap.md` + `npm run test:run` (`docs-completeness.test.ts`).
+
+**Phase 08 browser walkthrough (2026-11-24, agent-run)**: T031–T034 were walked by the agent, not the operator, with a scripted real Chromium session (Playwright, `Asia/Manila`, `en-US`). The session ran against the production build (`npm run build`, then `next start` on `127.0.0.1:3200`) with a fresh isolated database in git-ignored `.azusa/phase08-walk/`. All six walk segments passed. Every segment recorded zero external requests and zero console, hydration, or page errors. Five intentionally rejected 4xx writes and one simulated 500 produced the browser's expected resource messages, which were excluded.
+
+- **T031 / US1**: Created `Payments` and renamed it `Payments ART`, then created `Core Platform ART`. Payments Teams were `Palawan` (renamed `Palawan Lead`, offset edited 0 → −1), `Cebu` (0), and `Bohol` (+1); Core Platform's Team was `Luzon` (0). Everything persisted across reload with `8.0 h/day`. The offset picker offers only −1/0/+1, and `PATCH` with −2 or +2 returned `400`. Palawan Lead holds 15 Members across PH, SG, IN, UK, and JP. Four were added through the form; 11 were posted to the same local API to save time. Roles were SM, PO, and Team member, with FTE 1.0 and 0.5. SM and PO show "Excluded from dev capacity". A Member edit (nickname, FTE 0.8) persisted across reload. `Eve Cruz` (PO, 0.5, SG), Cebu's only Member, moved to Luzon with effective date 2026-12-07, after her 2026-11-24 start. As of that date her role, FTE, and Location are unchanged. Deleting Cebu was blocked: "This Team has past, current, or pending Member assignments." Archiving a Member and then Palawan Lead left other Members active, and both archived records stayed visible behind "Show archived". Reactivating the Member under the archived Team returned "Current Team is archived."; it succeeded after the Team was reactivated. Deleting Palawan Lead (with Members) was blocked. Deleting the empty `Mistake ART` succeeded and persisted.
+- **T032 / US2**: Created `PI-27.1` (2027-01-04 – 2027-03-05) and edited it to `PI-2027.1` (2027-01-04 – 2027-03-12); the change persisted. `Suggest YYWW` produced `2702`, `2704`, `2706`, `2708`, and `2710` (IP). Renaming `2702` to `Sprint Kickoff` kept 2027-01-04 – 2027-01-15. A Saturday start or Sunday end returned `400 VALIDATION_ERROR`, with the inline message "Sprint dates must fall Monday through Friday". An overlapping Payments PI and an Iteration outside PI-2027.1 each returned `409 CONFLICT`. `CP-2027.1` (2027-01-04 – 2027-02-12), which overlaps PI-2027.1 across ARTs, was accepted with two three-week Sprints and no IP. In the Team preview, −1 Palawan Lead shows 01-01–01-14, 01-15–01-28, 01-29–02-11, 02-12–02-25, and 02-26–03-11; +1 Bohol shows 01-05–01-18, 01-19–02-01, 02-02–02-15, 02-16–03-01, and 03-02–03-15. Canonical ART dates were unchanged, and no two shifted Sprints of a Team share a day.
+- **T033 / US3**: On the fresh database, the registry listed PH, SG, AU-WA, IN, UK, and US-TX in handoff order, with UTC offsets and IANA zone titles. The countries/subdivisions are PH, SG, AU-WA, IN-KA, GB-ENG, and US-TX, each with its calendar-source label. SG 2027 shows Chinese New Year (2027-02-06) as confirmed and Hari Raya Puasa (2027-03-09) as `est.`, read-only. Created `JP` / Japan / `Asia/Tokyo` (shown as UTC+9) and renamed `UK`; both persisted across reload. Code is read-only on edit. With JP archived, its 20 holidays for 2027 stayed viewable behind "Show archived", and JP was absent from the Member Location picker. Creating a JP Member and reassigning a Member to JP both returned `409`, and the existing JP Member kept JP. Reactivating JP restored it to the active registry. No Hours / day or holiday/absence editor is exposed. As the US3 Independent Test allows, overrides, future-only re-seeding, the six Absence Types, and dated/conflicting Absences rely on the integration suites, which passed in Phase 07.
+- **T034 / US4**:
+  - **Empty organization**: `/` has no context selector, shows "No ART or team configured" and "No active PI · No active Sprint", and Settings is `aria-disabled`.
+  - **`/organization` header**: The Organization link opens `/organization`, with no active primary-nav item, no Today widget, no context selector, and the "Search organization…" placeholder.
+  - **Header context**: With the browser clock fixed at Fri 2027-01-01 10:00 PHT and `Empty ART` (zero Teams) added, the Team menu listed only Core Platform ART and Payments ART. Palawan Lead was chosen with the keyboard (ArrowDown/Enter). The ART name links to `/program-board`; the PI selector shows PI-2027.1; the subtitle reads "Palawan Lead · Payments ART"; Today reads "PI-2027.1 · Sprint Kickoff" on the Friday before the canonical start, without a doubled "Sprint" or commitment wording. Switching to Luzon updated the ART, the PI (CP-2027.1), the subtitle, and Today ("CP-2027.1 · No active Sprint"). The selection persisted across reload.
+  - **Accessibility and layout**: Axe found zero violations on `/` and on all three `/organization` tabs at 1440, 1024, and 768 px, with no horizontal page overflow. The tabs work with ArrowRight, Home, and End. Statuses are text badges (Active, Archived, Planning, IP, `est.`, "Excluded from dev capacity"), not color alone.
+  - **Empty, loading, and error states**: The empty state reads "No ARTs configured."; "Loading…" (`role=status`) shows while ARTs load. A simulated 500 shows an alert with Retry, which recovers. These states were simulated by intercepting browser requests; the server-side database-unavailable banner was not triggered.
+  - **Screenshots**: Reviewed at 1440 and 768 px; at 768 px the header shortens names with "…", as the constitution's 1440 px baseline allows.
+
+T035 remains open pending the operator's UAT acceptance.

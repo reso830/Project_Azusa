@@ -1,6 +1,6 @@
 # Architecture overview
 
-F001 / 0.1.0 is one local Next.js 15 App Router application, React 19 presentation, strict TypeScript, and embedded PGlite with Drizzle. It serves on `127.0.0.1`, without a hosted backend, runtime font service, or authentication layer. [ADR 0001](decisions/0001-local-first-nextjs-pglite-foundation.md) records the tradeoffs.
+F001–F002 / 0.2.0 runs as one local Next.js 15 App Router application with React 19, strict TypeScript, and embedded PGlite with Drizzle. It serves on `127.0.0.1`, without a hosted backend, runtime font service, or authentication layer. [ADR 0001](decisions/0001-local-first-nextjs-pglite-foundation.md) records the foundation tradeoffs.
 
 ## Components and flow
 
@@ -9,6 +9,8 @@ F001 / 0.1.0 is one local Next.js 15 App Router application, React 19 presentati
 All nine pages load initial health server-side. The Foundation Status Card shows database, applied migrations, backup summary, and latest diagnostic. `POST /api/health/check` validates a strict body, upserts `diagnostic.last_check`, increments its count in SQL, and returns 201. Unknown body fields, including actor, are rejected. Reload reads the persisted record. Structured failures carry stage/message/recovery hint and use non-success HTTP status with `Cache-Control: no-store`; pages show an alert. Cached initialization/lock-loss errors take precedence over a later closed-client query failure.
 
 The shell provides local fonts, 42 icons, nine placeholders, disclosure navigation, mutually exclusive navigation/profile overlays, and disabled Settings. Search supplies only expand/focus/collapse interaction. The Today widget sits in normal flow on the right immediately before Search, with both rows right-aligned per the v2 prototype. After mount, the browser's IANA zone drives date, ISO week, and clock together; invalid zones fall back entirely to UTC. This shell does not implement future planning functionality.
+
+`/organization` loads server health and mounts the management workspace. The panels call `/api/organization/*`, which delegates validated inputs to organization, cadence, and calendar reference services. Those services enforce domain rules and transact against Drizzle tables. On successful writes, the workspace refreshes its lists and shared shell context. The shell reads `/api/organization/context`, reconciles browser-local Team and PI selections, and resolves Today using the Team's shifted Iterations. See [ADR 0002](decisions/0002-organization-cadence-and-holiday-seeding.md).
 
 ## Exclusive ownership
 
@@ -43,6 +45,6 @@ On Windows, directory renames retry transient `EPERM`, `EACCES`, or `EBUSY` up t
 
 ## Physical and verification scope
 
-F001 creates only `app_metadata` as an application table, plus Drizzle migration bookkeeping. The [data dictionary](data-dictionary.md) describes physical structures; the [domain blueprint](domain-model.md) describes future concepts without authorizing new tables/screens.
+F001 creates `app_metadata` and Drizzle tracks migration bookkeeping separately. F002 adds ten organization and calendar tables in `0001_organization_cadence.sql`. Startup seeds reference records and missing holiday years after SQL migration, then writes the healthy marker. The [data dictionary](data-dictionary.md) describes physical structures. The [domain blueprint](domain-model.md) covers the implemented domain and future features.
 
 Vitest covers rules, contracts, durability/upgrades, lock failures, backup/restore, and documentation. Playwright isolates port/output/storage for fidelity, E2E/keyboard, and Axe checks. Conformance review and operator UAT remain required for feature acceptance. See the [runbook](../operations/database-and-recovery.md) for commands, troubleshooting, storage, and cleanup.

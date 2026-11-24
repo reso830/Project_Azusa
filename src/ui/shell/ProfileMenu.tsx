@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { formatProfileSubtitle } from '../../domain/organization/context';
 import { KumikoIcon } from '../icons/KumikoIcon';
+import { useOrganizationContext } from './OrganizationContext';
 import styles from './shell.module.css';
 export function ProfileMenu({
   open,
@@ -11,7 +15,10 @@ export function ProfileMenu({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const organization = useRef<HTMLAnchorElement>(null);
   const settings = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const { selected } = useOrganizationContext();
   useEffect(() => {
     const outside = (event: PointerEvent) => {
       if (!root.current?.contains(event.target as Node)) onOpenChange(false);
@@ -35,8 +42,16 @@ export function ProfileMenu({
         }
         if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
           event.preventDefault();
-          onOpenChange(true);
-          requestAnimationFrame(() => settings.current?.focus());
+          const last =
+            event.key === 'End' ||
+            (event.key === 'ArrowUp' &&
+              document.activeElement !== settings.current) ||
+            (event.key === 'ArrowDown' &&
+              document.activeElement === organization.current);
+          if (!open) onOpenChange(true);
+          requestAnimationFrame(() =>
+            (last ? settings : organization).current?.focus(),
+          );
         }
       }}
     >
@@ -64,11 +79,26 @@ export function ProfileMenu({
             </span>
             <span>
               <b>Scrum Master</b>
-              <span className={styles.subtitle}>No ART or team configured</span>
+              <span className={styles.subtitle}>
+                {formatProfileSubtitle(selected)}
+              </span>
             </span>
           </div>
+          <Link
+            ref={organization}
+            href="/organization"
+            prefetch={false}
+            role="menuitem"
+            aria-current={pathname === '/organization' ? 'page' : undefined}
+            className={styles.organizationLink}
+            onClick={() => onOpenChange(false)}
+          >
+            <KumikoIcon name="members" size={18} />
+            Organization
+          </Link>
           <button
             ref={settings}
+            type="button"
             role="menuitem"
             aria-disabled="true"
             aria-describedby="settings-help"

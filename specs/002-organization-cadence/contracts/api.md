@@ -63,7 +63,7 @@ Returns the active organizational hierarchy for the floating header context (`AR
 
 ## 3. Team Endpoints
 
-- `GET /api/organization/teams?trainId=<uuid>&includeArchived=true|false` — Lists Teams with date-resolved `memberCount` (as of server local `today`), `hoursPerDay`, `sprintOffsetWorkdays`, and `recordStatus`.
+- `GET /api/organization/teams?trainId=<uuid>&includeArchived=true|false` — Lists Teams with `memberCount` of active Members assigned as of server local `today`, `hoursPerDay`, `sprintOffsetWorkdays`, and `recordStatus`.
 - `POST /api/organization/teams` — Body: `{ trainId: uuid, name: string, sprintOffsetWorkdays?: -1 | 0 | 1 }` (strict; `hoursPerDay` defaults to `8.0`). Rejects archived parent ART (`409`) or offset outside `{-1, 0, 1}` (`400`). Returns `201`.
 - `PATCH /api/organization/teams/[id]` — Body: `{ name?: string, sprintOffsetWorkdays?: -1 | 0 | 1, recordStatus?: 'active' | 'archived' }` (strict). **`trainId` is immutable** after Team creation. Archiving does **not** archive child Members, and is **rejected (`409 CONFLICT`)** if the Team has any pending incoming moves (`member_team_assignments.start_date > today`, `OD-8`). Reactivating (`archived` → `active`) while parent ART is archived returns `409 CONFLICT`. Returns `200`.
 - `DELETE /api/organization/teams/[id]` — Hard-deletes only if zero `member_team_assignments` rows (past, current, or pending) reference the Team (`OD-4`, `OD-8`); otherwise `409 CONFLICT`.
@@ -80,7 +80,7 @@ Returns the active organizational hierarchy for the floating header context (`AR
     - If a pending move exists (`latestRow.start_date > today`) and `effectiveDate < latestRow.start_date` → `400 VALIDATION_ERROR` with a message instructing the operator to cancel the pending move first.
     - **Cancel-pending-move equivalence (checked BEFORE the active-destination-Team check)**: If a pending move exists (`latestRow.start_date > today`), `effectiveDate === latestRow.start_date`, and `teamId` equals the immediately preceding row's `team_id`, execute the exact same cancel-pending-move operation as `DELETE /api/organization/members/[id]/pending-move` (delete the pending row and reopen the preceding row with `end_date = null`). This succeeds **even if the preceding (original) Team has since been archived**, because the Member is already on that Team today.
     - Otherwise, destination Team must be `record_status = 'active'` (`409 CONFLICT` otherwise); cross-ART moves and moving an archived Member to an active Team are allowed:
-      - If `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → updates `latestRow.team_id` in place.
+      - If `effectiveDate === latestRow.start_date` (`OD-9` same-day or pending correction to another active Team) → updates `latestRow.team_id` in place. A correction of today's move back to the preceding active Team deletes today's row and reopens the preceding assignment.
       - If `effectiveDate > latestRow.start_date` → rejects (`409 CONFLICT`) if a pending row (`start_date > today`) already exists (at most one pending move per Member); otherwise closes `latestRow` with `end_date = effectiveDate - 1 day` and inserts a new open row (`start_date = effectiveDate, end_date = null`). Future-dated moves (`effectiveDate > today`) leave the Member's current Team unchanged until `effectiveDate`.
   - Changing `locationId`: destination Location must be `record_status = 'active'` (`409` otherwise).
   - Reactivating (`archived` → `active`): current Team (as of `today`) must be `record_status = 'active'` (`409` otherwise); a Member whose Location is archived **can** be reactivated and keeps their archived Location.
@@ -110,8 +110,8 @@ Returns the active organizational hierarchy for the floating header context (`AR
 
 ### Locations
 - `GET /api/organization/locations?year=2027&includeArchived=true|false` — Lists shared Locations ordered by `code`, including `recordStatus`, `memberCount`, `holidayCount` (effective holidays for requested year or all seeded years), `lastRefreshedAt`, `seededYears`, and `librarySeedCutoffDate`.
-- `POST /api/organization/locations` — Body: `{ code: string, name: string, countryCode: string, subdivisionCode?: string | null, timeZone: string, calendarSource: string }` (strict; case-insensitively unique `code`, valid ISO codes, valid IANA `timeZone`). Seeds `date-holidays` public/bank holidays across `getHolidaySeedYears(referenceYear)` (`[referenceYear - 1, referenceYear + 2] ∪ {2026, 2027, 2028}`) if supported, records `seededYears` and `lastRefreshedAt`. Returns `201`.
-- `PATCH /api/organization/locations/[id]` — Body: partial strict update of `{ name?, countryCode?, subdivisionCode?, timeZone?, calendarSource?, recordStatus? }` (**`code` is immutable** after creation and omitted from `PATCH`, `R2-2`). If `countryCode` or `subdivisionCode` changes, sets `librarySeedCutoffDate = today`, deletes future (`date >= today`) `library` holidays for this Location, re-seeds future `library` holidays for the new jurisdiction across `targetYears` (`date >= today`), sets `seededYears = targetYears`, preserves historical library rows and all `company`/`manual` overrides, and updates `lastRefreshedAt` (`F3`, `R2-1`). Returns `200`.
+- `POST /api/organization/locations` — Body: `{ code: string, name: string, countryCode: string, subdivisionCode?: string | null, timeZone: string, calendarSource: string }` (strict; case-insensitively unique `code`, valid ISO codes, supported holiday subdivision if supplied, valid IANA `timeZone`). Seeds `date-holidays` public/bank holidays across `getHolidaySeedYears(referenceYear)` (`[referenceYear - 1, referenceYear + 2] ∪ {2026, 2027, 2028}`) if supported, records `seededYears` and `lastRefreshedAt`. Returns `201`.
+- `PATCH /api/organization/locations/[id]` — Body: partial strict update of `{ name?, countryCode?, subdivisionCode?, timeZone?, calendarSource?, recordStatus? }` (**`code` is immutable** after creation and omitted from `PATCH`, `R2-2`). If `countryCode` or `subdivisionCode` changes, rejects unsupported non-null subdivisions (`400`), then sets `librarySeedCutoffDate = today`, deletes future (`date >= today`) `library` holidays for this Location, re-seeds future `library` holidays for the new jurisdiction across `targetYears` (`date >= today`), sets `seededYears = targetYears`, preserves historical library rows and all `company`/`manual` overrides, and updates `lastRefreshedAt` (`F3`, `R2-1`). Returns `200`.
 - `DELETE /api/organization/locations/[id]` — Hard-deletes only if zero Members and zero Holidays reference the Location; otherwise `409 CONFLICT`.
 
 ### Holidays (Read-only UI in F002; Service/Persistence Contract for F004/F005)
@@ -119,6 +119,8 @@ Returns the active organizational hierarchy for the floating header context (`AR
 
 ### AbsenceTypes & Absences (Domain/Service/Persistence Contract for F004/F005)
 - Exposed as typed application services (`src/application/organization/calendar-reference-service.ts`) and validated by strict Zod schemas (`src/domain/organization/schemas.ts`) for F004/F005 consumption and integration testing (no operational Absence CRUD UI in F002).
+- Dated Absence records may be created for archived Members, subject to the same conflict checks.
+- Manual Holiday creation accepts `company` and `manual` sources. The seeder writes `library` rows.
 
 ---
 

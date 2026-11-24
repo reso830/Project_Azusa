@@ -138,6 +138,10 @@ for (const width of [1440, 1024, 768]) {
     await expect(account).toContainText('Scrum Master');
     await expect(account).toContainText('No ART or team configured');
     await expect(account).not.toContainText('local:sm');
+    await expect(account.getByRole('menuitem').first()).toHaveAttribute(
+      'href',
+      '/organization',
+    );
     const settings = account.getByRole('menuitem', { name: 'Settings' });
     await expect(settings).toHaveAttribute('aria-disabled', 'true');
     const describedBy = await settings.getAttribute('aria-describedby');
@@ -207,10 +211,15 @@ for (const width of [1440, 1024, 768]) {
     await expect(page.locator('#azusa-navigation')).toHaveCount(0);
     await profile.click();
     await profile.press('ArrowDown');
-    await page
-      .locator('#azusa-profile-menu')
-      .getByRole('menuitem')
-      .press('Tab');
+    const profileMenu = page.locator('#azusa-profile-menu');
+    await expect(
+      profileMenu.getByRole('menuitem', { name: 'Organization' }),
+    ).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(
+      profileMenu.getByRole('menuitem', { name: 'Settings' }),
+    ).toBeFocused();
+    await page.keyboard.press('Tab');
     await expect(diagnostic).toBeFocused();
     await expect(page.locator('#azusa-profile-menu')).toHaveCount(0);
 
@@ -303,3 +312,229 @@ test('structured failure stages are visible in the error scene', async ({
     });
   }
 });
+
+for (const width of [1440, 1024, 768]) {
+  test(`populated shell and Organization header at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.clock.setFixedTime(new Date('2027-01-01T02:00:00Z'));
+    await page.route('**/api/organization/context', (route) =>
+      route.fulfill({
+        json: {
+          trains: [
+            {
+              id: 'payments',
+              name: 'Payments ART',
+              recordStatus: 'active',
+              teams: [
+                {
+                  id: 'palawan',
+                  name: 'Palawan',
+                  sprintOffsetWorkdays: -1,
+                  hoursPerDay: 8,
+                  recordStatus: 'active',
+                },
+                {
+                  id: 'cebu',
+                  name: 'Cebu',
+                  sprintOffsetWorkdays: 0,
+                  hoursPerDay: 8,
+                  recordStatus: 'active',
+                },
+              ],
+              pis: [
+                {
+                  id: 'pi',
+                  name: 'PI-2027.1',
+                  startDate: '2027-01-01',
+                  endDate: '2027-01-29',
+                  lifecycleStatus: 'planning',
+                  recordStatus: 'active',
+                  iterations: [
+                    {
+                      id: 'sprint',
+                      name: '2702',
+                      kind: 'development',
+                      startDate: '2027-01-04',
+                      endDate: '2027-01-15',
+                    },
+                  ],
+                },
+                {
+                  id: 'next-pi',
+                  name: 'PI-2027.2',
+                  startDate: '2027-02-01',
+                  endDate: '2027-02-26',
+                  lifecycleStatus: 'planning',
+                  recordStatus: 'active',
+                  iterations: [],
+                },
+                {
+                  id: 'past-pi',
+                  name: 'PI-2026.4',
+                  startDate: '2026-10-05',
+                  endDate: '2026-12-18',
+                  lifecycleStatus: 'planning',
+                  recordStatus: 'active',
+                  iterations: [],
+                },
+              ],
+            },
+            {
+              id: 'platform',
+              name: 'Platform ART',
+              recordStatus: 'active',
+              teams: [
+                {
+                  id: 'samar',
+                  name: 'Samar',
+                  sprintOffsetWorkdays: 0,
+                  hoursPerDay: 8,
+                  recordStatus: 'active',
+                },
+              ],
+              pis: [],
+            },
+          ],
+        },
+      }),
+    );
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const header = page.locator('header');
+    const context = page.getByRole('navigation', { name: 'Context' });
+    const today = page.getByTestId('today-widget');
+    const profile = page.getByRole('button', { name: 'Account menu' });
+    const search = page.getByRole('button', { name: 'Search', exact: true });
+    const team = context.getByRole('button', { name: /Switch Team/ });
+    const pi = context.getByRole('button', { name: /Switch PI/ });
+    await expect(
+      context.getByRole('link', { name: 'Payments ART' }),
+    ).toHaveAttribute('href', '/program-board');
+    await expect(today).toContainText('PI-2027.1 · Sprint 2702');
+    const sprintLabel = today.getByText('PI-2027.1 · Sprint 2702', {
+      exact: true,
+    });
+    for (const label of [
+      team.getByText('Palawan'),
+      pi.getByText('PI-2027.1'),
+      sprintLabel,
+    ]) {
+      expect(
+        await label.evaluate(
+          (element) => element.scrollWidth <= element.clientWidth,
+        ),
+      ).toBe(true);
+    }
+    expect(overlaps(await bounds(context), await bounds(today))).toBe(false);
+    expect(overlaps(await bounds(context), await bounds(search))).toBe(false);
+    await expect(team).toHaveCSS('min-height', '36px');
+    await expect(pi).toHaveCSS('border-radius', '9px');
+    await header.screenshot({
+      path: info.outputPath(`${width}-populated-header.png`),
+    });
+
+    await team.press('ArrowDown');
+    const choices = page.getByRole('menu', { name: 'Switch Team' });
+    await expect(
+      choices.getByRole('group', { name: 'Payments ART' }),
+    ).toBeVisible();
+    await expect(
+      choices.getByRole('group', { name: 'Platform ART' }),
+    ).toBeVisible();
+    const palawan = choices.getByRole('menuitemradio', { name: 'Palawan' });
+    await expect(palawan).toBeFocused();
+    await expect(palawan).toHaveAttribute('aria-checked', 'true');
+    await expect(palawan).toHaveCSS('font-weight', '700');
+    expect((await bounds(choices)).width).toBe(260);
+    await page.screenshot({
+      path: info.outputPath(`${width}-team-picker.png`),
+    });
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(team).toHaveAccessibleName(/Cebu/);
+    expect(
+      await team
+        .getByText('Cebu')
+        .evaluate((element) => element.scrollWidth <= element.clientWidth),
+    ).toBe(true);
+    await expect(today).toContainText('PI-2027.1 · No active Sprint');
+    await page.reload();
+    await expect(team).toHaveAccessibleName(/Cebu/);
+
+    await pi.press('ArrowDown');
+    const piMenu = page.getByRole('menu', { name: 'Switch PI' });
+    const currentPi = piMenu.getByRole('menuitemradio', { name: /PI-2027\.1/ });
+    await expect(currentPi).toContainText('Jan 2027');
+    await expect(currentPi.getByText('Current', { exact: true })).toBeVisible();
+    await expect(
+      piMenu
+        .getByRole('menuitemradio', { name: /PI-2027\.2/ })
+        .getByText('Upcoming', { exact: true }),
+    ).toBeVisible();
+    const pastPi = piMenu.getByRole('menuitemradio', { name: /PI-2026\.4/ });
+    await expect(pastPi).toContainText('Oct – Dec 2026');
+    await expect(pastPi.getByText('Done', { exact: true })).toBeVisible();
+    // Prototype PI menu marks selection with tint + weight only, no check icon.
+    await expect(piMenu.locator('svg')).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath(`${width}-pi-picker.png`) });
+    expect((await bounds(piMenu)).x).toBeCloseTo((await bounds(pi)).x, 0);
+    const piOptions = piMenu.getByRole('menuitemradio');
+    await expect(piOptions.nth(0)).toContainText('PI-2027.2');
+    await expect(piOptions.nth(1)).toContainText('PI-2027.1');
+    await expect(piOptions.nth(2)).toContainText('PI-2026.4');
+    await expect(piOptions.nth(0)).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(currentPi).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Space');
+    await expect(today).toContainText('PI-2027.2 · No active Sprint');
+    await pi.click();
+    await search.click();
+    await expect(piMenu).toHaveCount(0);
+    const input = page.getByRole('searchbox', { name: 'Search' });
+    expect(
+      overlaps(await bounds(context), await bounds(input.locator('..'))),
+    ).toBe(false);
+    await expect(today).toHaveCSS(
+      'visibility',
+      width < 1100 ? 'hidden' : 'visible',
+    );
+    await page.keyboard.press('Escape');
+    await profile.click();
+    await expect(page.getByRole('menu', { name: 'Account' })).toContainText(
+      'Cebu · Payments ART',
+    );
+    await page.screenshot({
+      path: info.outputPath(`${width}-populated-profile.png`),
+    });
+
+    // Phase 06 supplies the page. Exercise the real shell's pathname branch without a test-only route.
+    await page.evaluate(() => history.pushState(null, '', '/organization'));
+    await expect(today).toHaveCount(0);
+    await expect(context).toHaveCount(0);
+    const account = page.getByRole('menu', { name: 'Account' });
+    const entry = account.getByRole('menuitem', { name: 'Organization' });
+    if (!(await account.isVisible())) await profile.click();
+    await expect(entry).toHaveAttribute('aria-current', 'page');
+    await expect(account).toContainText('Cebu · Payments ART');
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Primary navigation' })
+        .locator('[aria-current]'),
+    ).toHaveCount(0);
+    await search.click();
+    await expect(input).toHaveAttribute('placeholder', 'Search organization…');
+    expect(
+      overlaps(await bounds(input.locator('..')), await bounds(profile)),
+    ).toBe(false);
+    await header.screenshot({
+      path: info.outputPath(`${width}-organization-header.png`),
+    });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(width);
+  });
+}

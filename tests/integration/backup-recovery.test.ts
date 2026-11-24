@@ -96,14 +96,14 @@ it('does not evict earlier backups when startup migration fails repeatedly', asy
     const journalFile = path.join(folder, 'meta', '_journal.json');
     const journal = JSON.parse(await readFile(journalFile, 'utf8'));
     journal.entries.push({
-      idx: 1,
+      idx: 2,
       version: '7',
-      when: journal.entries[0].when + 1,
-      tag: '0001_invalid',
+      when: journal.entries.at(-1).when + 1,
+      tag: '0002_invalid',
       breakpoints: true,
     });
     await writeFile(journalFile, JSON.stringify(journal));
-    await writeFile(path.join(folder, '0001_invalid.sql'), 'INVALID SQL;');
+    await writeFile(path.join(folder, '0002_invalid.sql'), 'INVALID SQL;');
     const { getFoundationHealth } =
       await import('../../src/application/health/health-service');
     for (let i = 0; i < 5; i++) {
@@ -125,7 +125,7 @@ it('does not evict earlier backups when startup migration fails repeatedly', asy
     for (const id of good) expect(remaining).toContain(id);
     await closeDbContext();
     await writeFile(
-      path.join(folder, '0001_invalid.sql'),
+      path.join(folder, '0002_invalid.sql'),
       'CREATE TABLE recovery_test (id integer);',
     );
     const recovered = await getDbContext({

@@ -12,6 +12,7 @@ const documents = [
   'docs/architecture/domain-model.md',
   'docs/architecture/data-dictionary.md',
   'docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md',
+  'docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md',
   'docs/operations/database-and-recovery.md',
 ];
 const read = (file: string) => readFile(path.resolve(file), 'utf8');
@@ -64,6 +65,12 @@ it('resolves every local README Markdown link and indexes all documentation arti
     }
   }
   await collect('docs');
+  for (const file of required) {
+    if (file.endsWith('.md'))
+      expect(await read(file), file).not.toMatch(
+        /\b(?:TBD|TODO)\b|to be defined/i,
+      );
+  }
   for (const file of required)
     expect(linked.has(path.resolve(file)), `README index omits ${file}`).toBe(
       true,
@@ -107,13 +114,17 @@ it('keeps application release metadata synchronized', async () => {
     pkg.version,
   ]);
   expect(await read('CHANGELOG.md')).toContain(`## [${pkg.version}] - `);
-  const appVersions = [
-    ...(await read('src/persistence/migrate.ts')).matchAll(
-      /appVersion:\s*['"]([^'"]+)['"]/g,
-    ),
-  ].map((match) => match[1]);
-  expect(appVersions.length).toBeGreaterThan(0);
-  expect(appVersions.every((version) => version === pkg.version)).toBe(true);
+  for (const file of [
+    'README.md',
+    'docs/REPO_MAP.md',
+    'docs/architecture/overview.md',
+    'docs/architecture/data-dictionary.md',
+    'docs/operations/database-and-recovery.md',
+  ]) {
+    expect(await read(file), file).toContain(pkg.version);
+  }
+  const { APP_VERSION } = await import('../../src/persistence/version');
+  expect(APP_VERSION).toBe(pkg.version);
 });
 
 it('documents the supported runtime, environment overrides, and all seven quality gates', async () => {
