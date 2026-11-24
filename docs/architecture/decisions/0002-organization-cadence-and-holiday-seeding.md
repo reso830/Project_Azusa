@@ -1,7 +1,7 @@
 # ADR 0002: Organization cadence and holiday seeding
 
 **Date:** 2026-11-24
-**Status:** Implemented for F002 under the approved specification. Operator acceptance is tracked in Phase 08.
+**Status:** Accepted (2026-11-24). Operator UAT is recorded in the [Phase 08 tasks](../../../specs/002-organization-cadence/tasks.md).
 
 ## Context
 

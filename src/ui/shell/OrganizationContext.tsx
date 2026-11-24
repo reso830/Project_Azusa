@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { getOrganizationContextTree } from '../../application/organization/cadence-service';
+import { formatLocalDate } from '../../domain/calendar/iso-week';
 import { reconcileActiveContext } from '../../domain/organization/context';
 
 type Tree = Awaited<ReturnType<typeof getOrganizationContextTree>>['trains'];
@@ -64,7 +65,11 @@ function useOrganizationState() {
     return () => request.current?.abort();
   }, [refresh]);
 
-  const match = reconcileActiveContext(trains, stored);
+  const today = formatLocalDate(
+    new Date(),
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+  ).replaceAll('/', '-');
+  const match = reconcileActiveContext(trains, stored, today);
   const selected = {
     train: match.train,
     team: match.train?.teams.find((team) => team.id === match.team?.id) ?? null,
@@ -73,15 +78,16 @@ function useOrganizationState() {
   const trainId = selected.train?.id;
   const teamId = selected.team?.id;
   const piId = selected.pi?.id;
+  const savedPiId = stored.piId === piId ? piId : undefined;
   useEffect(() => {
     if (!loaded) return;
     try {
       localStorage.setItem(
         storageKey,
-        JSON.stringify({ trainId, teamId, piId }),
+        JSON.stringify({ trainId, teamId, piId: savedPiId }),
       );
     } catch {}
-  }, [loaded, trainId, teamId, piId]);
+  }, [loaded, trainId, teamId, savedPiId]);
 
   function setTeamId(id: string) {
     const train = trains.find((train) =>
@@ -91,7 +97,7 @@ function useOrganizationState() {
     setStored({
       trainId: train.id,
       teamId: id,
-      piId: train.id === trainId ? piId : undefined,
+      piId: train.id === trainId ? savedPiId : undefined,
     });
   }
 

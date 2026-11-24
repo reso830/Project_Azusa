@@ -101,6 +101,10 @@ Start with the repository map to find relevant modules before making changes.
 | [Tasks and verification](specs/001-application-foundations/tasks.md)                     | Phase scope and recorded checks                                    |
 | [Quickstart](specs/001-application-foundations/quickstart.md)                            | Setup and acceptance walkthrough                                   |
 | [API contract](specs/001-application-foundations/contracts/api.md)                       | Health, diagnostic, CLI contracts                                  |
+| [F002 specification](specs/002-organization-cadence/spec.md)                             | Organization and cadence requirements                              |
+| [F002 implementation plan](specs/002-organization-cadence/plan.md)                       | Design and implementation approach                                 |
+| [F002 tasks and verification](specs/002-organization-cadence/tasks.md)                   | Phase work, verification, and operator acceptance                  |
+| [F002 API contract](specs/002-organization-cadence/contracts/api.md)                     | Organization and calendar endpoints                                |
 | [Project constitution](.specify/memory/constitution.md)                                  | Governing principles and acceptance rules                          |
 
 ## Development workflow

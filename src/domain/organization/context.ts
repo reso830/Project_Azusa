@@ -6,7 +6,7 @@ type ContextRecord = {
 
 type ContextTrain = ContextRecord & {
   teams: readonly ContextRecord[];
-  pis: readonly ContextRecord[];
+  pis: readonly (ContextRecord & { startDate: string; endDate: string })[];
 };
 
 type StoredContext = {
@@ -32,7 +32,8 @@ function selectActive<T extends ContextRecord>(
 
 export function reconcileActiveContext<T extends ContextTrain>(
   tree: readonly T[],
-  stored?: StoredContext | null,
+  stored: StoredContext | null,
+  today: string,
 ) {
   const eligibleTrains = tree.filter(
     (record) => isActive(record) && record.teams.some(isActive),
@@ -41,10 +42,17 @@ export function reconcileActiveContext<T extends ContextTrain>(
     eligibleTrains.find((record) =>
       record.teams.some((team) => team.id === stored?.teamId && isActive(team)),
     ) ?? selectActive(eligibleTrains, stored?.trainId);
+  const activePis = (train?.pis ?? [])
+    .filter(isActive)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
   return {
     train,
     team: selectActive(train?.teams ?? [], stored?.teamId),
-    pi: selectActive(train?.pis ?? [], stored?.piId),
+    pi:
+      activePis.find((pi) => pi.id === stored?.piId) ??
+      activePis.find((pi) => pi.endDate >= today) ??
+      activePis.at(-1) ??
+      null,
   };
 }
 

@@ -109,7 +109,7 @@ Returns the active organizational hierarchy for the floating header context (`AR
 ## 6. Location, Holiday & Absence Reference Endpoints (`OD-3`, `F3`, `F4`)
 
 ### Locations
-- `GET /api/organization/locations?year=2027&includeArchived=true|false` — Lists shared Locations ordered by `code`, including `recordStatus`, `memberCount`, `holidayCount` (effective holidays for requested year or all seeded years), `lastRefreshedAt`, `seededYears`, and `librarySeedCutoffDate`.
+- `GET /api/organization/locations?year=2027&includeArchived=true|false` — Lists shared Locations ordered by `code`, including `recordStatus`, `memberCount` (all associated Members, including archived), `holidayCount` (effective holidays for requested year or all seeded years), `lastRefreshedAt`, `seededYears`, and `librarySeedCutoffDate`.
 - `POST /api/organization/locations` — Body: `{ code: string, name: string, countryCode: string, subdivisionCode?: string | null, timeZone: string, calendarSource: string }` (strict; case-insensitively unique `code`, valid ISO codes, supported holiday subdivision if supplied, valid IANA `timeZone`). Seeds `date-holidays` public/bank holidays across `getHolidaySeedYears(referenceYear)` (`[referenceYear - 1, referenceYear + 2] ∪ {2026, 2027, 2028}`) if supported, records `seededYears` and `lastRefreshedAt`. Returns `201`.
 - `PATCH /api/organization/locations/[id]` — Body: partial strict update of `{ name?, countryCode?, subdivisionCode?, timeZone?, calendarSource?, recordStatus? }` (**`code` is immutable** after creation and omitted from `PATCH`, `R2-2`). If `countryCode` or `subdivisionCode` changes, rejects unsupported non-null subdivisions (`400`), then sets `librarySeedCutoffDate = today`, deletes future (`date >= today`) `library` holidays for this Location, re-seeds future `library` holidays for the new jurisdiction across `targetYears` (`date >= today`), sets `seededYears = targetYears`, preserves historical library rows and all `company`/`manual` overrides, and updates `lastRefreshedAt` (`F3`, `R2-1`). Returns `200`.
 - `DELETE /api/organization/locations/[id]` — Hard-deletes only if zero Members and zero Holidays reference the Location; otherwise `409 CONFLICT`.
@@ -137,7 +137,7 @@ Returns the active organizational hierarchy for the floating header context (`AR
 4. **Header Context Breadcrumb on Primary Routes (`OD-7`)**:
    - Matches `prototype/Main.dc.html#L35-L39`: hidden when zero active Teams exist across active ARTs.
    - Renders plain-text `<ART>` linking to `/program-board`, `›`, **Team dropdown** listing active Teams grouped under ART headings (selecting a Team updates its ART and PI list), `›`, and **PI dropdown** listing that ART's active PIs. ARTs with zero active Teams do not appear in the header.
-   - Persists `{ trainId, teamId, piId }` in `localStorage` (`azusa:active-context:v1`).
+   - Persists `{ trainId, teamId, piId }` in `localStorage` (`azusa:active-context:v1`). A valid saved PI takes precedence. Without one, the header uses the viewer-local date to prefer the current PI, then the next upcoming PI, then the most recent past PI. An automatic fallback does not become a saved PI choice.
 5. **Today Widget on Primary Routes (`OD-2`, `OD-5`)**:
    - Line 1: `YYYY/MM/DD · CWww.d | <piSprintText>` where `<piSprintText>` is computed in `src/domain/organization/cadence.ts`:
      - `"No active PI · No active Sprint"` when no PI is selected;
