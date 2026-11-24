@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import { drizzle } from 'drizzle-orm/pglite';
+import { drizzle, type PgliteDatabase } from 'drizzle-orm/pglite';
 import {
   createStartupSnapshotIfNeeded,
   pruneCompletedStartupBackups,
@@ -26,7 +26,7 @@ const exists = async (p: string) =>
   );
 type Context = {
   client: PGlite;
-  db: ReturnType<typeof drizzle>;
+  db: PgliteDatabase & { $client: PGlite };
   dbDir: string;
   backupDir: string;
   release: () => Promise<void>;

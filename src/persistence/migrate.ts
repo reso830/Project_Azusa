@@ -1,21 +1,25 @@
 import { migrate } from 'drizzle-orm/pglite/migrator';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { appMetadata } from './schema';
 import { AppMetadataEntrySchema } from '../domain/health/schemas';
 import type { PgliteDatabase } from 'drizzle-orm/pglite';
 import { resolveActor } from '../domain/audit/actor';
+import { seedReferenceData } from './seed';
+import { APP_VERSION } from './version';
 export async function runMigrations({
   db,
   dbDir,
   migrationsFolder = path.resolve('src/persistence/migrations'),
   actor,
+  today,
 }: {
   db: PgliteDatabase;
   dbDir: string;
   migrationsFolder?: string;
   actor?: string;
+  today?: string;
 }) {
   const marker = path.join(dbDir, '.azusa-last-healthy.json');
   await rm(marker, { force: true });
@@ -25,7 +29,7 @@ export async function runMigrations({
     key: 'foundation.init',
     value: {
       schemaVersion: '0000_foundation_init',
-      appVersion: '0.1.0',
+      appVersion: APP_VERSION,
       initializedAt: now,
     },
   });
@@ -39,8 +43,16 @@ export async function runMigrations({
       createdBy: resolveActor(actor),
       updatedBy: resolveActor(actor),
     });
+  // A caller can supply a migration folder containing only the F001 baseline.
+  const { rows } = await db.execute<{ hasLocations: boolean }>(sql`
+    select to_regclass('public.locations') is not null as "hasLocations"
+  `);
+  if (rows[0]?.hasLocations) await seedReferenceData(db, { actor, today });
   await writeFile(
     marker,
-    JSON.stringify({ verifiedAt: now, appVersion: '0.1.0' }),
+    JSON.stringify({
+      verifiedAt: new Date().toISOString(),
+      appVersion: APP_VERSION,
+    }),
   );
 }

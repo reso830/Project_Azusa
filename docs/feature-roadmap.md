@@ -19,7 +19,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
 - [ ] **M3 — Metrics & Reporting** (F016–F018)
 - [ ] **M4 — ART-Level Planning** (F019)
 
-**Progress:** 1 / 19 features implemented and accepted (F001). Operator UAT completion was confirmed on 2026-11-23; see the [Phase 08 verification record](../specs/001-application-foundations/tasks.md). F002–F019 remain planned.
+**Progress:** 2 / 19 features implemented and accepted (F001, F002). Operator UAT acceptance was confirmed for F001 on 2026-11-23 and for F002 on 2026-11-24; see the [F001](../specs/001-application-foundations/tasks.md) and [F002](../specs/002-organization-cadence/tasks.md) Phase 08 verification records. F003–F019 remain planned.
 
 ---
 
@@ -34,7 +34,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
   - Dependencies: none.
   - Brief: [001-application-foundations.md](features/001-application-foundations.md).
 
-- [ ] **F002 — Organization & PI Cadence**
+- [x] **F002 — Organization & PI Cadence**
   - ARTs, Teams, Members, role placeholders, Locations/time zones, PIs, Sprints/iterations, custom PI/Sprint names, explicit dates, configurable sprint count/duration, and Team offsets of −1 / 0 / +1 working day while preserving shared ART iteration identity. Establish the location/holiday and absence records needed by downstream capacity calculations.
   - Establishes organizational and calendar entities; RBAC is not enforced in the current single-user phase.
   - Dependencies: F001.

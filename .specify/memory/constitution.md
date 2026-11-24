@@ -1,6 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 0.2.0 (Draft) → 1.0.0 (Ratified 2026-11-08)
+- Version change: 1.0.0 → 1.1.0 (Amended 2026-11-24)
+- Bump rationale: new substantive rule — prototype fidelity baseline width.
+- Modified principles:
+  - II. Specification-Driven Development — prototype fidelity is guaranteed at 1440px only;
+    narrower widths may adapt without per-deviation records but must stay usable/accessible
+- Implications: existing specs listing 1440/1024/768px checkpoints remain valid; reviews judge
+  1024px/768px on usability and accessibility (Principle VII), not prototype match.
+- Templates / dependent files: none require change.
+
+Previous: 0.2.0 (Draft) → 1.0.0 (Ratified 2026-11-08)
 - Bump rationale: initial ratification by the operator; no principle text changed from 0.2.0.
 
 Prior draft history (0.1.0 → 0.2.0):
@@ -28,9 +37,9 @@ Prior draft history (0.1.0 → 0.2.0):
 
 # Azusa — Project Constitution
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Ratified:** 2026-11-08  
-**Last Amended:** 2026-11-08  
+**Last Amended:** 2026-11-24  
 **Repository location:** `.specify/memory/constitution.md`
 
 ## I. Purpose and Scope
@@ -55,6 +64,10 @@ Every Feature follows:
   documented, specific reason (e.g., an accessibility need, a conflict with the approved
   specification, or a real technical constraint) and operator acceptance. Convenience or
   framework preference is not a sufficient reason.
+- Prototype fidelity is guaranteed at the `1440px` baseline width only. Below `1440px`,
+  layouts may adapt (e.g., truncate, reflow, or visually hide secondary content) without a
+  per-deviation record, provided they remain usable, collision-free, and accessible under
+  Principle VII. Deviations visible at `1440px` still require justification and acceptance.
 - Features should be coherent, independently testable slices.
 - Avoid speculative abstractions, unnecessary decomposition, and ceremonial documentation.
 - Changes outside approved Feature scope require explicit justification.
@@ -191,6 +204,6 @@ Constitution versioning follows semantic versioning:
 - **Minor:** New substantive rules or responsibilities.
 - **Patch:** Editorial changes and clarifications.
 
-**Version:** 1.0.0 | **Ratified:** 2026-11-08 | **Last Amended:** 2026-11-08
+**Version:** 1.1.0 | **Ratified:** 2026-11-08 | **Last Amended:** 2026-11-24
 
 **Status:** Ratified by the operator.

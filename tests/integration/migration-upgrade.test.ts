@@ -23,15 +23,15 @@ it('runner upgrades without data loss and rejects invalid SQL', async () => {
     const journalPath = path.join(folder, 'meta', '_journal.json');
     const journal = JSON.parse(await readFile(journalPath, 'utf8'));
     journal.entries.push({
-      idx: 1,
+      idx: 2,
       version: '7',
-      when: journal.entries[0].when + 1,
-      tag: '0001_test',
+      when: journal.entries.at(-1).when + 1,
+      tag: '0002_test',
       breakpoints: true,
     });
     await writeFile(journalPath, JSON.stringify(journal));
     await writeFile(
-      path.join(folder, '0001_test.sql'),
+      path.join(folder, '0002_test.sql'),
       'CREATE INDEX idx_test ON app_metadata (created_at);',
     );
     await runMigrations({ db, dbDir, migrationsFolder: folder });
@@ -40,14 +40,14 @@ it('runner upgrades without data loss and rejects invalid SQL', async () => {
         .rows,
     ).toHaveLength(1);
     journal.entries.push({
-      idx: 2,
+      idx: 3,
       version: '7',
-      when: journal.entries[0].when + 2,
-      tag: '0002_invalid',
+      when: journal.entries.at(-1).when + 1,
+      tag: '0003_invalid',
       breakpoints: true,
     });
     await writeFile(journalPath, JSON.stringify(journal));
-    await writeFile(path.join(folder, '0002_invalid.sql'), 'INVALID SQL;');
+    await writeFile(path.join(folder, '0003_invalid.sql'), 'INVALID SQL;');
     await expect(
       runMigrations({ db, dbDir, migrationsFolder: folder }),
     ).rejects.toThrow();
@@ -77,15 +77,15 @@ it('backs up an existing cluster before pending migrations', async () => {
     const j = path.join(folder, 'meta', '_journal.json');
     const journal = JSON.parse(await readFile(j, 'utf8'));
     journal.entries.push({
-      idx: 1,
+      idx: 2,
       version: '7',
-      when: journal.entries[0].when + 1,
-      tag: '0001_pending',
+      when: journal.entries.at(-1).when + 1,
+      tag: '0002_pending',
       breakpoints: true,
     });
     await writeFile(j, JSON.stringify(journal));
     await writeFile(
-      path.join(folder, '0001_pending.sql'),
+      path.join(folder, '0002_pending.sql'),
       'CREATE TABLE must_not_exist (id int);',
     );
     const reopened = await getDbContext({
@@ -237,15 +237,15 @@ it('health reports applied migration count and journal tag', async () => {
     const j = path.join(folder, 'meta', '_journal.json');
     const journal = JSON.parse(await readFile(j, 'utf8'));
     journal.entries.push({
-      idx: 1,
+      idx: 2,
       version: '7',
-      when: journal.entries[0].when + 1,
-      tag: '0001_test',
+      when: journal.entries.at(-1).when + 1,
+      tag: '0002_test',
       breakpoints: true,
     });
     await writeFile(j, JSON.stringify(journal));
     await writeFile(
-      path.join(folder, '0001_test.sql'),
+      path.join(folder, '0002_test.sql'),
       'CREATE INDEX idx_health ON app_metadata (created_at);',
     );
     await runMigrations({
@@ -258,7 +258,7 @@ it('health reports applied migration count and journal tag', async () => {
     expect(
       (await getFoundationHealth({ dbDir, migrationsFolder: folder }))
         .migrations,
-    ).toMatchObject({ count: 2, latestTag: '0001_test' });
+    ).toMatchObject({ count: 3, latestTag: '0002_test' });
   } finally {
     await closeDbContext();
     await rm(root, { recursive: true, force: true });

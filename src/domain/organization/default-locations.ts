@@ -1,0 +1,48 @@
+export const defaultLocations = [
+  {
+    code: 'PH',
+    name: 'Philippines',
+    countryCode: 'PH',
+    timeZone: 'Asia/Manila',
+    calendarSource: 'Public holidays, PH',
+  },
+  {
+    code: 'SG',
+    name: 'Singapore',
+    countryCode: 'SG',
+    timeZone: 'Asia/Singapore',
+    calendarSource: 'Public holidays, SG',
+  },
+  {
+    code: 'AU-WA',
+    name: 'Western Australia',
+    countryCode: 'AU',
+    subdivisionCode: 'WA',
+    timeZone: 'Australia/Perth',
+    calendarSource: 'Public holidays, AU · WA',
+  },
+  {
+    code: 'IN',
+    name: 'India · Karnataka',
+    countryCode: 'IN',
+    subdivisionCode: 'KA',
+    timeZone: 'Asia/Kolkata',
+    calendarSource: 'Public holidays, IN · KA',
+  },
+  {
+    code: 'UK',
+    name: 'United Kingdom · England',
+    countryCode: 'GB',
+    subdivisionCode: 'ENG',
+    timeZone: 'Europe/London',
+    calendarSource: 'Bank holidays, GB · ENG',
+  },
+  {
+    code: 'US-TX',
+    name: 'United States · Texas',
+    countryCode: 'US',
+    subdivisionCode: 'TX',
+    timeZone: 'America/Chicago',
+    calendarSource: 'Federal holidays, US · TX',
+  },
+];

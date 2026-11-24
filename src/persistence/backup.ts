@@ -19,6 +19,7 @@ import {
   BackupManifestSchema,
 } from '../domain/health/schemas';
 import { resolveActor } from '../domain/audit/actor';
+import { APP_VERSION } from './version';
 
 const exists = async (p: string) =>
   access(p).then(
@@ -468,7 +469,7 @@ export async function restoreBackup(options: {
       path.join(temp, '.azusa-last-healthy.json'),
       JSON.stringify({
         verifiedAt: new Date().toISOString(),
-        appVersion: '0.1.0',
+        appVersion: APP_VERSION,
       }),
     );
     check();

@@ -2,7 +2,7 @@
 
 **Baseline:** Data Model v0.6 (2026-11-20), Roadmap v0.2, and Constitution Principle III. The source is `azusa-handoff/docs/azusa-data-model.md` inside the [v2 handoff](../handoffs/azusa-handoff-v2.zip), with its work-item and Sprint-planning decisions. This document carries that blueprint into the repository; it is not a finalized physical schema.
 
-**Implemented in F001:** infrastructure metadata only. None of the business entities below has a physical table or operational screen yet. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md). Subsequent features must preserve these rules while choosing their physical schemas.
+**Implementation status:** F001 provides infrastructure metadata. F002 implements ART, Team, Member, dated Team assignments, PI, Iteration, Location, Holiday, Absence Type, and Absence persistence. Team Iteration schedules are derived. Organization and cadence management and holiday inspection are available in `/organization`. F003–F019 capabilities remain conceptual. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md).
 
 ## Ownership and planning scope
 

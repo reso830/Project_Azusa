@@ -15,6 +15,8 @@ export default defineConfig({
     {
       name: 'e2e',
       testMatch: 'e2e/**/*.spec.ts',
+      // The restore test fingerprints the database shared by these specs.
+      workers: 1,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

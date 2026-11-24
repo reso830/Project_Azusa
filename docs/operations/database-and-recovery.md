@@ -1,6 +1,6 @@
 # Database and recovery runbook
 
-F001 / 0.1.0. Run commands from the repository root. Defaults are active `.azusa/data/db` and backups `.azusa/data/backups`; substitute configured `AZUSA_DB_DIR` / `AZUSA_BACKUP_DIR` paths consistently. Keep database, backups, and sibling restore targets disjoint. [Architecture](../architecture/overview.md) explains startup; [dictionary](../architecture/data-dictionary.md) describes files/fields.
+F002 / 0.2.0. Run commands from the repository root. Defaults are active `.azusa/data/db` and backups `.azusa/data/backups`. Substitute configured `AZUSA_DB_DIR` / `AZUSA_BACKUP_DIR` paths consistently. Keep database, backups, and sibling restore targets disjoint. [Architecture](../architecture/overview.md) explains startup. The [dictionary](../architecture/data-dictionary.md) describes files and fields.
 
 ## Initialize and migrate
 
@@ -8,6 +8,8 @@ F001 / 0.1.0. Run commands from the repository root. Defaults are active `.azusa
 2. Stop Azusa (Ctrl+C in its server terminal) and any other command using the active cluster.
 3. Run `npm run db:migrate`. A fresh cluster is created, explicit migrations applied, `foundation.init` inserted, and `.azusa-last-healthy.json` written. The command returns JSON `{ "ok": true, "dbDir": "..." }`; failures use stderr and exit 1.
 4. Run `npm run dev`, open `http://127.0.0.1:3000`, and inspect Foundation status. Database initialization also occurs on the first database-backed request if not run explicitly.
+
+`0001_organization_cadence.sql` adds the organization and calendar tables. After SQL migration, `runMigrations()` seeds default Locations and Absence Types and fills missing holiday years. Repeated runs preserve existing rows and overrides. Fresh clusters record `APP_VERSION` in `foundation.init`. Upgrades retain the original row and its `0000_foundation_init` label. Successful migration and restore both stamp the running `APP_VERSION` in `.azusa-last-healthy.json` (currently `0.2.0`).
 
 For schema work, edit `src/persistence/schema/`, run `npx drizzle-kit generate --name <description>`, review the generated SQL plus journal/snapshot, and test fresh/upgrade paths before applying to valued data. Commit generation metadata with SQL; do not hand-edit migration timestamps or discard the baseline snapshot. The low-level runner does not arrange ownership or backups: use `db:migrate` for operational migration.
 

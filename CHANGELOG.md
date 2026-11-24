@@ -1,8 +1,25 @@
 # Changelog
 
-Application release history is independent of Azusa's internal PI Plan Versioning. This entry uses F001's planned version date; operator UAT completion was confirmed on 2026-11-23 and is recorded in the F001 Phase 08 task notes.
+Application release history is independent of Azusa's internal PI Plan Versioning.
+
+## [0.2.0] - 2026-11-24
+
+F002 operator UAT acceptance was confirmed on 2026-11-24 and recorded in the F002 Phase 08 task notes.
+
+### Added
+
+- Organization workspace and local APIs for ARTs, Teams, Members, PIs, Iterations, and Locations, with read-only holiday inspection.
+- Dated Team membership with future moves, same-day corrections, and pending-move cancellation.
+- Team and PI header selection and Today widget Sprint resolution using Team workday offsets.
+- Migration `0001_organization_cadence.sql` and idempotent offline Location, holiday, and Absence Type seeding.
+
+### Changed
+
+- Synchronized migration and restore marker versions with application release metadata. Existing foundation initialization records are preserved.
 
 ## [0.1.0] - 2026-11-20
+
+F001 operator UAT completion was confirmed on 2026-11-23 and recorded in the F001 Phase 08 task notes.
 
 ### Added
 
