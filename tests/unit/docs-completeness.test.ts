@@ -100,7 +100,7 @@ it('retains the nineteen-feature roadmap across five milestones without acceptin
   );
   expect(
     features
-      .filter(({ id }) => id !== 'F001')
+      .filter(({ id }) => !['F001', 'F002'].includes(id))
       .every(({ checked }) => checked === ' '),
   ).toBe(true);
 });

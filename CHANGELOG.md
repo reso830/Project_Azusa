@@ -4,6 +4,8 @@ Application release history is independent of Azusa's internal PI Plan Versionin
 
 ## [0.2.0] - 2026-11-24
 
+F002 operator UAT acceptance was confirmed on 2026-11-24 and recorded in the F002 Phase 08 task notes.
+
 ### Added
 
 - Organization workspace and local APIs for ARTs, Teams, Members, PIs, Iterations, and Locations, with read-only holiday inspection.

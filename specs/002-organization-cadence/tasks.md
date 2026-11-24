@@ -419,7 +419,7 @@
   - **Constraints**: Confirm no primary navigation destination is highlighted on `/organization`.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T035** `[US5]` Post-UAT roadmap update
+- [x] **T035** `[US5]` Post-UAT roadmap update
   - **Target files/components**: `docs/feature-roadmap.md`
   - **Expected behavior**: Only after conformance review and explicit operator UAT acceptance, tick `- [x] **F002 — Organization & PI Cadence**` and update the roadmap progress summary (`2 / 19`).
   - **Constraints**: Do not tick `F002` before operator UAT acceptance.
@@ -439,3 +439,5 @@
   - **Screenshots**: Reviewed at 1440 and 768 px; at 768 px the header shortens names with "…", as the constitution's 1440 px baseline allows.
 
 T035 remains open pending the operator's UAT acceptance.
+
+**Operator UAT acceptance (2026-11-24)**: After the agent-run walkthrough, the final review rerun (all seven gates and the six-segment walk passed), and PR #4, the operator confirmed: "I mean I accept it. I don't have any comments". F002 is now checked in `docs/feature-roadmap.md`, and progress is updated to 2 / 19. The roadmap documentation test now accepts F001 and F002 and still requires F003–F019 to be unchecked.
