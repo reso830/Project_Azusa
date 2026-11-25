@@ -28,7 +28,7 @@
 
 **Purpose**: Implement all pure TypeScript domain rules (exact integer 100% validation, `not_configured` / `valid` / `invalid` ART status, `Inherit` vs. explicit `0%` resolution, current/future-PI drift detection per `D-1`, semantic roles, Payments ART sample catalog with `Feature dev.` per `D-3`) and strict Zod v4 schemas with deterministic Vitest unit tests before touching persistence or UI.
 
-- [ ] **T001** `[P]` `[US1, US2, US3]` Implement pure category & allocation domain rules and sample catalog template (plus index F003 brief in `README.md`)
+- [x] **T001** `[P]` `[US1, US2, US3]` Implement pure category & allocation domain rules and sample catalog template (plus index F003 brief in `README.md`)
   - **Target files/components**: `src/domain/categories/rules.ts`, `src/domain/categories/sample-catalog.ts`, `README.md`
   - **Expected behavior**:
     - In `rules.ts`, export:
@@ -43,7 +43,7 @@
   - **Validation/test location**: `tests/unit/categories-rules-schemas.test.ts` (`T003`).
   - **Out-of-scope files/components**: Persistence schemas, F004 capacity/SP calculations.
 
-- [ ] **T002** `[P]` `[US1, US2, US3]` Define strict Zod v4 schemas for F003 categories, ART defaults, and Team/PI overrides
+- [x] **T002** `[P]` `[US1, US2, US3]` Define strict Zod v4 schemas for F003 categories, ART defaults, and Team/PI overrides
   - **Target files/components**: `src/domain/categories/schemas.ts`
   - **Expected behavior**:
     - Define strict Zod v4 schemas (`.strict()` rejecting unknown keys and any `actor`/`createdBy`/`updatedBy` fields) for:
@@ -54,7 +54,7 @@
   - **Validation/test location**: `tests/unit/categories-rules-schemas.test.ts` (`T003`).
   - **Out-of-scope files/components**: API Route Handlers (`Phase 04`).
 
-- [ ] **T003** `[US1, US2, US3, US4]` Add deterministic Vitest unit tests for domain rules, sample catalog, and Zod schemas
+- [x] **T003** `[US1, US2, US3, US4]` Add deterministic Vitest unit tests for domain rules, sample catalog, and Zod schemas
   - **Target files/components**: `tests/unit/categories-rules-schemas.test.ts`
   - **Expected behavior**:
     - Test `validateArtDefaultTotals`: `49+20+14+10+7 = 100` (`valid`), `95` and `105` (`invalid`), empty catalog (`not_configured`, `artDefaultsValid: false`), overhead and archived categories excluded.
@@ -71,21 +71,21 @@
 
 **Purpose**: Define `categories` and `team_category_allocations` in Drizzle with explicit `IS NOT NULL` `CHECK` constraints, commit additive SQL migration `0002_work_categories_allocation.sql` with journal/snapshot metadata, and verify F002→F003 upgrade, direct SQL constraints, and CLI `db:backup`/`db:restore` round-trip integrity.
 
-- [ ] **T004** `[US1, US2, US3]` Define Drizzle schema for `categories` and `team_category_allocations` and commit migration `0002_work_categories_allocation.sql`
+- [x] **T004** `[US1, US2, US3]` Define Drizzle schema for `categories` and `team_category_allocations` and commit migration `0002_work_categories_allocation.sql`
   - **Target files/components**: `src/persistence/schema/categories.ts`, `src/persistence/schema/index.ts`, `src/persistence/migrations/0002_work_categories_allocation.sql`, `src/persistence/migrations/meta/_journal.json`, `src/persistence/migrations/meta/0002_snapshot.json`
   - **Expected behavior**:
     - Define `categories` and `team_category_allocations` in `src/persistence/schema/categories.ts` matching `specs/003-work-categories-allocation/data-model.md`:
       - Spread `auditColumns()` on both tables.
       - Use `ON DELETE RESTRICT` on all foreign keys (`categories.train_id → trains.id`, `team_category_allocations.team_id → teams.id`, `pi_id → pis.id`, `category_id → categories.id`).
       - Add all SQL `CHECK` constraints, including explicit `IS NOT NULL` guards on `categories_kind_fields_valid` (`(kind = 'development' AND semantic_role IS NOT NULL AND semantic_role IN ('feature', 'maintenance_bugs', 'standard') AND default_pct IS NOT NULL AND default_pct BETWEEN 0 AND 100) OR (kind = 'overhead' AND semantic_role IS NULL AND default_pct IS NULL)`).
-      - Add indexes: `categories_train_name_ci_unique` (`(train_id, lower(trim(name)))`), `categories_train_active_bugs_unique` (`(train_id) WHERE record_status = 'active' AND semantic_role = 'maintenance_bugs'`), `categories_train_kind_sort_idx` (`(train_id, kind, sort_order)`), `team_cat_alloc_unique` (`(team_id, pi_id, category_id)`), `team_cat_alloc_team_pi_idx`, `team_cat_alloc_category_idx`.
+      - Add indexes: `categories_train_name_ci_unique` (`(train_id, lower(trim(name)))`), `categories_train_active_bugs_unique` (`(train_id) WHERE record_status = 'active' AND semantic_role = 'maintenance_bugs'`), `categories_train_kind_sort_idx` (`(train_id, kind, sort_order)`), `team_cat_alloc_unique` (`(team_id, pi_id, category_id)`, which also serves Team/PI lookups), `team_cat_alloc_category_idx`.
     - Re-export `./categories` from `src/persistence/schema/index.ts`.
     - Generate and review `0002_work_categories_allocation.sql`, `meta/_journal.json`, and `meta/0002_snapshot.json` via `drizzle-kit generate`.
   - **Constraints**: Zero `ON DELETE CASCADE`; zero `PlanVersion`/`PICommitment`/`SprintCommitment`/`Actuals`/`Buffer`/`OverheadReserve` tables; do not modify `0000_foundation_init.sql` or `0001_organization_cadence.sql`; do not seed sample categories in `src/persistence/seed.ts`.
   - **Validation/test location**: `tests/integration/categories-migration-backup.test.ts` (`T005`).
   - **Out-of-scope files/components**: `src/persistence/seed.ts`, `src/persistence/lock.ts`.
 
-- [ ] **T005** `[US4]` Add integration tests for F002→F003 migration upgrade, direct SQL `CHECK` constraints, and CLI `db:backup`/`db:restore` round-trip
+- [x] **T005** `[US4]` Add integration tests for F002→F003 migration upgrade, direct SQL `CHECK` constraints, and CLI `db:backup`/`db:restore` round-trip
   - **Target files/components**: `tests/integration/categories-migration-backup.test.ts`
   - **Expected behavior**:
     - Test 1 (F002→F003 upgrade): Apply `0000_foundation_init.sql` + `0001_organization_cadence.sql` + insert F001 `app_metadata` and F002 ART/Team/PI rows, then run `runMigrations()` applying `0002_work_categories_allocation.sql`; assert 100% of F001/F002 rows survive intact and `categories`/`team_category_allocations` tables exist.
@@ -105,7 +105,7 @@
 
 **Purpose**: Implement transactional application services enforcing all F003 business rules (`D-1`–`D-4`), update F002 `deleteTrain`/`deleteTeam`/`deletePi` conflict messages to name Categories / category allocations, and verify every invariant against real PGlite.
 
-- [ ] **T006** `[US1, US2, US3]` Implement transactional category & Team/PI allocation service (`category-service.ts`) and update F002 delete conflict messages
+- [x] **T006** `[US1, US2, US3]` Implement transactional category & Team/PI allocation service (`category-service.ts`) and update F002 delete conflict messages
   - **Target files/components**: `src/application/categories/category-service.ts`, `src/application/organization/organization-service.ts`, `src/application/organization/cadence-service.ts`
   - **Expected behavior**:
     - Reuse `ValidationError`, `ConflictError`, `NotFoundError`, `validate`, `requireRecord`, `requireActive`, `OrganizationOptions`, and `writeOrganization` from `src/application/organization/errors.ts`, `getServerTodayIsoDate()` from `src/domain/calendar/iso-week.ts`, and `resolveActor()` from `src/domain/audit/actor.ts`.
@@ -129,7 +129,7 @@
   - **Validation/test location**: `tests/integration/categories-persistence.test.ts` (`T007`) and `tests/integration/organization-persistence.test.ts` (update exact delete-message assertions if needed).
   - **Out-of-scope files/components**: HTTP Route Handlers (`Phase 04`), F004 capacity engine, F012 snapshots.
 
-- [ ] **T007** `[US1, US2, US3, US4]` Add comprehensive real-PGlite integration tests for all F003 service invariants and F002 delete conflict messages
+- [x] **T007** `[US1, US2, US3, US4]` Add comprehensive real-PGlite integration tests for all F003 service invariants and F002 delete conflict messages
   - **Target files/components**: `tests/integration/categories-persistence.test.ts`, `tests/integration/organization-persistence.test.ts` (only if existing delete-message assertions need updating)
   - **Expected behavior**:
     - Use fixed injectable `today` (`OrganizationOptions.today`) across all drift tests and verify every invariant against real PGlite:
@@ -157,7 +157,7 @@
 
 **Purpose**: Expose thin, strict Zod-validated Next.js App Router Route Handlers for all F003 operations matching `contracts/api.md`, verified by a dedicated `categories-routes.test.ts` file (matching F002's `organization-routes.test.ts`).
 
-- [ ] **T008** `[P]` `[US1]` Implement category CRUD, within-group reorder, and sample-catalog Route Handlers
+- [x] **T008** `[P]` `[US1]` Implement category CRUD, within-group reorder, and sample-catalog Route Handlers
   - **Target files/components**: `src/app/api/categories/route.ts`, `src/app/api/categories/[id]/route.ts`, `src/app/api/categories/reorder/route.ts`, `src/app/api/categories/sample/route.ts`
   - **Expected behavior**:
     - `GET /api/categories?trainId=<uuid>&includeArchived=true|false` → `listCategories` (`200`).
@@ -171,7 +171,7 @@
   - **Validation/test location**: `tests/integration/categories-routes.test.ts` (`T010`).
   - **Out-of-scope files/components**: Existing `/api/organization/*` routes.
 
-- [ ] **T009** `[P]` `[US2, US3]` Implement ART default allocation and Team/PI allocation Route Handlers
+- [x] **T009** `[P]` `[US2, US3]` Implement ART default allocation and Team/PI allocation Route Handlers
   - **Target files/components**: `src/app/api/categories/defaults/route.ts`, `src/app/api/categories/allocations/route.ts`
   - **Expected behavior**:
     - `PUT /api/categories/defaults` → `saveArtDefaultAllocations` (`200`).
@@ -182,7 +182,7 @@
   - **Validation/test location**: `tests/integration/categories-routes.test.ts` (`T010`).
   - **Out-of-scope files/components**: Existing `/api/organization/*` routes.
 
-- [ ] **T010** `[US1, US2, US3]` Add dedicated HTTP Route Handler contract tests (`categories-routes.test.ts`)
+- [x] **T010** `[US1, US2, US3]` Add dedicated HTTP Route Handler contract tests (`categories-routes.test.ts`)
   - **Target files/components**: `tests/integration/categories-routes.test.ts`
   - **Expected behavior**:
     - Exercise every `/api/categories/*` Route Handler against a real PGlite test context, verifying:
@@ -200,7 +200,7 @@
 
 **Purpose**: Build the `Categories & Allocation` tab inside `/organization` matching Azusa's Kumiko design system and F002's workspace conventions (`Visual-Fidelity Mode: Mixed`), add dedicated visual geometry checks in `tests/visual/categories-allocation.spec.ts`, and add full Playwright E2E + `@axe-core/playwright` coverage across `1440px`, `1024px`, and `768px`.
 
-- [ ] **T011** `[US1, US2]` Implement ART Work Categories & Default Allocation section in `src/ui/organization/CategoriesAndAllocationPanel.tsx` and `src/ui/organization/organization.module.css`
+- [x] **T011** `[US1, US2]` Implement ART Work Categories & Default Allocation section in `src/ui/organization/CategoriesAndAllocationPanel.tsx` and `src/ui/organization/organization.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `AZUSA_HANDOFF.md` §9 (category colours `#2E8B57`, `#C93A3A`, `#E8890C`, `#7A4CC2`, `#3F4148`, `#A39C93`, `#5C7A1F`; `"100% ✓"` valid-total badge) and F002's `src/ui/organization/organization.module.css` Kumiko card/table tokens (no dedicated final F003 prototype screen exists — Deviations `D1`–`D4` in `plan.md`).
   - **Breakpoints/checkpoints**: `1440px` (fidelity baseline), `1024px`, `768px`; states: empty ART (`"Not configured"` + `"Apply sample catalog"` button), populated Development + Overhead grouped lists, create/edit inline form (new dev categories start at `0%`), within-group up/down reorder controls, `"Show archived"` toggle, archive/reactivate/delete actions, invalid ART default total (`95%` / `88%` warning + rejected save without silent normalization), valid ART default total (`100% ✓`), drifted current/future Team/PI advisory banner, loading & inline error alert states.
   - **Translation note**: Reuse existing Kumiko CSS custom properties (`#F4F1EC`, `#FFFFFF`, `#1A1B22`, `#E07F24`, `#A65307`, `IBM Plex Mono` tabular numerals for percentages/totals) and `src/ui/organization/controls.tsx` without introducing a standalone `/settings` route or SP-budget visualizations.
@@ -208,7 +208,7 @@
   - **Done when**: Tier 1 (`npm run test:visual` including `tests/visual/categories-allocation.spec.ts` in `T013`) green at `1440px`, `1024px`, `768px`; Tier 2 screenshots reviewed for Kumiko consistency, non-color status badges, and collision-free layout.
   - **Out-of-scope files/components**: `/settings`, F004 Capacity Planner, F005 Team Calendar.
 
-- [ ] **T012** `[US3]` Implement Team PI Allocation section (Inherit vs. Explicit `0%` Override, Empty/Invalid/Read-Only States & Drift Warnings) in `src/ui/organization/CategoriesAndAllocationPanel.tsx` and `src/ui/organization/organization.module.css`
+- [x] **T012** `[US3]` Implement Team PI Allocation section (Inherit vs. Explicit `0%` Override, Empty/Invalid/Read-Only States & Drift Warnings) in `src/ui/organization/CategoriesAndAllocationPanel.tsx` and `src/ui/organization/organization.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `AZUSA_HANDOFF.md` §9 & `screenshots/03-capacity-planner.png` (percentage split table, explicit `Inherit` vs. `Override` distinction, `"100% ✓"` badge; SP budget columns intentionally omitted per Deviation `D3`).
   - **Breakpoints/checkpoints**: `1440px` (fidelity baseline), `1024px`, `768px`; states:
     - No Teams/PIs empty state;
@@ -221,7 +221,7 @@
   - **Done when**: Tier 1 (`npm run test:visual` including `tests/visual/categories-allocation.spec.ts` in `T013`) green at `1440px`, `1024px`, `768px`; Tier 2 screenshots reviewed.
   - **Out-of-scope files/components**: Per-Sprint allocations, F004 SP budgets, F012 Plan Versions / Start PI.
 
-- [ ] **T013** `[US4]` Mount `Categories & Allocation` as the 4th tab in `src/ui/organization/OrganizationWorkspace.tsx` and add visual geometry tests (`tests/visual/categories-allocation.spec.ts`)
+- [x] **T013** `[US4]` Mount `Categories & Allocation` as the 4th tab in `src/ui/organization/OrganizationWorkspace.tsx` and add visual geometry tests (`tests/visual/categories-allocation.spec.ts`)
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `prototype/Settings.dc.html#L24-L38` (uncluttered `/organization` header: logo + `"Search organization…"` search + profile menu only; no `TodayWidget`, no `ART › Team › PI`, `Settings` remains disabled in profile dropdown, no primary nav item active).
   - **Target files/components**: `src/ui/organization/OrganizationWorkspace.tsx`, `tests/visual/categories-allocation.spec.ts`
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: all 4 `/organization` underline tabs keyboard-navigable (`ArrowLeft`/`ArrowRight`/`Home`/`End`), `Categories & Allocation` tab active (empty & populated states), collision-free geometry and zero horizontal page overflow.
@@ -230,7 +230,7 @@
   - **Done when**: Tier 1 (`npm run test:visual`) passes at all breakpoints (`1440px`, `1024px`, `768px`) with zero regressions on F001/F002 visual checks; Tier 2 screenshot of `/organization` → `Categories & Allocation` reviewed.
   - **Out-of-scope files/components**: `src/ui/shell/FloatingHeader.tsx`, `src/ui/shell/ProfileMenu.tsx`.
 
-- [ ] **T014** `[US1, US2, US3, US4]` Add Playwright E2E and `@axe-core/playwright` accessibility test suite for F003
+- [x] **T014** `[US1, US2, US3, US4]` Add Playwright E2E and `@axe-core/playwright` accessibility test suite for F003
   - **Target files/components**: `tests/e2e/categories-allocation.spec.ts`
   - **Expected behavior**:
     - Walk US1–US4 against isolated port `3100` with zero external network requests:
@@ -252,18 +252,20 @@
 
 ---
 
+**Phase 05 verification.** Passed 120 Vitest, 12 visual, and 8 E2E tests, plus lint, type checking, and the production build. Reviewed empty and populated screenshots at 1440px, 1024px, and 768px. The F003 axe scans reported zero violations at all three widths.
+
 ## Phase 06: Release Prep (MANDATORY)
 
 **Purpose**: Synchronize application version across manifest, lockfile, migration, and restore markers, and update all affected Constitution Principle VI living documentation before the final Browser Smoke Test.
 
-- [ ] **T015** `[US4]` Bump application version (`0.2.0` → `0.3.0`)
+- [x] **T015** `[US4]` Bump application version (`0.2.0` → `0.3.0`)
   - **Target files/components**: `package.json`, `package-lock.json`, `src/persistence/version.ts`, `tests/integration/organization-migration-seed.test.ts` (update version assertion only if hardcoded to `'0.2.0'` instead of importing `APP_VERSION`)
   - **Expected behavior**: Bump root `version` to `"0.3.0"` in `package.json` and `package-lock.json` (both top-level and `packages[""]`), and update `APP_VERSION = '0.3.0'` in `src/persistence/version.ts` so migration and restore markers stay synchronized.
   - **Constraints**: Preserve existing `'foundation.init'` records on upgrade; assert `appVersion === '0.3.0'` in `tests/integration/categories-migration-backup.test.ts`.
   - **Validation/test location**: `npm run test:run` and `npm run build`.
   - **Out-of-scope files/components**: Feature UI code.
 
-- [ ] **T016** `[P]` `[US4]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md`
+- [x] **T016** `[P]` `[US4]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md`
   - **Target files/components**: `CHANGELOG.md`, `README.md`, `docs/operations/database-and-recovery.md`
   - **Expected behavior**:
     - Add `0.3.0` entry to `CHANGELOG.md` summarizing F003 additions and changes.
@@ -273,14 +275,14 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` and `npm run format:check`.
   - **Out-of-scope files/components**: `specs/`.
 
-- [ ] **T017** `[P]` `[US4]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md`
+- [x] **T017** `[P]` `[US4]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md`
   - **Target files/components**: `docs/REPO_MAP.md`, `docs/architecture/overview.md`
   - **Expected behavior**: Document all new F003 modules (`src/domain/categories/`, `src/application/categories/`, `src/persistence/schema/categories.ts`, `0002_work_categories_allocation.sql`, `src/app/api/categories/*`, `CategoriesAndAllocationPanel.tsx`) and update the system/data-flow overview.
   - **Constraints**: Reflect actual implemented paths accurately.
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T018** `[P]` `[US4]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
+- [x] **T018** `[P]` `[US4]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
   - **Target files/components**: `docs/architecture/domain-model.md`, `docs/architecture/data-dictionary.md`
   - **Expected behavior**:
     - Update `domain-model.md` implementation-status banner to reflect F003 `Category` and `TeamCategoryAllocation` now implemented (while keeping F004–F019 conceptual).
@@ -289,7 +291,7 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T019** `[P]` `[US4]` Add ADR `0003-work-categories-and-allocation.md`
+- [x] **T019** `[P]` `[US4]` Add ADR `0003-work-categories-and-allocation.md`
   - **Target files/components**: `docs/architecture/decisions/0003-work-categories-and-allocation.md`
   - **Expected behavior**: Record key F003 architectural decisions, rationale, and operator decisions `D-1`–`D-4`:
     - Stable `semantic_role` (`feature` | `maintenance_bugs` | `standard`) on `development` categories with partial unique index enforcing at most one active `maintenance_bugs` per ART, remaining editable in F003 until F007 adds work-item reference checks (`D-4`).
@@ -302,7 +304,7 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T020** `[US4]` Run docs sanity check and full quality-gate suite
+- [x] **T020** `[US4]` Run docs sanity check and full quality-gate suite
   - **Target files/components**: `tests/unit/docs-completeness.test.ts` (update if needed for ADR `0003` / version)
   - **Expected behavior**: Verify zero stale references or `TBD`/`TODO` markers across `docs/` and run all 7 quality gates (`lint`, `format:check`, `typecheck`, `test:run`, `build`, `test:visual`, `test:e2e`), confirming every command exits `0`.
   - **Constraints**: Leave `F003` unchecked in `docs/feature-roadmap.md` until Phase 07 operator UAT acceptance.
@@ -311,36 +313,47 @@
 
 ---
 
+**Phase 06 verification (2026-11-25).** All seven gates exited 0. Passed 121 Vitest, 12 visual, and 8 E2E tests. Prettier used `--end-of-line auto` for the Windows checkout. Release documentation links resolve, and CLI recovery verified the `0.3.0` marker.
+
 ## Phase 07: Browser Smoke Test & Post-UAT Roadmap Acceptance (MANDATORY)
 
 **Purpose**: Walk every user story's **Independent Test** in a real browser against the to-be-merged production build (after Release Prep), confirm accessibility and empty/loading/error states, and update `docs/feature-roadmap.md` only after conformance review and explicit operator UAT acceptance.
 
-- [ ] **T021** `[US1]` Walk US1 Independent Test in a real browser; record verification result
+- [x] **T021** `[US1]` Walk US1 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` → `Categories & Allocation` (empty ART catalog, optional `"Apply sample catalog"` + duplicate protection, renaming `SW maintenance (bugs)` preserving `maintenance_bugs`, single active `maintenance_bugs` rejection, cross-ART independent catalog, within-group reordering, archive/reactivate/hard-delete with reload persistence, unreferenced `kind` switch)
   - **Expected behavior**: Confirm every step of US1's Independent Test passes on the to-be-merged build; record pass/fail evidence in `tasks.md`.
   - **Constraints**: Test against `127.0.0.1` production build with zero external network requests.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T022** `[US2]` Walk US2 Independent Test in a real browser; record verification result
+- [x] **T022** `[US2]` Walk US2 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` → `Categories & Allocation` (`49+20+14+10+7 = 100% ✓`, `95%` rejected without silent normalization, valid `100%` edit persisted across reload, decimal/negative/`> 100` rejection, archiving a category with `default_pct > 0` flagging `88%` without redistribution, reactivating restoring `100% ✓` per `D-2`)
   - **Expected behavior**: Confirm every step of US2's Independent Test passes; record evidence in `tasks.md`.
   - **Constraints**: Confirm zero automatic percentage redistribution.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T023** `[US3]` Walk US3 Independent Test in a real browser; record verification result
+- [x] **T023** `[US3]` Walk US3 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification against `/organization` → `Categories & Allocation` (`Palawan` / current-or-future PI e.g. `PI-2027.1` `56 / 15 / Inherit(14) / 8 / Inherit(7) = 100%`, explicit `0%` override vs `Inherit` persistence across reload, second future PI e.g. `PI-2027.2` and `Cebu` isolation, ART default change triggering `104%` drift warning on the current/future PI while excluding the past PI e.g. `PI-2025.1` per `D-1` — adjusting PI dates relative to the UAT date if run after early 2027 — archiving a category flagging invalid splits, reset-all preserving archived-category overrides and allowed when ART defaults are invalid)
   - **Expected behavior**: Confirm every step of US3's Independent Test passes; record evidence in `tasks.md`.
   - **Constraints**: Confirm no per-Sprint allocations or SP budgets are exposed.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T024** `[US4]` Walk US4 Independent Test in a real browser; confirm empty/loading/error states, keyboard operation, and non-color status cues
+- [x] **T024** `[US4]` Walk US4 Independent Test in a real browser; confirm empty/loading/error states, keyboard operation, and non-color status cues
   - **Target files/components**: Runtime verification on `/organization` → `Categories & Allocation` (uncluttered header without `TodayWidget` or `ART › Team › PI`, disabled `Settings` in profile menu, empty/not-configured/invalid-ART/read-only-archived Team-PI/loading/error states, keyboard tab/form navigation, non-color text badges `Inherit`/`Override`/`100% ✓`/`Not configured`/`Archived — read-only`/drift warning, `1440px`/`1024px`/`768px` layout, zero `@axe-core/playwright` violations)
   - **Expected behavior**: Confirm every step of US4's Independent Test passes with zero console/hydration errors and zero accessibility violations; record evidence in `tasks.md`.
   - **Constraints**: Confirm `/settings` does not exist and no primary navigation item is highlighted on `/organization`.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T025** `[US4]` Post-UAT roadmap update
+- [x] **T025** `[US4]` Post-UAT roadmap update
   - **Target files/components**: `docs/feature-roadmap.md`
   - **Expected behavior**: Only after conformance review and explicit operator UAT acceptance, tick `- [x] **F003 — Work Categories & Allocation**` and update the roadmap progress summary (`3 / 19`).
   - **Constraints**: Do not tick `F003` before operator UAT acceptance.
   - **Validation/test location**: `docs/feature-roadmap.md` + `npm run test:run` (`docs-completeness.test.ts`).
+
+**Phase 07 browser walkthrough (2026-11-25, agent-run)**: T021–T024 were walked by the agent, not the operator, with a scripted real Chromium session (Playwright, `Asia/Manila`, `en-US`). The session ran against the production build (`npm run build`, then `next start` on `127.0.0.1:3200`) with a fresh isolated database in git-ignored `.azusa/phase07-walk-f003/`. All four segments passed. Every segment recorded zero external requests and zero console, hydration, or page errors; intentionally rejected writes and one simulated 500 produced the browser's expected resource messages, which were excluded. The first walk found that `GET /api/categories` always returned `isReferenced: false` (the `exists` subquery compared against the allocation's own `id`). After the fix and its service, route, and E2E tests, the full walk was rerun on a fresh database and passed.
+
+- **T021 / US1**: Created `Payments ART` and `Core Platform ART` in the ARTs & PI Cadence UI; Teams `Palawan` and `Cebu` and PIs `PI-2025.1` (past), `PI-2027.1`, and `PI-2027.2` were posted to the local API. The empty catalog showed "Not configured". **Apply sample catalog** created, and after reload listed, Feature development (`Feature dev.`, feature, 49, #2E8B57), SW maintenance (bugs) (`SW maint.`, maintenance_bugs, 20), Enablers (standard, 14), Estimations (standard, 10), Technical debt (standard, 7), and overhead General work and Training with no role or percentage, totalling "100% ✓". The button was then hidden, and `POST /api/categories/sample` returned `409`. Renaming SW maintenance (bugs) to `Bugs & Support` with colour #BF3535 kept its id and `maintenance_bugs` role after reload. A second active `maintenance_bugs` category was rejected in the form ("This ART already has an active Bugs and Maintenance category.") and by the API (`409`). Core Platform ART started "Not configured"; Product delivery (feature) was created at 0% and set to 100%, Retrospective was created as overhead, and neither ART showed the other's categories. Moving Enablers up, then back, persisted across reloads without touching the Overhead group. Archived Training was hidden after reload, shown with an "Archived" badge behind "Show archived", and reactivated. Deleting unreferenced `Mistake` at 10% (D-2) flagged "90% — must total 100%" without redistribution and persisted. Unreferenced Retrospective switched overhead → development (standard, 0%) and back. Once a Team override referenced Feature development, `PATCH kind` and `DELETE` returned `409`, the row showed no Delete button, the Kind picker offered only Development, and `isReferenced` was `true`.
+- **T022 / US2**: Feature development 49 → 44 showed "95% — must total 100%" with Save disabled; the same save through `PUT /api/categories/defaults` returned `400` with `{ currentTotal: 95, requiredTotal: 100 }`, and the stored value stayed 49 after reload. Technical debt 7 → 12 saved and reloaded as 44 / 20 / 14 / 10 / 12 = "100% ✓". Archiving Technical debt at 12% (D-2) flagged "88% — must total 100%" with stored defaults unchanged; reactivating restored "100% ✓". Typing 12.5 showed "Enter a whole number from 0 to 100" and disabled Save; the API rejected 12.5, −5, and 101 with `400`.
+- **T023 / US3**: Palawan + PI-2027.1 started all "Inherit" at 49 / 20 / 14 / 10 / 7. Overrides 56 / 15 / 8 saved and reloaded as 56 / 15 / 14 / 8 / 7 with Override, Override, Inherit, Override, Inherit badges. Technical debt `0` with Feature 63 saved and reloaded as "0" + "Override" at 0% effective; the row Reset plus Feature 56 returned it to "Inherit" at 7%. Palawan + PI-2027.2 and Cebu + PI-2027.1 stayed all "Inherit". With Palawan + PI-2025.1 (past) given the same overrides, ART defaults 45 / 20 / 18 / 10 / 7 produced exactly one drift entry, "Palawan · PI-2027.1 104%": Enablers resolved to 18% (Inherit), the explicit overrides were unchanged, Cebu stayed "100% ✓", and the past PI showed "104% — must total 100%" without a drift warning (D-1). Archiving Estimations (default 10%, Palawan override 8%) flagged 90% and listed Cebu PI-2027.1 and PI-2027.2 at 90%, Palawan PI-2027.1 at 96%, and Palawan PI-2027.2 at 90%. Reset all on Palawan + PI-2027.1 worked with invalid defaults; reactivating Estimations brought back the preserved 8% override (98% drift warning). API rejections left the allocation unchanged: partial payload `400`, unknown `categoryId` `404`, and overhead, archived, foreign-ART category, and foreign-ART PI `409`.
+- **T024 / US4**: On `/organization`, the header had no Today widget or `ART › Team › PI` selector, Settings was `aria-disabled`, no primary-nav item was current, and `GET /settings` returned `404`. End/Home moved across the four tabs, and Tab reached the ART picker with a visible focus outline. An empty ART showed "Not configured" with **Apply sample catalog**, and the Team PI section showed "Add a Team and PI in this ART to configure allocation." with Save disabled. With Technical debt archived (93%), the Team PI section showed "ART defaults total 93%. Adjust this Team allocation to 100% before saving." Archived Cebu, shown through "Show archived Teams/PIs" as "Cebu (Archived)", was read-only with disabled inputs, Save, and Reset all. "Loading…" appeared while the catalog loaded; a simulated 500 showed an alert with Retry, which recovered. Axe found zero violations on the panel at 1440, 1024, and 768 px, with no horizontal overflow; screenshots at 1440 and 768 px were reviewed. Status was always text (`Inherit`, `Override`, `100% ✓`, `Not configured`, `Archived — read-only`, `Drift warning`), never colour alone.
+
+**Operator UAT acceptance (2026-11-25)**: After the agent-run walkthrough, the `isReferenced` fix, the INFO follow-ups (the Team PI picker now defaults to the current PI through the shared `pickCurrentPi` rule, and the redundant `team_cat_alloc_team_pi_idx` was removed), and a final rerun of all seven gates (122 Vitest, 12 visual, 8 E2E) and the four-segment walk, the operator marked F003 UAT as accepted. F003 is now checked in `docs/feature-roadmap.md`, and progress is updated to 3 / 19. The roadmap documentation test now accepts F001–F003 and still requires F004–F019 to be unchecked.

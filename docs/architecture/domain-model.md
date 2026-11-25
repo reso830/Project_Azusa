@@ -2,7 +2,7 @@
 
 **Baseline:** Data Model v0.6 (2026-11-20), Roadmap v0.2, and Constitution Principle III. The source is `azusa-handoff/docs/azusa-data-model.md` inside the [v2 handoff](../handoffs/azusa-handoff-v2.zip), with its work-item and Sprint-planning decisions. This document carries that blueprint into the repository; it is not a finalized physical schema.
 
-**Implementation status:** F001 provides infrastructure metadata. F002 implements ART, Team, Member, dated Team assignments, PI, Iteration, Location, Holiday, Absence Type, and Absence persistence. Team Iteration schedules are derived. Organization and cadence management and holiday inspection are available in `/organization`. F003–F019 capabilities remain conceptual. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md).
+**Implementation status:** F001 provides infrastructure metadata. F002 implements ART, Team, Member, dated Team assignments, PI, Iteration, Location, Holiday, Absence Type, and Absence persistence. Team Iteration schedules are derived. F003 implements ART-owned Category records and TeamCategoryAllocation overrides scoped to a Team and PI. Organization management, holiday inspection, and category allocation are available in `/organization`. F004–F019 capabilities remain conceptual. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md).
 
 ## Ownership and planning scope
 
@@ -33,8 +33,8 @@
 
 | Concept                       | Rule                                                                                                                                                                                                                           |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Category                      | Train name/short label/color/kind/default allocation. Development categories, including Bugs, divide post-overhead capacity and total 100%. Use full names when ambiguous with Feature entities.                               |
-| TeamCategoryAllocation        | Team/PI/category override or inheritance. Unset inherits Train default rather than zero; preserve that PI's committed allocations.                                                                                             |
+| Category                      | ART-owned name, short label, color, kind, and order. Development categories carry a semantic role and an integer default percentage. Overhead categories have neither. Archiving excludes a category from active totals and preserves its references. |
+| TeamCategoryAllocation        | Explicit integer percentage override for an ART's development category, Team, and PI. An absent override inherits the live ART default. Saved effective development splits must total 100%. F012 owns immutable commitment snapshots. |
 | OverheadReserve               | Member/Sprint/overhead category reserved hours, source `pi_plan` or `sprint_adjusted`. Set at PI planning, adjustable at Sprint Planning, deducted once, never SP/velocity.                                                    |
 | OverheadTicket                | Team/Sprint/category/title/member/hours/optional date/notes. Draws against the member's reserve; reserve may remain unticketed. Exceeding it warns. Dated tickets appear on the calendar; the flow is not implemented in F001. |
 | UnplannedDeduction / activity | Member(s)/date/duration/category/note for actual Sprint overhead; no Project or Story parent.                                                                                                                                  |

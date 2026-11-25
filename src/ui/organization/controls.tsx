@@ -17,21 +17,24 @@ export type RecordState = {
   recordStatus: 'active' | 'archived';
 };
 
-async function api<T>(
+export async function api<T>(
   path: string,
   signal?: AbortSignal,
   method = 'GET',
   data?: object,
 ): Promise<T> {
-  const response = await fetch(`/api/organization/${path}`, {
-    signal,
-    method,
-    cache: 'no-store',
-    ...(data && {
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }),
-  });
+  const response = await fetch(
+    path.startsWith('/') ? path : `/api/organization/${path}`,
+    {
+      signal,
+      method,
+      cache: 'no-store',
+      ...(data && {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
+    },
+  );
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
     const error = payload?.error;
@@ -323,12 +326,14 @@ export function RecordActions({
   writes,
   edit,
   inspect,
+  allowDelete = true,
 }: {
   record: RecordState | { id: string; name: string };
   resource: string;
   writes: Writes;
   edit: () => void;
   inspect?: () => void;
+  allowDelete?: boolean;
 }) {
   const archived =
     'recordStatus' in record && record.recordStatus === 'archived';
@@ -362,31 +367,32 @@ export function RecordActions({
           {archived ? 'Reactivate' : 'Archive'}
         </button>
       )}
-      {confirmDelete ? (
-        <>
+      {allowDelete &&
+        (confirmDelete ? (
+          <>
+            <button
+              type="button"
+              disabled={writes.busy}
+              onClick={async () => {
+                if (await writes.write(target, 'DELETE', undefined, target))
+                  setConfirmDelete(false);
+              }}
+            >
+              Confirm delete
+            </button>
+            <button type="button" onClick={() => setConfirmDelete(false)}>
+              Cancel delete
+            </button>
+          </>
+        ) : (
           <button
             type="button"
             disabled={writes.busy}
-            onClick={async () => {
-              if (await writes.write(target, 'DELETE', undefined, target))
-                setConfirmDelete(false);
-            }}
+            onClick={() => setConfirmDelete(true)}
           >
-            Confirm delete
+            Delete
           </button>
-          <button type="button" onClick={() => setConfirmDelete(false)}>
-            Cancel delete
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          disabled={writes.busy}
-          onClick={() => setConfirmDelete(true)}
-        >
-          Delete
-        </button>
-      )}
+        ))}
       <WriteError error={writes.errorFor(target)} />
     </div>
   );

@@ -188,15 +188,15 @@ src/
 - `src/persistence/{schema/common.ts,schema/organization.ts,client.ts,migrate.ts,backup.ts}`
 - `src/application/organization/errors.ts`
 - `src/app/api/organization/http.ts`
-- `src/ui/organization/{controls.tsx,TrainsAndCadencePanel.tsx}`
+- `src/ui/organization/TrainsAndCadencePanel.tsx`
 
 ### Files / Components to Be Created or Modified
 - **Version / Config**: `src/persistence/version.ts` (modify — `0.3.0`), `package.json` (modify — `0.3.0`), `package-lock.json` (modify — `0.3.0`)
-- **Domain**: `src/domain/categories/{rules.ts,sample-catalog.ts,schemas.ts}` (create)
+- **Domain**: `src/domain/categories/{rules.ts,sample-catalog.ts,schemas.ts}` (create), `src/domain/organization/context.ts` (modify — extract `pickCurrentPi` so the Team PI picker defaults to the current PI the same way the header does)
 - **Application**: `src/application/categories/category-service.ts` (create), `src/application/organization/{organization-service.ts,cadence-service.ts}` (modify — update `deleteTrain`/`deleteTeam`/`deletePi` 409 conflict messages)
 - **Persistence**: `src/persistence/schema/categories.ts` (create), `src/persistence/schema/index.ts` (modify), `src/persistence/migrations/0002_work_categories_allocation.sql` + `meta/_journal.json` + `meta/0002_snapshot.json` (create/modify)
 - **API Routes**: `src/app/api/categories/{route.ts,[id]/route.ts,reorder/route.ts,sample/route.ts,defaults/route.ts,allocations/route.ts}` (create)
-- **UI**: `src/ui/organization/CategoriesAndAllocationPanel.tsx` (create), `src/ui/organization/{OrganizationWorkspace.tsx,organization.module.css}` (modify)
+- **UI**: `src/ui/organization/CategoriesAndAllocationPanel.tsx` (create), `src/ui/organization/{OrganizationWorkspace.tsx,organization.module.css}` (modify), `src/ui/organization/controls.tsx` (modify — export `api()` with absolute-path support and add `RecordActions` `allowDelete`, both backward compatible)
 - **Documentation**: `docs/architecture/{overview.md,domain-model.md,data-dictionary.md}`, `docs/architecture/decisions/0003-work-categories-and-allocation.md` (create), `docs/operations/database-and-recovery.md`, `docs/REPO_MAP.md`, `CHANGELOG.md`, `README.md` *(note: `docs/feature-roadmap.md` `F003` checkbox remains unchecked until conformance review and operator UAT)*
 
 ### Tests to Be Added or Updated
@@ -205,6 +205,7 @@ src/
 - **Add**: `tests/visual/categories-allocation.spec.ts`
 - **Add**: `tests/e2e/categories-allocation.spec.ts`
 - **Update (only if needed)**: `tests/unit/docs-completeness.test.ts`, `tests/integration/organization-migration-seed.test.ts` (if `APP_VERSION` is hardcoded), `tests/integration/organization-persistence.test.ts` (if exact F002 delete conflict message strings are asserted)
+- **Update**: `tests/integration/migration-upgrade.test.ts` (its synthetic test migration counts journal entries instead of assuming `0002` is free), `tests/e2e/organization-cadence.spec.ts` (End now lands on the 4th tab), `tests/unit/organization-context.test.ts` (`pickCurrentPi`)
 
 ### Explicitly Out of Scope
 - Any `/settings` route or enabling the profile-menu `Settings` placeholder

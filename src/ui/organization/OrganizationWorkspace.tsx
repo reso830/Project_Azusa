@@ -5,12 +5,18 @@ import { useOrganizationContext } from '../shell/OrganizationContext';
 import { TrainsAndCadencePanel } from './TrainsAndCadencePanel';
 import { TeamsAndMembersPanel } from './TeamsAndMembersPanel';
 import { LocationsPanel } from './LocationsPanel';
+import { CategoriesAndAllocationPanel } from './CategoriesAndAllocationPanel';
 import styles from './organization.module.css';
 
 const tabs = [
   { id: 'cadence', name: 'ARTs & PI Cadence', Panel: TrainsAndCadencePanel },
   { id: 'members', name: 'Teams & Members', Panel: TeamsAndMembersPanel },
   { id: 'locations', name: 'Locations', Panel: LocationsPanel },
+  {
+    id: 'categories',
+    name: 'Categories & Allocation',
+    Panel: CategoriesAndAllocationPanel,
+  },
 ];
 
 export function OrganizationWorkspace() {

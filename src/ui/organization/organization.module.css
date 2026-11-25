@@ -266,6 +266,130 @@
 .table td:last-child {
   padding-right: 18px;
 }
+.allocationPickers,
+.allocationSummary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.allocationSummary,
+.allocationFooter {
+  padding: 12px 18px;
+  border-bottom: 1px solid #efeae3;
+}
+.allocationFooter {
+  border-top: 1px solid #efeae3;
+  border-bottom: 0;
+}
+.allocationSummary {
+  font-size: 13px;
+  font-weight: 600;
+}
+.allocationTotal,
+.inheritBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #fcefe2;
+  color: #6c430f;
+  font-weight: 700;
+}
+.allocationTotal {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.totalValid {
+  background: #e6f2e9;
+  color: #245a39;
+}
+.inheritBadge {
+  background: #f4f1ec;
+  color: #5d574f;
+  font-size: 11px;
+}
+.driftNotice {
+  margin: 12px 18px;
+  padding: 9px 12px;
+  border-left: 3px solid #e07f24;
+  border-radius: 6px;
+  color: #6c430f;
+  background: #fcefe2;
+  font-size: 13px;
+}
+.driftNotice ul {
+  margin: 5px 0 0;
+  padding-left: 18px;
+}
+.categoryGroup h3 {
+  margin: 0;
+  padding: 8px 18px;
+  background: #faf8f5;
+  color: #67635c;
+  font-size: 13px;
+}
+.categoryGroup .record {
+  justify-content: flex-start;
+}
+.categoryGroup .record > .actions {
+  margin-left: auto;
+}
+.categoryGroup .categoryIdentity {
+  flex: 0 1 220px;
+}
+.categoryIdentity,
+.percentField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.categoryDetail {
+  margin-top: 2px;
+  color: #67635c;
+  font-size: 12px;
+}
+.swatch {
+  flex: 0 0 12px;
+  height: 12px;
+  border: 1px solid #1a1b2240;
+  border-radius: 3px;
+}
+.percentInput {
+  width: 4.5rem;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #d9d1c5;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1b22;
+  font: 13px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.percentInput[aria-invalid='true'] {
+  border-color: #8b2e21;
+}
+.percentInput:disabled {
+  background: #f4f1ec;
+}
+.allocationTable {
+  min-width: 0;
+}
+.allocationTable tbody th {
+  background: #fff;
+  color: #1a1b22;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.overrideControls {
+  margin-block: 2px;
+}
+.overrideControls .badge {
+  margin-left: 0;
+}
 @media (max-width: 800px) {
   .toolbar,
   .record,

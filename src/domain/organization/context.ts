@@ -30,6 +30,16 @@ function selectActive<T extends ContextRecord>(
   );
 }
 
+/** First active PI by start date that has not ended, else the latest active PI. */
+export function pickCurrentPi<
+  T extends ContextRecord & { startDate: string; endDate: string },
+>(pis: readonly T[], today: string): T | null {
+  const active = pis
+    .filter(isActive)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+  return active.find((pi) => pi.endDate >= today) ?? active.at(-1) ?? null;
+}
+
 export function reconcileActiveContext<T extends ContextTrain>(
   tree: readonly T[],
   stored: StoredContext | null,
@@ -42,17 +52,13 @@ export function reconcileActiveContext<T extends ContextTrain>(
     eligibleTrains.find((record) =>
       record.teams.some((team) => team.id === stored?.teamId && isActive(team)),
     ) ?? selectActive(eligibleTrains, stored?.trainId);
-  const activePis = (train?.pis ?? [])
-    .filter(isActive)
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+  const pis = train?.pis ?? [];
   return {
     train,
     team: selectActive(train?.teams ?? [], stored?.teamId),
     pi:
-      activePis.find((pi) => pi.id === stored?.piId) ??
-      activePis.find((pi) => pi.endDate >= today) ??
-      activePis.at(-1) ??
-      null,
+      pis.find((pi) => pi.id === stored?.piId && isActive(pi)) ??
+      pickCurrentPi(pis, today),
   };
 }
 

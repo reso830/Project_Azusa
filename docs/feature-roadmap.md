@@ -19,7 +19,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
 - [ ] **M3 — Metrics & Reporting** (F016–F018)
 - [ ] **M4 — ART-Level Planning** (F019)
 
-**Progress:** 2 / 19 features implemented and accepted (F001, F002). Operator UAT acceptance was confirmed for F001 on 2026-11-23 and for F002 on 2026-11-24; see the [F001](../specs/001-application-foundations/tasks.md) and [F002](../specs/002-organization-cadence/tasks.md) Phase 08 verification records. F003–F019 remain planned.
+**Progress:** 3 / 19 features implemented and accepted (F001, F002, F003). Operator UAT acceptance was confirmed for F001 on 2026-11-23, for F002 on 2026-11-24, and for F003 on 2026-11-25; see the [F001](../specs/001-application-foundations/tasks.md) and [F002](../specs/002-organization-cadence/tasks.md) Phase 08 and [F003](../specs/003-work-categories-allocation/tasks.md) Phase 07 verification records. F004–F019 remain planned.
 
 ---
 
@@ -39,7 +39,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
   - Establishes organizational and calendar entities; RBAC is not enforced in the current single-user phase.
   - Dependencies: F001.
 
-- [ ] **F003 — Work Categories & Allocation**
+- [x] **F003 — Work Categories & Allocation**
   - Configurable development and overhead categories, Bugs category, names/short labels/colours, ART defaults, Team overrides/inheritance, per-PI allocation, and validation that development-category allocations total 100%.
   - Settings for categories are delivered here, not through a separate Settings feature.
   - Dependencies: F002.

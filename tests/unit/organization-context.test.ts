@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import {
   formatProfileSubtitle,
+  pickCurrentPi,
   reconcileActiveContext,
 } from '../../src/domain/organization/context';
 
@@ -99,3 +100,11 @@ it.each([
     expect(reconcileActiveContext(tree, { piId }, date).pi?.id).toBe(expected);
   },
 );
+
+it('picks the current PI, then the next, then the latest active PI', () => {
+  const pis = [future, old, past, pi];
+  expect(pickCurrentPi(pis, '2027-01-15')?.id).toBe('past');
+  expect(pickCurrentPi(pis, '2027-02-27')?.id).toBe('future');
+  expect(pickCurrentPi(pis, '2027-04-01')?.id).toBe('future');
+  expect(pickCurrentPi([old], today)).toBeNull();
+});

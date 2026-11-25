@@ -214,6 +214,7 @@ Clears all Team overrides for **active** development categories of `(teamId, piI
   - Groups active **Development** and **Overhead** categories separately with within-group up/down reorder buttons (archived categories revealed behind `"Show archived"` do not interfere with active reordering).
   - Surfaces an advisory banner listing any `driftedAllocations[]` (current/future PIs only).
 - **Team PI Allocation section**:
+  - The PI picker defaults to the current PI, using the same rule as the header context (`pickCurrentPi`: the first active PI by start date whose `end_date >= today`, otherwise the latest active PI).
   - Includes an optional `"Show archived Teams/PIs"` toggle (off by default); selecting an archived Team or PI renders the allocation table **read-only** with an `"Archived — read-only"` badge and disabled inputs/Save/Reset buttons.
   - When the ART has `0` active development categories, shows a clear `"Not configured"` empty state with Save/Reset disabled.
   - When ART defaults are currently invalid (`!== 100%`), shows a clear banner explaining the ART total is `NN%`, lets the operator either override to a valid `100%` Team split or click `"Reset all to ART defaults"` (which flags the resulting invalid split).

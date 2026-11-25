@@ -77,8 +77,7 @@ PI-scoped Team percentage overrides for ART `development` categories. Row absenc
 | `created_by` / `updated_by` | `text` | No | `'local:sm'` | Internal actor provenance (`auditColumns()`) |
 
 **Indexes**:
-- `team_cat_alloc_unique`: `UNIQUE (team_id, pi_id, category_id)`
-- `team_cat_alloc_team_pi_idx`: `INDEX (team_id, pi_id)`
+- `team_cat_alloc_unique`: `UNIQUE (team_id, pi_id, category_id)` (its leading columns also serve `(team_id, pi_id)` lookups, so no separate index is needed)
 - `team_cat_alloc_category_idx`: `INDEX (category_id)`
 
 **Application/Domain Cross-Table Invariants (enforced transactionally in `category-service.ts`)**:

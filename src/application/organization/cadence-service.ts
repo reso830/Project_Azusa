@@ -193,7 +193,7 @@ export async function deletePi(db: PgliteDatabase, piId: string) {
         await tx.delete(pis).where(eq(pis.id, id)).returning(),
         'PI',
       ),
-    'Remove the PI’s Iterations before deleting it.',
+    'Remove the PI’s Iterations and category allocations before deleting it.',
   );
 }
 

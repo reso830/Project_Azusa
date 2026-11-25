@@ -2,6 +2,20 @@
 
 Application release history is independent of Azusa's internal PI Plan Versioning.
 
+## [0.3.0] - 2026-11-25
+
+F003 operator UAT acceptance was confirmed on 2026-11-25 and recorded in the F003 Phase 07 task notes.
+
+### Added
+
+- **Categories & Allocation** under Organization. Manage ART development and overhead categories, reorder them by kind, and apply an optional sample catalog.
+- Edit ART default percentages and Team/PI overrides with live totals, explicit inheritance and zero-percent states, and drift warnings for current and future PIs.
+- Additive migration `0002_work_categories_allocation.sql` and CLI backup and restore coverage for categories and overrides.
+
+### Changed
+
+- ART, Team, and PI deletion conflicts explain when categories or allocations prevent deletion.
+
 ## [0.2.0] - 2026-11-24
 
 F002 operator UAT acceptance was confirmed on 2026-11-24 and recorded in the F002 Phase 08 task notes.
