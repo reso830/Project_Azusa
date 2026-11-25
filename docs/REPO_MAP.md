@@ -1,6 +1,6 @@
 # Repository map
 
-Azusa 0.2.0 includes the F001 foundation and F002 organization and cadence. Start here, then read the current feature's task slice. F003–F019 entries identify future ownership.
+Azusa 0.3.0 includes F001 foundations, F002 organization and cadence, and F003 work categories and allocation. Start here, then read the current feature's task slice. F004–F019 entries identify future ownership.
 
 ## Entry points and boundaries
 
@@ -37,6 +37,17 @@ Request flow: `app adapter → application service → domain validation + persi
 | [`src/persistence/schema/`](../src/persistence/schema/) and [`src/persistence/migrations/`](../src/persistence/migrations/) | `organization.ts`, `calendar.ts`, `0001_organization_cadence.sql`, the Drizzle journal, and `meta/0001_snapshot.json`. `seed.ts` fills reference data during migration. `version.ts` supplies `APP_VERSION` to migration and restore. |
 | [`src/ui/shell/`](../src/ui/shell/) | `OrganizationContext.tsx` loads and reconciles context. `HeaderContextSelector.tsx` renders Team and PI pickers. `TodayWidget.tsx` presents Team cadence. |
 | [`specs/002-organization-cadence/`](../specs/002-organization-cadence/) | F002 specification, plan, tasks, and API contract. Tests cover domain rules, real PGlite migrations/services, HTTP routes, and the Organization browser flow. |
+
+## F003 work categories and allocation
+
+| Entry point | Responsibility |
+| --- | --- |
+| [`src/domain/categories/`](../src/domain/categories/) | Request schemas, integer allocation rules, resolved Team/PI view, and sample catalog. |
+| [`category-service.ts`](../src/application/categories/category-service.ts) | Transactional catalog lifecycle, defaults, Team/PI overrides, and drift summaries. |
+| [`categories.ts`](../src/persistence/schema/categories.ts) and [migration `0002`](../src/persistence/migrations/0002_work_categories_allocation.sql) | Category and override tables, constraints, indexes, and Drizzle migration metadata. |
+| [`src/app/api/categories/`](../src/app/api/categories/) | Local category CRUD, reorder, sample, defaults, and allocation routes. |
+| [`CategoriesAndAllocationPanel.tsx`](../src/ui/organization/CategoriesAndAllocationPanel.tsx) | Fourth Organization tab for catalog and allocation management. |
+| [F003 spec package](../specs/003-work-categories-allocation/) | Spec, plan, tasks, and API contract. Tests cover rules, migration and CLI recovery, services, HTTP, and the browser workflow. |
 
 ## Common modification paths
 

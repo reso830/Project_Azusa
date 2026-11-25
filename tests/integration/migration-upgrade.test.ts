@@ -237,7 +237,7 @@ it('health reports applied migration count and journal tag', async () => {
     const j = path.join(folder, 'meta', '_journal.json');
     const journal = JSON.parse(await readFile(j, 'utf8'));
     journal.entries.push({
-      idx: 2,
+      idx: journal.entries.length,
       version: '7',
       when: journal.entries.at(-1).when + 1,
       tag: '0002_test',
@@ -258,7 +258,7 @@ it('health reports applied migration count and journal tag', async () => {
     expect(
       (await getFoundationHealth({ dbDir, migrationsFolder: folder }))
         .migrations,
-    ).toMatchObject({ count: 3, latestTag: '0002_test' });
+    ).toMatchObject({ count: journal.entries.length, latestTag: '0002_test' });
   } finally {
     await closeDbContext();
     await rm(root, { recursive: true, force: true });

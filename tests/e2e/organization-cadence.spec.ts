@@ -15,6 +15,7 @@ const labels = {
   teams: 'Teams & Members',
   locations: 'Locations',
 };
+const categoriesTab = 'Categories & Allocation';
 const section = (page: Page, name: string) =>
   page.getByRole('region', { name, exact: true });
 const tab = (page: Page, name: string) =>
@@ -111,6 +112,8 @@ test('US1–US4 Organization management, persistence, shell and accessibility', 
   await expect(action(page, 'Search')).toBeFocused();
 
   await tab(page, labels.cadence).press('End');
+  await expect(tab(page, categoriesTab)).toBeFocused();
+  await tab(page, categoriesTab).press('ArrowLeft');
   await expect(tab(page, labels.locations)).toBeFocused();
   const locations = section(page, 'Locations');
   const registry = page.getByRole('region', { name: 'Location registry' });

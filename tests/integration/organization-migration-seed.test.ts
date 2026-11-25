@@ -141,7 +141,7 @@ it('upgrades F001 and seeds the pinned 2027 calendar without changing metadata',
       JSON.parse(
         await readFile(path.join(dbDir, '.azusa-last-healthy.json'), 'utf8'),
       ).appVersion,
-    ).toBe('0.2.0');
+    ).toBe(APP_VERSION);
   } finally {
     await client.close();
     await rm(root, { recursive: true, force: true });

@@ -132,7 +132,7 @@ export async function deleteTrain(db: PgliteDatabase, trainId: string) {
         await tx.delete(trains).where(eq(trains.id, id)).returning(),
         'ART',
       ),
-    'Remove the ART’s Teams and PIs before deleting it.',
+    'Remove the ART’s Teams, PIs, and Categories before deleting it.',
   );
 }
 
@@ -267,7 +267,7 @@ export async function deleteTeam(db: PgliteDatabase, teamId: string) {
         await tx.delete(teams).where(eq(teams.id, id)).returning(),
         'Team',
       ),
-    'This Team has past, current, or pending Member assignments.',
+    'This Team has Member assignments or category allocations.',
   );
 }
 

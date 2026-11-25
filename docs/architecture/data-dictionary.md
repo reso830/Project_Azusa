@@ -1,6 +1,6 @@
 # Physical data dictionary
 
-F001–F002 / application 0.2.0. This describes implemented persistence. The [domain model](domain-model.md) also covers future concepts. Drizzle manages migration bookkeeping separately. Paths below use the default configuration unless overridden. Source entry points are in the [repository map](../REPO_MAP.md).
+F001–F003 / application 0.3.0. This describes implemented persistence. The [domain model](domain-model.md) also covers future concepts. Drizzle manages migration bookkeeping separately. Paths below use the default configuration unless overridden. Source entry points are in the [repository map](../REPO_MAP.md).
 
 ## `app_metadata` and `auditColumns()`
 
@@ -20,7 +20,7 @@ Timestamps represent UTC instants and serialize as ISO strings (`Z`) in generate
 
 | Key                     | `value` payload                                                                                                           | Write semantics                                                                                                                                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `foundation.init`       | `schemaVersion` (`0000_foundation_init`), `appVersion` (`0.2.0` for new rows), `initializedAt` ISO datetime | Insert only if absent after migration. Upgrades preserve the whole original row. The seed label remains constant across migrations. |
+| `foundation.init`       | `schemaVersion` (`0000_foundation_init`), `appVersion` (`0.3.0` for new rows), `initializedAt` ISO datetime | Insert only if absent after migration. Upgrades preserve the whole original row. The seed label remains constant across migrations. |
 | `diagnostic.last_check` | `note` nonempty string up to 280 characters, `checkCount` nonnegative integer, `checkedAt` ISO datetime                   | Strict request trims note, defaults to `Manual diagnostic check`; blank/unknown fields rejected. First count 1; SQL-side increment on subsequent writes preserves ID/creation audit. |
 
 `AppMetadataEntrySchema` ties key to payload. `app_metadata` can contain only foundation metadata in a fresh cluster; the diagnostic row appears after a manual check. Health is a derived response, not an extra persisted table.
@@ -50,10 +50,24 @@ Name and code uniqueness above uses `lower(trim(...))` where specified, includin
 - `date-holidays` 3.39.2 supplies public and bank holidays offline. Karnataka (`IN`/`KA`) is supported by that version. If the seed probe yields no regional calendar, the default falls back to country-level India and records `Public holidays, IN` with no subdivision. Islamic/Hijri rule strings set `confirmed = false`.
 - Company and manual rows suppress library rows for the same Location and date when resolving effective holidays. Jurisdiction edits replace only library holidays from the server-local edit date onward. The stored `library_seed_cutoff_date` keeps later seeding from applying that jurisdiction to earlier dates. Operational refresh belongs to F005.
 
+## F003 category and allocation tables
+
+Both tables include shared audit columns. All foreign keys use `ON DELETE RESTRICT`.
+
+| Table | Columns and constraints |
+| --- | --- |
+| `categories` | `train_id` references `trains.id`. `name` and `short_label` are nonempty text. `color` is six-digit hex. `kind` is `development` or `overhead`. Nullable `semantic_role` and `default_pct` are governed by the kind check below. `sort_order` is a nonnegative integer, default `0`, scoped to ART and kind. `record_status` is `active` (default) or `archived`. |
+| `team_category_allocations` | `team_id`, `pi_id`, and `category_id` reference their respective tables and form a unique tuple. `override_pct` is a non-null integer checked between 0 and 100. Rows only store explicit overrides, including `0`. A missing row means inheritance. |
+
+`categories_kind_fields_valid` explicitly checks that development rows have non-null `semantic_role` (`feature`, `maintenance_bugs`, or `standard`) and non-null integer `default_pct` from 0 to 100. Overhead rows require both fields to be null. Names are unique per ART using `lower(trim(name))`. The partial unique index `categories_train_active_bugs_unique` permits at most one active `maintenance_bugs` row per ART. `categories_train_kind_sort_idx` covers ordered catalog reads by ART and kind. `team_cat_alloc_unique` also serves Team/PI lookups, and `team_cat_alloc_category_idx` serves reference checks by category. The application validates ART ownership and active development targets when writing overrides.
+
+`TeamPiAllocationView` is derived from the ART's active development categories and sparse overrides. It exposes the ART, Team, PI, PI end date and current/future flag, ordered category metadata, each row's ART default, override, effective percentage and source, plus configuration status, totals, validity, and a drift flag. The effective value is `overridePct ?? artDefaultPct`. Archived categories and their overrides remain stored. The derived view has no backing table.
+
 ## Migration structures
 
 - `src/persistence/migrations/0000_foundation_init.sql`: initial table and constraints.
 - `src/persistence/migrations/0001_organization_cadence.sql` and `meta/0001_snapshot.json`: F002 tables, checks, foreign keys, indexes, and updated generation snapshot.
+- `src/persistence/migrations/0002_work_categories_allocation.sql` and `meta/0002_snapshot.json`: F003 tables, checks, foreign keys, indexes, and generation snapshot.
 - `meta/_journal.json`: Drizzle migration tags and `when` timestamps; keep ordering metadata intact.
 - `meta/0000_snapshot.json`: generation baseline, required for future schema diffs.
 - `drizzle.__drizzle_migrations`: Drizzle-managed application history. Health reads applied rows/count and maps the latest `created_at` timestamp to the journal tag. Do not infer current migration state from the initial foundation record.
