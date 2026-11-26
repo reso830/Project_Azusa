@@ -1,6 +1,6 @@
 # Implementation Plan: Capacity Engine & Capacity Planner (F004)
 
-**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 3 — percent bulk >744h atomic 400, breakdown zero clamp, archived-Member scheduledEndDate < today, active-URL header sync) | **Spec**: [spec.md](./spec.md)  
+**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 4 — atomic cross-ART header sync via `setSelection`, clamped breakdown formula throughout, invalid deep-link fallback; Review Pass 3 — percent bulk >744h atomic 400, breakdown zero clamp, archived-Member scheduledEndDate < today) | **Spec**: [spec.md](./spec.md)  
 **Input**: Feature specification `/specs/004-capacity-engine-planner/spec.md`, Feature Brief `/docs/features/004-capacity-engine-planner.md` (v0.1), and Design Handoff `/docs/handoffs/azusa-handoff-v2.zip`
 
 ---
@@ -110,6 +110,7 @@ flowchart TD
 1. `/capacity` checks URL search params (`teamId`, `piId`):
    - If valid UUIDs point to an **active** ART, Team, and PI, `/capacity` atomically updates ART + Team + PI via `OrganizationContext.setSelection({ teamId, piId })` (avoiding cross-ART `piId` drops) and **immediately clears the URL params** (`router.replace('/capacity')`) once synced so subsequent manual header changes are never pulled back by a leftover URL.
    - If valid UUIDs point to an **archived** ART, Team, or PI, URL params take precedence over `useOrganizationContext()` while the floating header retains its active selection and `/capacity` renders a prominent read-only banner (`"Viewing archived <Team> · <PI> (read-only)"` + `"Return to active selection"`). Changing the header selector clears the URL params via `router.replace('/capacity')` (`m13`).
+   - If the URL params are incomplete (only one of `teamId` / `piId`), are not valid UUIDs, reference an unknown Team or PI, or name a Team and PI from different ARTs, `/capacity` ignores them, clears them (`router.replace('/capacity')`), keeps the floating header's current selection, and shows a dismissible notice (`"Link could not be opened — showing current selection"`).
 2. `getTeamPiCapacity()` validates that `team` and `pi` exist (`404`) and belong to the same `train_id` (`409`).
 3. Loads Team, ART (`record_status`), PI, Iterations (computing Team-scheduled boundaries via `computeTeamIterationSchedule()`), overlapping `member_team_assignments` for `teamId`, Members (counting archived Members **only** in Iterations where `scheduledEndDate < today`, excluding them with `exclusionReason: 'archived'` in current/future Iterations), Locations, Holidays, Absences + AbsenceTypes, ART Categories + F003 `resolveTeamPiAllocation()`, **Team-scoped** `overhead_deductions` (`WHERE team_id = teamId AND iteration_id IN piIterations`), and `team_pi_velocity_overrides` for `(teamId, piId)`.
 4. Passes normalized pure inputs to `calculateTeamPiCapacity()` in `src/domain/capacity/engine.ts` (`completedSprintHistory: []` until F015) and returns `TeamPiCapacityView` with `readOnly: train.recordStatus === 'archived' || team.recordStatus === 'archived' || pi.recordStatus === 'archived'`.

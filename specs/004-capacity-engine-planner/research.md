@@ -1,6 +1,6 @@
 # Research & Architectural Decisions: Capacity Engine & Capacity Planner (F004)
 
-**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 3 — percent bulk >744h atomic 400, breakdown clamp, archived-Member past-iteration rule, active-URL header sync) | **Spec**: [spec.md](./spec.md)
+**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 4 — atomic cross-ART header sync via `setSelection`, clamped breakdown formula throughout, invalid deep-link fallback; Review Pass 3 — percent bulk >744h atomic 400, breakdown clamp, archived-Member past-iteration rule) | **Spec**: [spec.md](./spec.md)
 
 ---
 
@@ -97,3 +97,4 @@
 - If valid URL params point to an **active** ART, Team, and PI, `/capacity` calls `setSelection({ teamId, piId })` and **immediately clears the URL params** (`router.replace('/capacity')`) once synced, so subsequent manual header changes are never pulled back to the linked Team.
 - If valid URL params point to an **archived** ART, Team, or PI, URL params take precedence over the floating header context selector; the header continues to show its active selection unchanged while `/capacity` displays a prominent read-only banner (`"Viewing archived <Team> · <PI> (read-only)"`) with a `"Return to active selection"` button that clears the URL params.
 - Changing the Team or PI in the floating header clears any remaining URL params (`router.replace('/capacity')`) so the header selection immediately takes effect.
+- If the URL params are incomplete (only one of `teamId` / `piId`), are not valid UUIDs, reference an unknown Team or PI, or name a Team and PI from different ARTs, `/capacity` ignores them, clears them (`router.replace('/capacity')`), keeps the floating header's current selection, and shows a dismissible notice (`"Link could not be opened — showing current selection"`).

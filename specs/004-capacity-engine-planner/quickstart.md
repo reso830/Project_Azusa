@@ -1,6 +1,6 @@
 # Quickstart & Manual Verification Guide: Capacity Engine & Capacity Planner (F004)
 
-**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 2 — R5/R6/R7/R8/m13)
+**Branch**: `004-capacity-engine-planner` | **Date**: 2026-11-26 (Review Pass 4 — atomic cross-ART header sync via `setSelection`, clamped breakdown formula throughout, invalid deep-link fallback; Review Pass 2 — R5/R6/R7/R8/m13)
 
 ---
 
@@ -68,6 +68,7 @@ Verify the restored cluster contains all F001–F004 tables (`overhead_deduction
 7. **Calculation Transparency, URL-Only Archived Read-Only View & Navigation**:
    - Inspect a Member × Sprint calculation breakdown popover and confirm scheduled Sprint dates, working days, named holidays (including `est.` for unconfirmed holidays), active absences, stored overhead deductions in hours & days, explicit `max(0, Days − Leaves − deductions) × FTE = Dev` step (with `→ clamped to 0` alongside `'over_deducted'` when over-deducted, `R8`), and resulting dev days/hours are displayed clearly.
    - Open `/capacity?teamId=<archivedTeamId>&piId=<piId>` (URL-only archived view per `m13`) and confirm URL precedence, read-only banner (`"Return to active selection"` clears URL params), disabled mutations, and changing the header selector clears URL params.
+   - Open `/capacity?teamId=<unknownUuid>&piId=<piId>` and confirm the header keeps its selection, the URL params are cleared, and the `"Link could not be opened — showing current selection"` notice appears.
    - Click the `/calendar` link and `/organization` link to confirm clean navigation.
 8. **Invalid Allocation Guard**:
    - In `/organization`, archive one development category with `default_pct > 0` so the effective total ≠ `100%`; return to `/capacity` and verify the explicit invalid/drift warning banner replaces `Total 100% ✓`.

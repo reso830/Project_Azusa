@@ -2,7 +2,7 @@
 
 **Feature Branch**: `004-capacity-engine-planner`  
 **Created**: 2026-11-26  
-**Updated**: 2026-11-26 (Review Pass 3 — percent bulk >744h atomic 400 rejection, breakdown zero-clamp display, archived-Member scheduledEndDate < today rule, active-URL header sync)  
+**Updated**: 2026-11-26 (Review Pass 4 — atomic cross-ART header sync via `setSelection`, clamped breakdown formula throughout, invalid deep-link fallback; Review Pass 3 — percent bulk >744h atomic 400 rejection, breakdown zero-clamp display, archived-Member scheduledEndDate < today rule)  
 **Status**: Ready for Re-Review  
 **Input**: `docs/features/004-capacity-engine-planner.md` (v0.1, 2026-11-26)  
 **Design Reference**: `docs/handoffs/azusa-handoff-v2.zip` (`AZUSA_HANDOFF.md` §8, §8.1, §13.3; `AZUSA_HANDOFF_UPDATE_2026-11-20.md` §1; `docs/azusa-data-model.md` v0.6 §2, §4; `docs/azusa-sprint-planning-decisions.md` Capacity & Overhead; `prototype/Capacity.dc.html`; `screenshots/03-capacity-planner.png`)
@@ -166,6 +166,7 @@ Before Azusa can drive Team Calendar availability management (`F005`), Team PI B
      - When valid `teamId` and `piId` URL params point to an **active** ART, Team, and PI, `/capacity` atomically syncs the floating header's ART + Team + PI selection via `OrganizationContext.setSelection({ teamId, piId })` (avoiding cross-ART `piId` drops) and **immediately clears the URL params** (`router.replace('/capacity')`) once synced so subsequent manual header changes are never pulled back by a leftover URL.
      - When valid `teamId` and `piId` URL params point to an **archived** ART, Team, or PI, they take precedence over the header selector; the floating header retains its active selection unchanged while `/capacity` displays a prominent read-only banner (`"Viewing archived <Team> · <PI> (read-only)"`) with a `"Return to active selection"` button that clears the URL params.
      - Changing the Team or PI in the floating header clears any remaining URL params (`router.replace('/capacity')`) so the header selection immediately takes effect.
+     - If the URL params are incomplete (only one of `teamId` / `piId`), are not valid UUIDs, reference an unknown Team or PI, or name a Team and PI from different ARTs, `/capacity` ignores them, clears them (`router.replace('/capacity')`), keeps the floating header's current selection, and shows a dismissible notice (`"Link could not be opened — showing current selection"`).
    - Renders the warm-light Azusa/Kumiko visual system matching `Capacity.dc.html` / `03-capacity-planner.png` at `1440px` baseline with the approved deviations (`D1`–`D7`):
      - **Page title row**: `Capacity planner` heading, `Deduction mode` segmented toggle (`Fixed days` | `% of available`), `Hours per day` numeric input (`1.0–24.0`, step `0.5`), and a navigation link/button to `/calendar` (`Team calendar`).
      - **Five KPI tiles (`R7`)**:
@@ -421,6 +422,7 @@ As the local Azusa operator and developer, I want F004's schema changes (`teams`
   - `forecast_sp === 0 && planned_sp === 0` → `load_pct = null, band = 'none'`; `forecast_sp === 0 && planned_sp > 0` → `load_pct = null, band = 'red'`.
 - **Archived ART / Team / PI read-only inspection (`m7`, `m13`)**:
   - URL-only in F004 (`/capacity?teamId=<uuid>&piId=<uuid>`): URL params take precedence over the header selector; header keeps its active selection; page renders a read-only banner with `"Return to active selection"` (clearing URL params) and disabled mutations; changing the header selector clears the URL params.
+  - Invalid deep links: If the URL params are incomplete (only one of `teamId` / `piId`), are not valid UUIDs, reference an unknown Team or PI, or name a Team and PI from different ARTs, `/capacity` ignores them, clears them (`router.replace('/capacity')`), keeps the floating header's current selection, and shows a dismissible notice (`"Link could not be opened — showing current selection"`).
 
 ---
 
