@@ -95,7 +95,8 @@ Computes and returns the authoritative `TeamPiCapacityView` for a Team and PI.
         ],
         "forecastSpRaw": 55.89,
         "forecastSpDisplay": 56,
-        "plannedSp": null
+        "plannedSp": null,
+        "load": null
       }
     ],
     "overheadCategories": [
@@ -144,7 +145,8 @@ Computes and returns the authoritative `TeamPiCapacityView` for a Team and PI.
               "iterationId": "uuid",
               "budgetSpRaw": 31.2984,
               "budgetSpDisplay": 31,
-              "plannedSp": null
+              "plannedSp": null,
+              "load": null
             }
           ]
         }
@@ -202,13 +204,16 @@ Computes and returns the authoritative `TeamPiCapacityView` for a Team and PI.
         "initials": "MS",
         "role": "SM",
         "locationCode": "PH",
-        "exclusionReason": "role"
+        "exclusionReason": "role",
+        "excludedIterationIds": ["uuid"]
       }
     ]
   }
   ```
   - `readOnly` is `true` whenever `team.trainRecordStatus === 'archived' || team.recordStatus === 'archived' || pi.recordStatus === 'archived'` (`m7`).
   - `kpi.eligibleFte` is the scheduled-weekday-weighted average eligible FTE across PI Iterations (`Σ (fteFactor × assignedWeekdaysInPi) / totalPiScheduledWeekdays`, or sum of currently assigned eligible FTE when `iterations.length === 0`) (`m8`).
+  - `excludedMembers[].excludedIterationIds` lists the assigned Iterations where the Member was excluded for the reported reason. A partly counted archived Member appears in both `members` and `excludedMembers`. `kpi.excludedMemberCount` counts Members with no eligible Iteration, or currently assigned ineligible Members when there are no Iterations.
+  - Per-Iteration load uses `forecastSpDisplay` for the Team and `budgetSpDisplay` for a category. The percentage and band use that same denominator. Load is `null` when planned SP or the displayed denominator is unavailable.
   - `overheadByCategory` and `overheadCategories` report sums of **stored pre-FTE deductions** (`R8`, e.g., `2702` GW = `64h` / `8` days).
 - **`400 VALIDATION_ERROR`**: Invalid/missing UUID or unknown/duplicate query param.
 - **`404 NOT_FOUND`**: Unknown `teamId` or `piId`.
@@ -285,7 +290,7 @@ Clears the Team-specific PI velocity override so resolution falls back to rollin
 
 ## 5. `POST /api/capacity/overhead-deductions/bulk`
 
-Bulk-applies Team-scoped PI Planning `OverheadDeduction` rows (`source = 'pi_plan'`) across **all Iterations of the selected PI** for all active eligible `Team member`s assigned to `teamId` during each Iteration (`R2`, `R5`, `R6`, `m6`). Categories not listed in `entries` and rows belonging to other Teams are left untouched.
+Bulk-applies Team-scoped PI Planning `OverheadDeduction` rows (`source = 'pi_plan'`) across **all Iterations of the selected PI** for all active eligible `Team member`s assigned to `teamId` during each Iteration (`R2`, `R5`, `R6`, `m6`). Categories not listed in `entries`, other Teams' rows, and `sprint_adjusted` rows are left untouched. Response counts report only rows applied or cleared.
 
 ### Request Body (strict JSON)
 ```json
@@ -316,7 +321,7 @@ Bulk-applies Team-scoped PI Planning `OverheadDeduction` rows (`source = 'pi_pla
 
 ## 6. `PUT /api/capacity/overhead-deductions`
 
-Upserts (or clears when `deductedHours === 0`) a single Team-scoped `(memberId, teamId, iterationId, categoryId)` `OverheadDeduction` row with `source = 'pi_plan'` (`R2`, `R5`, `R6`). Never touches other Teams' rows.
+Upserts (or clears when `deductedHours === 0`) a single Team-scoped `(memberId, teamId, iterationId, categoryId)` `OverheadDeduction` row with `source = 'pi_plan'` (`R2`, `R5`, `R6`). A cell with a `sprint_adjusted` row returns `409 CONFLICT` on either operation. Other Teams' rows are outside the mutation scope.
 
 ### Request Body (strict JSON)
 ```json

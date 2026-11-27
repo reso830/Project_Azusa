@@ -14,6 +14,7 @@ const documents = [
   'docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md',
   'docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md',
   'docs/architecture/decisions/0003-work-categories-and-allocation.md',
+  'docs/architecture/decisions/0004-capacity-engine-and-planner.md',
   'docs/operations/database-and-recovery.md',
 ];
 const read = (file: string) => readFile(path.resolve(file), 'utf8');

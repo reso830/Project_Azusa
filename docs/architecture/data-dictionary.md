@@ -1,6 +1,6 @@
 # Physical data dictionary
 
-F001–F003 / application 0.3.0. This describes implemented persistence. The [domain model](domain-model.md) also covers future concepts. Drizzle manages migration bookkeeping separately. Paths below use the default configuration unless overridden. Source entry points are in the [repository map](../REPO_MAP.md).
+F001–F004 / application 0.4.0. This describes implemented persistence. The [domain model](domain-model.md) also covers future concepts. Drizzle manages migration bookkeeping separately. Paths below use the default configuration unless overridden. Source entry points are in the [repository map](../REPO_MAP.md).
 
 ## `app_metadata` and `auditColumns()`
 
@@ -20,7 +20,7 @@ Timestamps represent UTC instants and serialize as ISO strings (`Z`) in generate
 
 | Key                     | `value` payload                                                                                                           | Write semantics                                                                                                                                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `foundation.init`       | `schemaVersion` (`0000_foundation_init`), `appVersion` (`0.3.0` for new rows), `initializedAt` ISO datetime | Insert only if absent after migration. Upgrades preserve the whole original row. The seed label remains constant across migrations. |
+| `foundation.init`       | `schemaVersion` (`0000_foundation_init`), `appVersion` (`0.4.0` for new rows), `initializedAt` ISO datetime | Insert only if absent after migration. Upgrades preserve the whole original row. The seed label remains constant across migrations. |
 | `diagnostic.last_check` | `note` nonempty string up to 280 characters, `checkCount` nonnegative integer, `checkedAt` ISO datetime                   | Strict request trims note, defaults to `Manual diagnostic check`; blank/unknown fields rejected. First count 1; SQL-side increment on subsequent writes preserves ID/creation audit. |
 
 `AppMetadataEntrySchema` ties key to payload. `app_metadata` can contain only foundation metadata in a fresh cluster; the diagnostic row appears after a manual check. Health is a derived response, not an extra persisted table.
@@ -32,7 +32,7 @@ All ten tables include the shared audit columns above. Date fields below are inc
 | Table | Columns besides shared audit columns | Constraints and meaning |
 | --- | --- | --- |
 | `trains` | `name`, `record_status` | ART name is nonblank and case-insensitively unique. |
-| `teams` | `train_id`, `name`, `hours_per_day` (default 8), `sprint_offset_workdays` (default 0), `record_status` | Nonblank name unique per ART. Hours are greater than 0 up to 24. Offset is −1, 0, or +1 weekday. |
+| `teams` | `train_id`, `name`, `hours_per_day` (default 8), `sprint_offset_workdays` (default 0), `record_status`, and the F004 settings below | Nonblank name unique per ART. Offset is −1, 0, or +1 weekday. Workday limits are documented under F004 below. |
 | `members` | `location_id`, `full_name`, `nickname` (default empty), `initials`, `role`, `fte_factor` (default 1), `avatar_color` (default `#2F62C8`), `record_status` | Nonblank name, 1–4 trimmed initials, six-digit hex color, and FTE greater than 0 up to 1. Roles are Admin, RTE, SM, PO, and Team member. |
 | `member_team_assignments` | `member_id`, `team_id`, `start_date`, nullable `end_date` | Partial unique index allows one open-ended row per Member. Services maintain date-resolved, non-overlapping history. |
 | `pis` | `train_id`, `name`, `start_date`, `end_date`, `lifecycle_status` (default `planning`), `record_status` | Nonblank name unique per ART. Lifecycle permits `planning`, `in_progress`, and `closed`. Services check cadence overlaps. |
@@ -63,16 +63,29 @@ Both tables include shared audit columns. All foreign keys use `ON DELETE RESTRI
 
 `TeamPiAllocationView` is derived from the ART's active development categories and sparse overrides. It exposes the ART, Team, PI, PI end date and current/future flag, ordered category metadata, each row's ART default, override, effective percentage and source, plus configuration status, totals, validity, and a drift flag. The effective value is `overridePct ?? artDefaultPct`. Archived categories and their overrides remain stored. The derived view has no backing table.
 
+## F004 capacity settings and tables
+
+| Table | Columns and constraints |
+| --- | --- |
+| `teams` | `deduction_mode` is non-null text checked against `fixed_days` (default) and `percent`. `seed_normalized_velocity` is nullable double precision, checked to 0–1000 when set. `hours_per_day` is non-null double precision (default 8) checked to 1–24 in 0.5-hour increments. |
+| `overhead_deductions` | Non-null `member_id`, `team_id`, `iteration_id`, and `category_id` form a unique tuple. `deducted_hours` is non-null double precision checked to 0–744 in 0.25-hour increments. `source` is non-null text checked against `pi_plan` (default, written by F004) and `sprint_adjusted` (reserved for F013). |
+| `team_pi_velocity_overrides` | Non-null `team_id` and `pi_id` form a unique tuple. `velocity` is non-null double precision checked to 0–1000, in SP per development day. An absent row permits fallback. A stored zero is a valid override. |
+
+Both capacity tables use shared audit columns and `ON DELETE RESTRICT` foreign keys to the named parent tables. The application validates Team and ART scope, membership, and category eligibility. Stored deduction hours are pre-FTE and stay fixed when the Team workday changes. The planner derives day equivalents from the current workday.
+
+`TeamPiCapacityView` is a derived read model with Team/PI context, Team settings, per-Member and per-Iteration breakdowns, excluded Members, development-capacity and forecast totals, resolved velocity sources, category budgets, overhead summaries, and warnings. It combines the working plan with organization, availability, and the effective F003 allocation. It has no backing table.
+
 ## Migration structures
 
 - `src/persistence/migrations/0000_foundation_init.sql`: initial table and constraints.
 - `src/persistence/migrations/0001_organization_cadence.sql` and `meta/0001_snapshot.json`: F002 tables, checks, foreign keys, indexes, and updated generation snapshot.
 - `src/persistence/migrations/0002_work_categories_allocation.sql` and `meta/0002_snapshot.json`: F003 tables, checks, foreign keys, indexes, and generation snapshot.
+- `src/persistence/migrations/0003_capacity_engine_planner.sql` and `meta/0003_snapshot.json`: F004 tables, Team capacity columns, legacy workday normalization, checks, foreign keys, indexes, and generation snapshot.
 - `meta/_journal.json`: Drizzle migration tags and `when` timestamps; keep ordering metadata intact.
 - `meta/0000_snapshot.json`: generation baseline, required for future schema diffs.
 - `drizzle.__drizzle_migrations`: Drizzle-managed application history. Health reads applied rows/count and maps the latest `created_at` timestamp to the journal tag. Do not infer current migration state from the initial foundation record.
 
-Schema changes require reviewed generated SQL and metadata, plus fresh and upgrade tests. Story, Bug, capacity, commitment, and reporting tables belong to later features.
+Schema changes require reviewed generated SQL and metadata, plus fresh and upgrade tests. Story, Bug, commitment, and reporting tables belong to later features.
 
 ## Database-adjacent files
 

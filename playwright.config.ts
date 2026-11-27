@@ -10,6 +10,8 @@ export default defineConfig({
     {
       name: 'visual',
       testMatch: 'visual/**/*.spec.ts',
+      // Keep visual specs from competing on the shared Next.js dev server.
+      workers: 1,
       use: { ...devices['Desktop Chrome'] },
     },
     {

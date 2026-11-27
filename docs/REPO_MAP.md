@@ -1,12 +1,12 @@
 # Repository map
 
-Azusa 0.3.0 includes F001 foundations, F002 organization and cadence, and F003 work categories and allocation. Start here, then read the current feature's task slice. F004–F019 entries identify future ownership.
+Azusa 0.4.0 includes F001 foundations, F002 organization and cadence, F003 work categories and allocation, and F004 capacity engine and planner. Start here, then read the current feature's task slice. F005–F019 entries identify future ownership.
 
 ## Entry points and boundaries
 
 | Location                                                                      | Responsibility and starting points                                                                                                                                                                                                                                                         |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`src/app/`](../src/app/)                                                     | Next.js routes and HTTP adapters. `layout.tsx` imports fonts and mounts `AppShell`; `globals.css` owns design tokens. Nine page routes load server health and render placeholders. `api/health/route.ts` and `api/health/check/route.ts` adapt service results to HTTP.                    |
+| [`src/app/`](../src/app/)                                                     | Next.js routes and HTTP adapters. `layout.tsx` imports fonts and mounts `AppShell`. `globals.css` owns design tokens. `api/health/route.ts` and `api/health/check/route.ts` adapt service results to HTTP. |
 | [`src/ui/shell/`](../src/ui/shell/)                                           | Presentation and interaction. Start at `AppShell.tsx`, `FloatingHeader.tsx`, `nav-config.ts`, and `shell.module.css`. `TodayWidget.tsx` supplies browser timezone to the pure calendar model. `page-health.ts` loads initial server health. Card/alert components present service results. |
 | [`src/ui/icons/`](../src/ui/icons/)                                           | `kumiko-icons.ts` contains supplied paths; `KumikoIcon.tsx` renders size/color variants.                                                                                                                                                                                                   |
 | [`src/domain/`](../src/domain/)                                               | Pure calendar rules (`calendar/iso-week.ts`), actor resolution (`audit/actor.ts`), and Zod contracts (`health/schemas.ts`). Keep React, Next.js, and database access out of domain calculations.                                                                                           |
@@ -49,6 +49,17 @@ Request flow: `app adapter → application service → domain validation + persi
 | [`CategoriesAndAllocationPanel.tsx`](../src/ui/organization/CategoriesAndAllocationPanel.tsx) | Fourth Organization tab for catalog and allocation management. |
 | [F003 spec package](../specs/003-work-categories-allocation/) | Spec, plan, tasks, and API contract. Tests cover rules, migration and CLI recovery, services, HTTP, and the browser workflow. |
 
+## F004 capacity engine and planner
+
+| Entry point | Responsibility |
+| --- | --- |
+| [`src/domain/capacity/`](../src/domain/capacity/) | Pure capacity, velocity, category budget, and load calculations, with strict input schemas and read-model types. |
+| [`capacity-service.ts`](../src/application/capacity/capacity-service.ts) | Assembles the engine inputs and transacts Team settings, deductions, and Team/PI velocity changes. |
+| [`capacity.ts`](../src/persistence/schema/capacity.ts) and [migration `0003`](../src/persistence/migrations/0003_capacity_engine_planner.sql) | Capacity tables, Team settings and workday constraints, and the corresponding Drizzle journal and snapshot. |
+| [`src/app/api/capacity/`](../src/app/api/capacity/) | Capacity read, Team settings, velocity override, and individual and bulk overhead routes. |
+| [`page.tsx`](../src/app/capacity/page.tsx) and [`src/ui/capacity/`](../src/ui/capacity/) | Planner entry point and workspace with Team/PI selection, KPIs, allocation, Member table, and calculation breakdown. |
+| [F004 spec package](../specs/004-capacity-engine-planner/) | Spec, plan, tasks, and API contract. Capacity tests cover golden calculations, upgrade and CLI restore, persistence, HTTP, and browser behavior. |
+
 ## Common modification paths
 
 | Feature ownership                                                              | Focused path                                                                                                                                                      |
@@ -66,5 +77,7 @@ Request flow: `app adapter → application service → domain validation + persi
 For persisted changes, update schema, generate/review explicit migration SQL and metadata, test fresh/existing databases, and update the [data dictionary](architecture/data-dictionary.md). Maintain this map when paths or responsibilities change.
 
 ## Verification cost and isolation
+
+The browser bootstrap seeds the F004 fixture ARTs as archived. Specs that use the fixture activate both ARTs and rearchive them in cleanup. Specs that query unfiltered Organization data may see those archived fixture records.
 
 Use focused tests while editing, then the required broader gates when ready. Browser suites share port 3100/storage and run sequentially. Test-server startup allows 180 seconds for database seeding and cold compilation; the two nine-route workflows allow 90 seconds each. These test-only budgets do not change production lock timing. Keep `.next-playwright` separate from `.next`; never run a default dev server and production build against the same output directory. Vitest defaults are temporary; Playwright uses `.azusa/test-playwright/`. See [architecture](architecture/overview.md) and the [runbook](operations/database-and-recovery.md) for runtime and storage tradeoffs.

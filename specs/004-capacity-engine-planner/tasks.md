@@ -28,7 +28,7 @@
 
 **Purpose**: Establish the authoritative, pure TypeScript capacity calculation engine (`src/domain/capacity/`), tighten `contributesToDevCapacity` (`A4`), build the single canonical `Palawan` / `PI-2027.1` golden fixture (Baseline & Adjusted scenarios with `GW = 8h`, `Tr = 4h` and pinned category budgets), and verify every domain invariant and boundary condition with Vitest before touching persistence or UI.
 
-- [ ] **T001** `[P]` `[US1]` Tighten `contributesToDevCapacity` to `Team member` only, define capacity domain types, and index F004 brief in `README.md`
+- [x] **T001** `[P]` `[US1]` Tighten `contributesToDevCapacity` to `Team member` only, define capacity domain types, and index F004 brief in `README.md`
   - **Target files/components**: `src/domain/organization/roles.ts`, `src/domain/capacity/types.ts`, `tests/unit/organization-roles-schemas.test.ts`, `tests/integration/organization-persistence.test.ts`, `README.md`
   - **Expected behavior**:
     - Update `contributesToDevCapacity(role)` in `src/domain/organization/roles.ts` to `return role === 'Team member';` (`A4`), and update the existing F002 test assertions in `tests/unit/organization-roles-schemas.test.ts` and `tests/integration/organization-persistence.test.ts` to match. *(Do not touch `src/domain/organization/schemas.ts`, which does not expose `hoursPerDay`, per `m12`.)*
@@ -38,7 +38,7 @@
   - **Validation/test location**: `npm run test:run` (`tests/unit/organization-roles-schemas.test.ts`, `tests/integration/organization-persistence.test.ts`, `tests/unit/docs-completeness.test.ts`).
   - **Out-of-scope files/components**: `src/domain/organization/schemas.ts`, persistence schemas (`Phase 02`), UI components (`Phase 05`).
 
-- [ ] **T002** `[P]` `[US2, US3]` Define strict Zod v4 schemas for F004 capacity queries and mutations (`0.25h` steps & safe upper bounds)
+- [x] **T002** `[P]` `[US2, US3]` Define strict Zod v4 schemas for F004 capacity queries and mutations (`0.25h` steps & safe upper bounds)
   - **Target files/components**: `src/domain/capacity/schemas.ts`
   - **Expected behavior**:
     - Define strict `.strict()` Zod v4 schemas (rejecting unknown keys and actor fields) matching `specs/004-capacity-engine-planner/contracts/api.md`:
@@ -52,7 +52,7 @@
   - **Validation/test location**: `tests/unit/capacity-engine.test.ts` (`T005`).
   - **Out-of-scope files/components**: API Route Handlers (`Phase 04`).
 
-- [ ] **T003** `[P]` `[US3]` Implement pure Normalized Velocity resolution, Exact Integer Largest-Remainder Category Budgeting, and reusable Load Calculation modules
+- [x] **T003** `[P]` `[US3]` Implement pure Normalized Velocity resolution, Exact Integer Largest-Remainder Category Budgeting, and reusable Load Calculation modules
   - **Target files/components**: `src/domain/capacity/velocity.ts`, `src/domain/capacity/budgets.ts`, `src/domain/capacity/load.ts`
   - **Expected behavior**:
     - `velocity.ts`: Export `resolveNormalizedVelocity({ sprintOverride, piOverride, completedSprints, seedValue })` implementing `Sprint override → PI override → Rolling 4-Sprint ratio of sums (incl. development & ip iterations) → Team seed` (`A3`). Fall back to `seedValue` on `0` completed Sprints or `Σ actualDevelopmentDays <= 0`; return genuine `0.0` NV when `Σ actualDevelopmentDays > 0` and `Σ completedDevelopmentSp === 0`.
@@ -62,7 +62,7 @@
   - **Validation/test location**: `tests/unit/capacity-engine.test.ts` & `tests/unit/capacity-golden.test.ts` (`T005`).
   - **Out-of-scope files/components**: Persistence, UI components.
 
-- [ ] **T004** `[US1, US2, US3]` Implement pure Capacity Calculation Engine (`src/domain/capacity/engine.ts`)
+- [x] **T004** `[US1, US2, US3]` Implement pure Capacity Calculation Engine (`src/domain/capacity/engine.ts`)
   - **Target files/components**: `src/domain/capacity/engine.ts`
   - **Expected behavior**:
     - Reuse `computeTeamIterationSchedule`, `isWeekday` (`src/domain/organization/cadence.ts`), `resolveEffectiveLocationHolidays` (`src/domain/organization/holidays.ts`), `contributesToDevCapacity` (`src/domain/organization/roles.ts`), and `TeamPiAllocationView` (`src/domain/categories/rules.ts`).
@@ -77,7 +77,7 @@
   - **Validation/test location**: `tests/unit/capacity-golden.test.ts` & `tests/unit/capacity-engine.test.ts` (`T005`).
   - **Out-of-scope files/components**: Database queries, HTTP routes, UI components.
 
-- [ ] **T005** `[US1, US2, US3]` Create canonical `Palawan` / `PI-2027.1` golden fixture (Baseline + Adjusted) and comprehensive Vitest unit test suites
+- [x] **T005** `[US1, US2, US3]` Create canonical `Palawan` / `PI-2027.1` golden fixture (Baseline + Adjusted) and comprehensive Vitest unit test suites
   - **Target files/components**: `tests/support/capacity-golden-fixture.ts`, `tests/unit/capacity-golden.test.ts`, `tests/unit/capacity-engine.test.ts`
   - **Expected behavior**:
     - `tests/support/capacity-golden-fixture.ts`: Export the canonical `Palawan` / `PI-2027.1` dataset (`GW = 8h`, `Tr = 4h` at `8h/day`) with exact dated weekday holidays (incl. unconfirmed `2027-03-10` Hari Raya Puasa `est.`) and exact dated active absences matching `spec.md` §Data Considerations #3 (`m1`, `R6`).
@@ -95,7 +95,7 @@
 
 **Purpose**: Extend `teams` (`deduction_mode`, `seed_normalized_velocity`, tightened `hours_per_day` CHECK), add Team-scoped `overhead_deductions` (`R2`, `R5`, `R6`) and `team_pi_velocity_overrides` in Drizzle with `ON DELETE RESTRICT` foreign keys and SQL `CHECK` constraints, commit additive migration `0003_capacity_engine_planner.sql` with journal/snapshot metadata, and verify F003→F004 upgrade and CLI `db:backup`/`db:restore` round-trip safety.
 
-- [ ] **T006** `[US1, US2, US3]` Extend `teams` schema, add Team-scoped `overhead_deductions` & `team_pi_velocity_overrides`, and commit migration `0003_capacity_engine_planner.sql`
+- [x] **T006** `[US1, US2, US3]` Extend `teams` schema, add Team-scoped `overhead_deductions` & `team_pi_velocity_overrides`, and commit migration `0003_capacity_engine_planner.sql`
   - **Target files/components**: `src/persistence/schema/organization.ts`, `src/persistence/schema/capacity.ts`, `src/persistence/schema/index.ts`, `src/persistence/migrations/0003_capacity_engine_planner.sql`, `src/persistence/migrations/meta/_journal.json`, `src/persistence/migrations/meta/0003_snapshot.json`
   - **Expected behavior**:
     - In `src/persistence/schema/organization.ts`, tighten `teams_hours_per_day_valid` (`hours_per_day >= 1 and hours_per_day <= 24 and (hours_per_day * 2) = floor(hours_per_day * 2)`), add `deductionMode` (`'fixed_days' | 'percent'`, default `'fixed_days'`), and add `seedNormalizedVelocity` (`doublePrecision`, nullable, `0..1000`).
@@ -106,7 +106,7 @@
   - **Validation/test location**: `tests/integration/capacity-migration-backup.test.ts` (`T007`).
   - **Out-of-scope files/components**: `src/persistence/seed.ts`, `src/persistence/lock.ts`.
 
-- [ ] **T007** `[US5]` Add integration tests for F003→F004 migration upgrade, direct SQL constraints, and CLI `db:backup`/`db:restore` round-trip
+- [x] **T007** `[US5]` Add integration tests for F003→F004 migration upgrade, direct SQL constraints, and CLI `db:backup`/`db:restore` round-trip
   - **Target files/components**: `tests/integration/capacity-migration-backup.test.ts`, `tests/integration/migration-upgrade.test.ts` (update only if journal entry count is asserted)
   - **Expected behavior**:
     - Test 1 (F003→F004 upgrade): Apply `0000`–`0002`, insert F001–F003 rows including a legacy F002 Team with `hours_per_day = 7.25`, then run `runMigrations()` applying `0003_capacity_engine_planner.sql`; assert 100% of F001–F003 rows survive intact, existing Teams receive `deduction_mode = 'fixed_days'` and `seed_normalized_velocity = null`, and `7.25` snaps cleanly to `7.5`.
@@ -122,7 +122,7 @@
 
 **Purpose**: Implement `src/application/capacity/capacity-service.ts` orchestrating reads and Team-scoped transactional mutations on top of the pure engine, update F002/F003 delete and `kind`-switch guards (`FR-014`, `R2`, `R5`), and verify every persistence invariant against real PGlite.
 
-- [ ] **T008** `[US1, US2, US3]` Implement transactional `capacity-service.ts` and update F002/F003 delete & `kind`-switch guards
+- [x] **T008** `[US1, US2, US3]` Implement transactional `capacity-service.ts` and update F002/F003 delete & `kind`-switch guards
   - **Target files/components**: `src/application/capacity/capacity-service.ts`, `src/application/organization/organization-service.ts`, `src/application/organization/cadence-service.ts`, `src/application/categories/category-service.ts`
   - **Expected behavior**:
     - Reuse `ValidationError`, `ConflictError`, `NotFoundError`, `validate`, `requireRecord`, `requireActive`, `OrganizationOptions`, and `writeOrganization` from `src/application/organization/errors.ts`, `getServerTodayIsoDate()` from `src/domain/calendar/iso-week.ts`, and `resolveActor()` from `src/domain/audit/actor.ts`.
@@ -139,7 +139,7 @@
   - **Validation/test location**: `tests/integration/capacity-persistence.test.ts` (`T009`).
   - **Out-of-scope files/components**: HTTP Route Handlers (`Phase 04`), UI components (`Phase 05`).
 
-- [ ] **T009** `[US1, US2, US3, US5]` Add comprehensive real-PGlite integration tests for `capacity-service.ts`, cross-Team isolation, and updated F002/F003 guards
+- [x] **T009** `[US1, US2, US3, US5]` Add comprehensive real-PGlite integration tests for `capacity-service.ts`, cross-Team isolation, and updated F002/F003 guards
   - **Target files/components**: `tests/integration/capacity-persistence.test.ts`, `tests/integration/organization-persistence.test.ts` (update only if exact delete conflict strings are asserted)
   - **Expected behavior**:
     - Seed real F002/F003 records matching the canonical `Palawan` / `PI-2027.1` Baseline dataset (`GW = 8h`, `Tr = 4h`) in PGlite and verify `getTeamPiCapacity` returns exact golden numbers (`291.25` dev days, `268 SP`, pinned category budgets `149/40/38/21/20`, `2702` stored GW total = `64h` / `8d`, `plannedSp: null`, `excludedMembers`).
@@ -157,7 +157,7 @@
 
 **Purpose**: Expose thin, strict Zod-validated Next.js App Router Route Handlers for all F004 operations matching `contracts/api.md`, verified by dedicated `tests/integration/capacity-routes.test.ts`.
 
-- [ ] **T010** `[P]` `[US1, US3]` Implement `GET /api/capacity`, `PATCH /api/capacity/team-settings`, and `PUT`/`DELETE /api/capacity/velocity-override` Route Handlers
+- [x] **T010** `[P]` `[US1, US3]` Implement `GET /api/capacity`, `PATCH /api/capacity/team-settings`, and `PUT`/`DELETE /api/capacity/velocity-override` Route Handlers
   - **Target files/components**: `src/app/api/capacity/route.ts`, `src/app/api/capacity/team-settings/route.ts`, `src/app/api/capacity/velocity-override/route.ts`
   - **Expected behavior**:
     - `GET /api/capacity?teamId=<uuid>&piId=<uuid>` → `getTeamPiCapacity` (`200`).
@@ -169,7 +169,7 @@
   - **Validation/test location**: `tests/integration/capacity-routes.test.ts` (`T012`).
   - **Out-of-scope files/components**: Existing `/api/organization/*` and `/api/categories/*` routes.
 
-- [ ] **T011** `[P]` `[US2]` Implement `POST /api/capacity/overhead-deductions/bulk` and `PUT /api/capacity/overhead-deductions` Route Handlers
+- [x] **T011** `[P]` `[US2]` Implement `POST /api/capacity/overhead-deductions/bulk` and `PUT /api/capacity/overhead-deductions` Route Handlers
   - **Target files/components**: `src/app/api/capacity/overhead-deductions/bulk/route.ts`, `src/app/api/capacity/overhead-deductions/route.ts`
   - **Expected behavior**:
     - `POST /api/capacity/overhead-deductions/bulk` → `bulkApplyOverheadDeductions` (`200`).
@@ -179,7 +179,7 @@
   - **Validation/test location**: `tests/integration/capacity-routes.test.ts` (`T012`).
   - **Out-of-scope files/components**: Existing `/api/organization/*` and `/api/categories/*` routes.
 
-- [ ] **T012** `[US1, US2, US3]` Add dedicated HTTP Route Handler contract tests (`capacity-routes.test.ts`)
+- [x] **T012** `[US1, US2, US3]` Add dedicated HTTP Route Handler contract tests (`capacity-routes.test.ts`)
   - **Target files/components**: `tests/integration/capacity-routes.test.ts`
   - **Expected behavior**:
     - Exercise every `/api/capacity/*` route against a real PGlite test context, verifying:
@@ -199,7 +199,7 @@
 
 *(Note: `T013–T017` share `src/ui/capacity/capacity.module.css` and are ordered sequentially without `[P]`.)*
 
-- [ ] **T013** `[US4]` Build `/capacity` page entry, title row & controls (plus atomic `setSelection` in `OrganizationContext`) in `src/app/capacity/page.tsx`, `src/ui/shell/OrganizationContext.tsx`, `src/ui/capacity/CapacityPlannerWorkspace.tsx`, and `src/ui/capacity/capacity.module.css`
+- [x] **T013** `[US4]` Build `/capacity` page entry, title row & controls (plus atomic `setSelection` in `OrganizationContext`) in `src/app/capacity/page.tsx`, `src/ui/shell/OrganizationContext.tsx`, `src/ui/capacity/CapacityPlannerWorkspace.tsx`, and `src/ui/capacity/capacity.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `prototype/Capacity.dc.html#L53-L67` & `screenshots/03-capacity-planner.png` (page padding `24px 28px 32px`, `18px` vertical stack, `Zen Kaku Gothic New` `28px` bold title `"Capacity planner"`, right-aligned `"Deduction mode"` label + segmented pill toggle `Fixed days` / `% of available` on `#FFFFFF` with `#1A1B22` active pill; applying Deviations `D2` [navigation link to `/calendar` `"Team calendar"` in place of `+ Day off`] and `D5` [`Hours per day` numeric input `1.0–24.0` step `0.5` beside Deduction mode]).
   - **Breakpoints/checkpoints**: `1440px` (fidelity baseline), `1024px`, `768px`; states: loading, DB-unavailable/error alert with Retry, no Team/PI selected empty state (linking to `/organization`), zero-Iteration PI empty state, URL-only archived ART/Team/PI read-only banner (`"Viewing archived <Team> · <PI> (read-only)"` + `"Return to active selection"` button clearing URL params, `m13`), and populated active state.
   - **Translation note**: Add an atomic `setSelection({ teamId, piId })` action to `src/ui/shell/OrganizationContext.tsx` that resolves the target Team's `trainId` and validates `piId` against that target Train in a single state update (preventing cross-ART `piId` drops). Check URL search params `?teamId=&piId=` first: if valid UUIDs point to an **active** ART, Team, and PI, call `setSelection({ teamId, piId })` and **immediately clear the URL params** (`router.replace('/capacity')`) once synced so subsequent manual header changes are never pulled back; if they point to an **archived** ART, Team, or PI, URL params take precedence while the header keeps its active selection (`m13`). When the user changes Team or PI in the floating header, clear any remaining URL params (`router.replace('/capacity')`). If the URL params are incomplete (only one of `teamId` / `piId`), are not valid UUIDs, reference an unknown Team or PI, or name a Team and PI from different ARTs, `/capacity` ignores them, clears them (`router.replace('/capacity')`), keeps the floating header's current selection, and shows a dismissible notice (`"Link could not be opened — showing current selection"`). Lift prototype spacing, radii (`10px`, `7px`), and colour tokens (`#1A1B22`, `#FFFFFF`, `#67635C`) directly into `capacity.module.css`.
@@ -207,7 +207,7 @@
   - **Done when**: Tier 1 (`npm run test:visual` including `tests/visual/capacity-planner.spec.ts` in `T018`) green at `1440px`, `1024px`, `768px` AND Tier 2 frozen-state screenshots reviewed against `screenshots/03-capacity-planner.png`.
   - **Out-of-scope files/components**: `src/ui/shell/FloatingHeader.tsx`, `/calendar` implementation (`F005`).
 
-- [ ] **T014** `[US3, US4]` Build Five KPI Tiles strip & Velocity Seed / PI Override editor in `src/ui/capacity/CapacityKpiStrip.tsx` and `src/ui/capacity/capacity.module.css`
+- [x] **T014** `[US3, US4]` Build Five KPI Tiles strip & Velocity Seed / PI Override editor in `src/ui/capacity/CapacityKpiStrip.tsx` and `src/ui/capacity/capacity.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `prototype/Capacity.dc.html#L69-L75` & `screenshots/03-capacity-planner.png` (`grid-template-columns: minmax(0, 4fr) repeat(4, minmax(0, 3fr))`, `min-height: 100px`, `gap: 12px`, `border-radius: 12px`, `padding: 14px 16px`; Tile 1 dark `#1A1B22` **`Planned SP`**; Tiles 2–5 `#FFFFFF` **`Development capacity`**, **`Normalized velocity`** [lowercase `"v"`, value in `#A65307`], **`Forecast SP`**, **`Team FTE`** per `R7`/`D8`; `32px` bold `tabular-nums` values; applying Deviations `D1` [`Planned SP` displays `—` and `"Not yet available"` instead of mock `242 / 268 SP` or `0`] and `D5` [explicit NV source badge + accessible inline/popover editor for Team seed NV and Team PI velocity override with reset]).
   - **Breakpoints/checkpoints**: `1440px` (5-column grid matching prototype), `1024px`, `768px` (responsive wrap without text collision); states: seeded NV, PI-overridden NV (with reset button), unset NV (`—` with prompt to set seed), zero-member team (`0.0 FTE`), and read-only archived ART/Team/PI.
   - **Translation note**: Replicate the exact 5-tile DOM structure and typography hierarchy from `Capacity.dc.html#L69-L75` using exact `R7` labels; keep the Velocity editor keyboard-accessible (`Escape` closes, `:focus-visible` `2px solid #E07F24`) and never show `0` in `Planned SP`.
@@ -215,7 +215,7 @@
   - **Done when**: Tier 1 (`npm run test:visual`) green at `1440px`, `1024px`, `768px` AND Tier 2 frozen-state screenshots reviewed against `screenshots/03-capacity-planner.png`.
   - **Out-of-scope files/components**: Sprint velocity override UI (`F013`), real Planned SP queries (`F009`).
 
-- [ ] **T015** `[US3, US4]` Build Team Allocation matrix & Deducted-first overhead summary in `src/ui/capacity/TeamAllocationMatrix.tsx` and `src/ui/capacity/capacity.module.css`
+- [x] **T015** `[US3, US4]` Build Team Allocation matrix & Deducted-first overhead summary in `src/ui/capacity/TeamAllocationMatrix.tsx` and `src/ui/capacity/capacity.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `prototype/Capacity.dc.html#L77-L112` & `screenshots/03-capacity-planner.png` (`20px` `Zen Kaku Gothic New` `"Team allocation"` heading, `#FFFFFF` `14px`-radius card with `overflow-x: auto`, `#1A1B22` header bar with `Category` + `PI` + Iteration columns and `#E07F24` top inset bar on current Sprint, `#FFF8F1` `Forecast SP · 100%` row with `#A65307` totals, category rows with `4px` full-height colour bar, full name, `"Train X%"` / `"Inherits train X%"` sub-line, effective `%` pill [`#FCEFE2`/`#8A4505` for override, muted for inherit], `Total 100% ✓` green pill `#E7F3EA`/`#256B3B` in footer; applying Deviations `D1` [planned SP shown as `—` beside `/ <budget>`], `D3` [read-only `%` pills + `"Manage in Organization →"` link to `/organization` instead of inline `%` editing], and `D4` [separate **Deducted first** overhead summary showing each active ART overhead category's stored PI and per-Iteration deducted hours & days]).
   - **Breakpoints/checkpoints**: `1440px` (fidelity baseline), `1024px`, `768px` (table scrolls horizontally inside card, zero page overflow); states: valid `100% ✓` allocation with overrides + inherits, invalid/drifted allocation (`!== 100%` explicit warning banner + link to `/organization`, never showing `100% ✓`), empty/unconfigured ART (`0` dev categories), unset NV (`—` budgets), and `0` vs. multiple overhead categories in **Deducted first**.
   - **Translation note**: Lift header/row grid template (`300px` label column + PI + Sprint columns), hairlines (`#F3EFE9`, `#EFEAE3`), and chip colours wholesale from `Capacity.dc.html#L77-L112`. Do **not** add a donut chart or charting library.
@@ -223,7 +223,7 @@
   - **Done when**: Tier 1 (`npm run test:visual`) green at `1440px`, `1024px`, `768px` AND Tier 2 frozen-state screenshots reviewed against `screenshots/03-capacity-planner.png`.
   - **Out-of-scope files/components**: F003 allocation mutation calls, charting libraries (`F016`).
 
-- [ ] **T016** `[US2, US4]` Build Expandable Pre-FTE Member Capacity table & Bulk-Apply overhead bar in `src/ui/capacity/MemberCapacityTable.tsx` and `src/ui/capacity/capacity.module.css`
+- [x] **T016** `[US2, US4]` Build Expandable Pre-FTE Member Capacity table & Bulk-Apply overhead bar in `src/ui/capacity/MemberCapacityTable.tsx` and `src/ui/capacity/capacity.module.css`
   - **Match**: `docs/handoffs/azusa-handoff-v2.zip` → `prototype/Capacity.dc.html#L114-L192` & `screenshots/03-capacity-planner.png` (`20px` `"Member capacity"` heading, `#FFFFFF` `14px`-radius card with `overflow-x: auto`, `#1A1B22` header with clickable PI and Sprint expand/collapse `▸`/`◂` buttons, Sprint date range + holiday-location count summary, coloured sub-column headers when expanded [`Days`, `#FFD966` `Leaves`, per-overhead-category tinted headers, `#C2367E` `Dev` — no extra `× FTE` column per `R8`], `#FAF8F5` overhead summary rows, Member rows with `30px` coloured avatar circle, name, role & FTE subline [`Team member · 0.5 FTE`], `#1A1B22` Location pill, collapsed cells with dev days + `#244FA3` blue leave chip + `#9A6A00` sand/amber holiday chip [`est.` badge when unconfirmed] + over-deducted warning badge [no adjusted corner triangle per `R4`/`D7`], expanded cells showing **stored pre-FTE values** [`Days 10 | Leaves 0 | GW 1 | Tr 0.5 | Dev 4.25` for Hana per `R8`] with inline day inputs editing stored pre-FTE deductions and displaying the `0.25h`-snapped day value, plus stored pre-FTE footer overhead totals [`2702` GW = `8` days], `Team dev days`, and `#FFF8F1` `Forecast SP × NV` footer rows; applying Deviations `D4`, `D6`, `D7`, `D8`).
   - **Breakpoints/checkpoints**: `1440px` (collapsed and one-Sprint-expanded states matching `03-capacity-planner.png`), `1024px`, `768px`; states: collapsed all, one Sprint expanded (showing inline day edit → `0.25h` snap → persistence), PI column expanded, member with unconfirmed `est.` holiday, member with overlapping holiday + absence, member clamped at `0` with over-deducted warning, excluded non-dev roles disclosure (`PO`/`SM`/`Admin`/`RTE`), empty roster (`0` eligible `Team member`s), and read-only archived ART/Team/PI.
   - **Translation note**: Replicate `Capacity.dc.html#L114-L192` grid expansion (`minmax(0, 2.8fr)` expanded column, `minmax(0, 1fr)` collapsed columns) and dynamically size the expanded sub-grid to `3 + overheadCategories.length` columns. Convert typed day input via `snapToQuarterHour(days * hoursPerDay)` before calling `PUT /api/capacity/overhead-deductions`, and display the snapped day value (`deductedHours / hoursPerDay`, e.g., `0.1d` at `8h` → `0.75h` → `0.09d`).
@@ -231,7 +231,7 @@
   - **Done when**: Tier 1 (`npm run test:visual`) green at `1440px`, `1024px`, `768px` AND Tier 2 frozen-state screenshots reviewed against `screenshots/03-capacity-planner.png`.
   - **Out-of-scope files/components**: Days-off editor grid (`F005`), inline working-days override (`D6`), adjusted corner triangle (`D7`), extra `× FTE` column (`R8`).
 
-- [ ] **T017** `[US4]` Build inspectable Calculation Breakdown popover (`src/ui/capacity/BreakdownPopover.tsx`)
+- [x] **T017** `[US4]` Build inspectable Calculation Breakdown popover (`src/ui/capacity/BreakdownPopover.tsx`)
   - **Target files/components**: `src/ui/capacity/BreakdownPopover.tsx`, `src/ui/capacity/capacity.module.css`
   - **Match**: Azusa Kumiko card/popover visual language (`#FFFFFF` surface, `14px`–`16px` radius, `0 16px 40px rgba(26,27,34,.16)` elevation, `IBM Plex Mono` tabular numerals, `#E07F24` focus outline) fulfilling Brief §3.6 & `R8`.
   - **Breakpoints/checkpoints**: `1440px`, `1024px`, `768px`; states: Member × Iteration breakdown (scheduled Sprint dates + offset, assigned weekdays, named Location holidays with `est.` flag, named active absences + portions, per-category stored overhead deductions in hours & days, explicit **`max(0, Days − Leaves − deductions) × FTE = Dev`** equation line with explicit `→ clamped to 0` step alongside the `'over_deducted'` warning when `Days − Leaves − deductions < 0` per `R8`, resulting dev days & dev hours) and Sprint/PI Forecast breakdown (Team dev days, resolved NV + source/history counts, raw vs. displayed Forecast SP, and link to `/calendar`).
@@ -240,7 +240,7 @@
   - **Done when**: Tier 1 (`npm run test:visual`) green at `1440px`, `1024px`, `768px` AND Tier 2 screenshot of open breakdown popover reviewed.
   - **Out-of-scope files/components**: Mutation forms inside the read-only breakdown popover.
 
-- [ ] **T018** `[US4, US5]` Add Playwright visual geometry tests (`tests/visual/capacity-planner.spec.ts`) and update F001 placeholder expectations for `/capacity`
+- [x] **T018** `[US4, US5]` Add Playwright visual geometry tests (`tests/visual/capacity-planner.spec.ts`) and update F001 placeholder expectations for `/capacity`
   - **Target files/components**: `tests/visual/capacity-planner.spec.ts`, `tests/e2e/foundation-smoke.spec.ts`, `tests/visual/shell-fidelity.spec.ts`
   - **Expected behavior**:
     - `tests/visual/capacity-planner.spec.ts`: Seed a deterministic Team + PI + multi-location Members + Holidays + F003 sample catalog + overhead deductions + seed NV via local API, navigate to `/capacity`, and assert at `1440px`, `1024px`, and `768px`:
@@ -252,7 +252,7 @@
   - **Validation/test location**: `npm run test:visual` and `npm run test:e2e` exit `0`.
   - **Out-of-scope files/components**: Other placeholder routes (`/calendar`, `/backlog`, `/sprint-planning`, `/iteration`, `/dashboard`, `/`, `/program-board`, `/pi-brief`).
 
-- [ ] **T019** `[US1, US2, US3, US4, US5]` Add Playwright E2E and `@axe-core/playwright` accessibility test suite for F004
+- [x] **T019** `[US1, US2, US3, US4, US5]` Add Playwright E2E and `@axe-core/playwright` accessibility test suite for F004
   - **Target files/components**: `tests/e2e/capacity-planner.spec.ts`
   - **Expected behavior**:
     - Walk US1–US5 end-to-end against isolated port `3100` with zero external network requests:
@@ -276,14 +276,14 @@
 
 **Purpose**: Synchronize application version (`0.3.0` → `0.4.0`) across manifest, lockfile, migration, and restore markers, and update all affected Constitution Principle VI living documentation before the final Browser Smoke Test.
 
-- [ ] **T020** `[US5]` Bump application version (`0.3.0` → `0.4.0`)
+- [x] **T020** `[US5]` Bump application version (`0.3.0` → `0.4.0`)
   - **Target files/components**: `package.json`, `package-lock.json`, `src/persistence/version.ts`
   - **Expected behavior**: Bump root `version` to `"0.4.0"` in `package.json` and `package-lock.json` (both top-level and `packages[""]`), and update `APP_VERSION = '0.4.0'` in `src/persistence/version.ts` so migration and restore markers stay synchronized.
   - **Constraints**: Preserve existing `'foundation.init'` records on upgrade; assert `appVersion === '0.4.0'` in `tests/integration/capacity-migration-backup.test.ts`.
   - **Validation/test location**: `npm run test:run` and `npm run build`.
   - **Out-of-scope files/components**: Feature UI code.
 
-- [ ] **T021** `[P]` `[US5]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md`
+- [x] **T021** `[P]` `[US5]` Update `CHANGELOG.md`, `README.md`, and `docs/operations/database-and-recovery.md`
   - **Target files/components**: `CHANGELOG.md`, `README.md`, `docs/operations/database-and-recovery.md`
   - **Expected behavior**:
     - Add `0.4.0` entry to `CHANGELOG.md` summarizing F004 Capacity Engine & Capacity Planner additions and changes, explicitly noting that restricting development capacity to `Team member` only also displays the `"Excluded from dev capacity"` badge for `Admin` and `RTE` on `/organization`, and that `teams.hours_per_day` is now constrained to `[1.0, 24.0]` step `0.5`.
@@ -293,14 +293,14 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts` and `npm run format:check`.
   - **Out-of-scope files/components**: `specs/`.
 
-- [ ] **T022** `[P]` `[US5]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md`
+- [x] **T022** `[P]` `[US5]` Update `docs/REPO_MAP.md` and `docs/architecture/overview.md`
   - **Target files/components**: `docs/REPO_MAP.md`, `docs/architecture/overview.md`
   - **Expected behavior**: Document all new F004 modules (`src/domain/capacity/`, `src/application/capacity/`, `src/persistence/schema/capacity.ts`, `0003_capacity_engine_planner.sql`, `src/app/api/capacity/*`, `src/app/capacity/page.tsx`, `src/ui/capacity/*`) and update the system/data-flow overview.
   - **Constraints**: Reflect actual implemented paths accurately.
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T023** `[P]` `[US5]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
+- [x] **T023** `[P]` `[US5]` Update `docs/architecture/domain-model.md` and `docs/architecture/data-dictionary.md`
   - **Target files/components**: `docs/architecture/domain-model.md`, `docs/architecture/data-dictionary.md`
   - **Expected behavior**:
     - Update `domain-model.md` implementation-status banner to reflect F004 Capacity Engine, Team-scoped `OverheadDeduction` (renamed from v0.6 `OverheadReserve`), `TeamPiVelocityOverride`, and `/capacity` now implemented (while keeping F005–F019 conceptual), note `Team member`-only development-capacity eligibility (`A4`), and note `R9` forward impact on F013 overhead tickets.
@@ -309,7 +309,7 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T024** `[P]` `[US5]` Add ADR `0004-capacity-engine-and-planner.md`
+- [x] **T024** `[P]` `[US5]` Add ADR `0004-capacity-engine-and-planner.md`
   - **Target files/components**: `docs/architecture/decisions/0004-capacity-engine-and-planner.md`
   - **Expected behavior**: Record key F004 architectural decisions, rationale, and operator clarifications (`A1`–`A5`, `R1`–`R9`):
     - Pure TypeScript capacity engine with `hours_per_day` ∈ `[1.0, 24.0]` step `0.5` (`workdayMinutes` ∈ `[60, 1440]` step `30`), single authoritative full-precision `devDaysRaw` formula, and derived integer `devMinutes` (`M2`).
@@ -323,12 +323,16 @@
   - **Validation/test location**: `tests/unit/docs-completeness.test.ts`.
   - **Out-of-scope files/components**: Source code.
 
-- [ ] **T025** `[US5]` Run docs sanity check and full quality-gate suite
+- [x] **T025** `[US5]` Run docs sanity check and full quality-gate suite
   - **Target files/components**: `tests/unit/docs-completeness.test.ts` (update if needed for ADR `0004` / version)
   - **Expected behavior**: Verify zero stale references or `TBD`/`TODO` markers across `docs/` and run all 7 quality gates (`lint`, `format:check`, `typecheck`, `test:run`, `build`, `test:visual`, `test:e2e`), confirming every command exits `0`.
   - **Constraints**: Leave `F004` unchecked in `docs/feature-roadmap.md` until Phase 07 operator UAT acceptance.
   - **Validation/test location**: All 7 npm quality-gate commands exit `0`.
   - **Out-of-scope files/components**: `docs/feature-roadmap.md` (`T031`).
+
+**Phase 06 verification (2026-11-27)** — Lint, typecheck, production build, Vitest (166 tests), Playwright visual (13 tests), and Playwright E2E (9 tests) passed. The Windows checkout passed Prettier with `--end-of-line auto`. The default format gate passed on a temporary LF copy after the checkout's existing CRLF files triggered warnings. Release documentation links resolved and the placeholder scan passed. Historical briefs and the deferred roadmap retain pre-F004 terminology. F004 visual conformance and operator UAT are Phase 07 tasks.
+
+**Visual gate follow-up (T018 and T025)** — After an intermittent parallel timeout was reported in Categories & Allocation, the visual project was set to one worker for its shared Next.js dev server. Three consecutive default `npm run test:visual` runs each passed all 13 tests. A three-worker comparison also passed on this checkout, leaving the reload trigger unconfirmed.
 
 ---
 
@@ -336,31 +340,31 @@
 
 **Purpose**: Walk every user story's **Independent Test** in a real browser against the to-be-merged production build (after Release Prep), confirm visual fidelity, accessibility, and empty/loading/error states, and update `docs/feature-roadmap.md` only after conformance review and explicit operator UAT acceptance.
 
-- [ ] **T026** `[US1]` Verify US1 Independent Test (pure engine & canonical golden calculations); record verification result
+- [x] **T026** `[US1]` Verify US1 Independent Test (pure engine & canonical golden calculations); record verification result
   - **Target files/components**: Runtime verification via `tests/unit/capacity-golden.test.ts` & `tests/unit/capacity-engine.test.ts` plus live `/capacity` display check of `Palawan` / `PI-2027.1` Baseline (`291.3` dev days, `268 SP`, pinned category budgets `149/40/38/21/20`) and Adjusted (`60.25` / `291.8`) values, multi-location holidays incl. `est.`, `±1` offset, `Team member`-only eligibility, dated assignments, non-double-deduction, and `0`-clamping warning
   - **Expected behavior**: Confirm every step of US1's Independent Test passes on the to-be-merged build; record pass/fail evidence in `tasks.md`.
   - **Constraints**: Verify zero external network requests.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T027** `[US2]` Walk US2 Independent Test in a real browser; record verification result
+- [x] **T027** `[US2]` Walk US2 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification on `/capacity` (`Deduction mode` toggle `Fixed days` ↔ `% of available`, bulk-applying `General work` `1.0d` & `Training` `0.5d` in `Fixed days`, mid-Sprint transfer Team isolation `3.25h` / `4.75h` per `R2`/`R6`, expanding Sprint `2706` to adjust one Member's `General work` to `0.5d` and verifying `0.1d → 0.09d` snapping with no adjusted corner marker per `R4`, updating `Hours per day` `8.0 → 7.5` verifying `deducted_hours` stay fixed and dev days change predictably per `R6`, bulk-applying `10%` / `5%` in `% of available`, reload persistence, and API `409`/`400` guards)
   - **Expected behavior**: Confirm every step of US2's Independent Test passes on the to-be-merged build; record evidence in `tasks.md`.
   - **Constraints**: Confirm zero separate team-default table drift and zero SP/velocity credit for overhead.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T028** `[US3]` Walk US3 Independent Test in a real browser; record verification result
+- [x] **T028** `[US3]` Walk US3 Independent Test in a real browser; record verification result
   - **Target files/components**: Runtime verification on `/capacity` (setting Team seed NV `0.92` with `Manual seed` badge, setting Team PI override `1.05` with `PI override` badge & PI/Team isolation, clearing override back to `0.92`, verifying Sprint-to-PI Forecast SP sum & pinned integer largest-remainder Category Budgets, invalidating F003 allocation so `/capacity` displays the warning banner instead of `Total 100% ✓`)
   - **Expected behavior**: Confirm every step of US3's Independent Test passes; record evidence in `tasks.md`.
   - **Constraints**: Confirm full-precision internals and deterministic tie-breaking.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T029** `[US4]` Walk US4 Independent Test in a real browser; confirm prototype fidelity, calculation explanations, navigation & states
+- [x] **T029** `[US4]` Walk US4 Independent Test in a real browser; confirm prototype fidelity, calculation explanations, navigation & states
   - **Target files/components**: Runtime verification on `/capacity` (header `ART › Team › PI` switching, 5 KPI tiles with exact `R7` labels & `Planned SP` showing `—` / `Not yet available`, Team Allocation matrix + Deducted-first summary + `/organization` link, expandable pre-FTE Member Capacity table with stored footer totals per `R8` + `/calendar` link, leave/holiday/`est.` badges, inspectable Calculation Breakdown popover showing `max(0, Days − Leaves − deductions) × FTE = Dev` (with `→ clamped to 0` when over-deducted), URL-only archived ART/Team/PI read-only view & header clearing per `m13`, empty/loading/error states)
   - **Expected behavior**: Confirm every step of US4's Independent Test passes with zero console/hydration errors and zero `@axe-core/playwright` violations across `1440px`, `1024px`, and `768px`; record evidence in `tasks.md`.
   - **Constraints**: Confirm `1440px` matches `screenshots/03-capacity-planner.png` subject to `D1`–`D8`.
   - **Validation/test location**: Verification note recorded in `tasks.md`.
 
-- [ ] **T030** `[US5]` Verify US5 Independent Test (migrations, CLI backup/restore & living documentation); record verification result
+- [x] **T030** `[US5]` Verify US5 Independent Test (migrations, CLI backup/restore & living documentation); record verification result
   - **Target files/components**: Runtime verification of F003→F004 migration upgrade, CLI `db:backup` / `db:restore` (`--from` / `--to`, `APP_VERSION = '0.4.0'`), all 7 quality gates, and living documentation (`overview.md`, `domain-model.md`, `data-dictionary.md`, `decisions/0004-capacity-engine-and-planner.md`, `database-and-recovery.md`, `REPO_MAP.md`, `CHANGELOG.md`, `README.md`)
   - **Expected behavior**: Confirm every step of US5's Independent Test passes; record evidence in `tasks.md`.
   - **Constraints**: Confirm `docs/feature-roadmap.md` keeps `F004` unchecked until `T031`.
@@ -371,3 +375,21 @@
   - **Expected behavior**: Only after conformance review and explicit operator UAT acceptance, tick `- [x] **F004 — Capacity Engine & Capacity Planner**` and update the roadmap progress summary (`4 / 19`).
   - **Constraints**: Do not tick `F004` before operator UAT acceptance.
   - **Validation/test location**: `docs/feature-roadmap.md` + `npm run test:run` (`docs-completeness.test.ts`).
+
+**Phase 07 browser walkthrough (2026-11-27, agent-run)**: T026–T030 were walked by the agent, not the operator, with a scripted real Chromium session (Playwright, `en-US`, real clock) against the production build (`npm run build`, then `next start` on `127.0.0.1:3200`) and a fresh isolated database in git-ignored `.azusa/uat-f004/`, seeded with `seedCapacityBrowserFixture` plus `prepareCapacityCatalog` (overrides 56 / 15 / Inherit / 8 / Inherit). All 27 walk checks and the separate transfer check passed. The session made zero external requests and logged zero console, hydration, or page errors; the only HTTP errors were the intentional `404` and `409` from the invalid-link checks. T031 stays open for operator UAT.
+
+- **T026 / US1**: `capacity-golden.test.ts` and `capacity-engine.test.ts` pass. With the stock seed, live 2710 showed `56.25` dev days instead of `58.75`: the startup seed adds PH "End of Ramadan (Eid al-Fitr) (est.)" on `2027-03-09`, which the golden fixture omits, so Andrea, Ben, and Hana (`0.5` FTE) lose `2.5` days. With only that holiday removed, `/capacity` showed the golden Baseline exactly: Sprint dev days `60.75 / 55.75 / 59.75 / 56.25 / 58.75`, KPI `291.3` days and `268 SP`, Sprint forecasts `56 / 51 / 55 / 52 / 54`, and PI budgets `149 / 40 / 38 / 21 / 20`. After Carlo's 2706 General work was set to `0.5` day (`4h`; his hours read `8 / 8 / 4 / 8 / 8`), 2706 showed `60.25` (`60.3`) and the PI showed `291.8` days. Eligibility showed `7.5 FTE` and 8 Members, with Maya Santos (SM) and Pat Reyes (PO) listed under "Excluded members (2)". Cells showed `−n leave`, `−n holiday`, and `holiday · est.` markers, and the Carlo 2710 breakdown listed "Hari Raya Puasa (est.)" and the active half day. Carlo 2710 at `200h` displayed `0` with "Over-deducted → clamped to 0". The `±1` offset is covered by the engine unit tests only; the fixture Team uses offset `0`.
+- **T027 / US2**: The `Fixed days` ↔ `% of available` toggle persisted across reloads. Bulk `1.0` day General work and `0.5` day Training stored `8h` / `4h` (`64h` General work per Sprint); Hana 2706 showed `Days 10 | Leaves 0 | GW 1 | Tr 0.5 | Dev 4.25`. Typing `0.1` day snapped to `0.75h` and displayed `0.09`, focus stayed on the input after Enter, and the reloaded row showed no Adjusted marker. Changing hours per day from `8` to `7.5` kept the stored General work and Training totals of `312.75h` and `160h`, lowered dev days from `292.16` to `288.47`, and lowered forecast from `269` to `265 SP`. Bulk `10%` / `5%` in `% of available` mode cut the stored General work total from `312.75h` to `298.25h`, and every stored deduction was a `0.25h` multiple (Carlo 2710 at 9 available days stored `7.25h` / `3.5h`). For the mid-Sprint transfer, Faye Tan was split in the database (Palawan 4–7 Jan, Cebu from 8 Jan; the Members API treats the fixture's future-dated assignments as a pending move). A UI bulk apply on Palawan stored `3.25h` for her 4/10 weekdays and left Cebu at `0h`; a UI bulk apply on Cebu then stored `4.75h` for her 6/10 weekdays and left Palawan at `3.25h`. The API rejected a development category (`409`), `0.1h`, `−1h`, and `745h` (`400`), a mismatched `mode` (`409`), and `32` days (`400`), and stored rows were unchanged.
+- **T028 / US3**: Seed `0.92` showed the "Manual seed" badge and persisted across reload. A PI-2027.1 override of `1.05` showed "PI override" and raised the forecast from `269` to `308 SP`; the Sprint forecasts summed to the PI forecast, each Sprint's category budgets summed to its forecast, PI-2027.2 stayed `manual_seed`, and Cebu stayed `unset`. Clearing the override returned the velocity to "Manual seed". Archiving Feature development showed "Invalid allocation" and no "Total 100% ✓".
+- **T029 / US4**: A valid Palawan link updated the header and cleared the URL. All five KPI labels matched `R7`, with Planned SP showing "—" / "Not yet available"; the allocation matrix showed "Inherits train", override chips, "— / budget", "Total 100% ✓", the Deducted-first table, and "Manage in Organization →". Sprint headers showed holiday-location counts. The Carlo 2710 breakdown listed the scheduled Sprint and offset, holidays, absences, "General work · 8h", and the `max(0, Days − Leaves − deductions) × FTE = Dev` equation, and Escape returned focus to its trigger. The `/calendar` and `/organization` links navigated correctly. An archived Team link showed the read-only banner with Hours per day and Edit velocity disabled; "Return to active selection" cleared the URL, and a header change also cleared it. Unknown, incomplete, and cross-PI links showed "Link could not be opened — showing current selection". Empty states were covered: no selection, Delivery ART (no eligible members, no Iterations, velocity "Unset"), and PI-2027.2 (no Iterations). Axe found zero violations at 1440, 1024, and 768 px, collapsed, expanded, and with the breakdown open. At 1440 px the Adjusted state with 2706 expanded matches `screenshots/03-capacity-planner.png` value for value (KPIs `291.8` / `0.92` / `268` / `7.5`, Sprint budgets, Member PI totals, Team dev days `291.8 / 60.8 / 55.8 / 60.3 / 56.3 / 58.8`). Operator feedback identified further layout differences. At 768 px the tables scroll inside focusable regions.
+- **T030 / US5**: The F003 code at `main` (`0.3.0`) built a database with Teams at `hours_per_day` 8, 7.3, and 0.4. Running this branch's `npm run db:migrate` kept every F001–F003 row count, added `overhead_deductions` and `team_pi_velocity_overrides` (empty), defaulted `deduction_mode` to `fixed_days` and `seed_normalized_velocity` to `null`, and snapped 7.3 → 7.5 and 0.4 → 1.0. On the walked database (85 overhead deductions, 1 velocity override), `npm run db:backup`, then `npm run db:restore -- --from <backup> --to <dir>`, reproduced all 15 tables' row counts exactly with `appVersion` `0.4.0`. Gates: `lint`, `typecheck`, `build`, `test:visual` (13), and `test:e2e` (9) exit `0`. `format:check` exits `1` on this CRLF checkout and `0` with `--end-of-line auto`. `test:run` passed 166/166 at 10:59; a 13:04 rerun failed only `docs-completeness.test.ts`, because an untracked `docs/features/005-team-calendar-availability.md` (not part of F004) appeared during the run and is not yet indexed in `README.md`. The living documentation was reviewed in the Phase 06 conformance review, and `docs/feature-roadmap.md` keeps F004 unchecked.
+
+**Phase 07 review follow-up (2026-11-27)** — The isolated browser fixture now uses the canonical handoff holidays for the golden PI. The production browser regression verified the Baseline and Adjusted KPI, Sprint, and category budget values with the fixture as seeded. The new browser transfer case schedules a Member move through the Organization API, verifies `3.25h` and `4.75h` on the two Teams, and inspects both −1 and +1 Sprint offsets. The planner retains keyboard focus through saves, shows empty bulk input guidance, and presents save errors once. All 13 tests in the standard visual gate and the focused production geometry checks passed. PI writes preserve Sprint-adjusted rows. The default formatter now passes on the Windows checkout, and the F005 brief is indexed. The full Vitest and E2E attempts encountered local timeouts. Across focused verification, 58 Vitest cases passed, including all three F004 migration and restore cases, and all ten E2E cases passed across the full attempt and focused retries. T031 remains pending operator UAT.
+
+**Phase 07 visual fidelity follow-up** — Grouped the workday controls, kept the calendar action in the title row, collapsed bulk overhead inputs by default, and integrated the Deducted first summary into the allocation card. Both tables use shared column boundaries, and expanded Member rows and Team totals align with the same subcolumns. The excluded-Member disclosure sits inside the Member card and lists Sprint names for partial exclusions. Chromium captured the adjusted handoff scenario at 1440px and passed visual checks at 768px, 1024px, 1440px, and 2240px. The full visual suite passed 13 tests and the Capacity Planner E2E suite passed both tests. T031 remains open for operator UAT.
+
+**Member header and layout refinement** — Chromium measured the Member header at 80px when collapsed, Sprint-expanded, and PI-expanded. The 27px subheader band is flush with the bottom of the header at 768px, 1024px, 1440px, and 2240px. Removed the duplicate Member overhead rows and redundant Calendar links. Bulk overhead and Organization open from their table headers, and Deducted first opens on demand. The focused visual test and both Capacity Planner E2E tests passed. Operator visual acceptance remains open.
+
+**Prototype content cleanup** — The normal view reuses the workday field, velocity source, Category header, overhead row labels, and FTE value for required actions. One labelled set of overhead rows shows stored deductions in the Member grid. Removed separate action labels, the extra overhead card and disclosure row, the excluded-members footer, and visible holiday counts. The Sprint date headers expose holiday counts by description. Chromium verified the 80px Member header and 27px band at four widths. The planner workflow and accessibility checks passed. Operator visual acceptance remains open.
+
+**Workday placement and typography** — The Hours per day editor now opens from the Development capacity value. The title row shows the prototype controls with the approved Team calendar link. Compared the planner typography with the handoff and aligned smaller captions, table values, location badges, and marker colors. Chromium passed the computed-style checks and verified workday persistence with Enter and on blur. The focused accessibility checks passed. Operator visual acceptance remains open.

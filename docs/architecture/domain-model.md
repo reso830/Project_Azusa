@@ -2,7 +2,7 @@
 
 **Baseline:** Data Model v0.6 (2026-11-20), Roadmap v0.2, and Constitution Principle III. The source is `azusa-handoff/docs/azusa-data-model.md` inside the [v2 handoff](../handoffs/azusa-handoff-v2.zip), with its work-item and Sprint-planning decisions. This document carries that blueprint into the repository; it is not a finalized physical schema.
 
-**Implementation status:** F001 provides infrastructure metadata. F002 implements ART, Team, Member, dated Team assignments, PI, Iteration, Location, Holiday, Absence Type, and Absence persistence. Team Iteration schedules are derived. F003 implements ART-owned Category records and TeamCategoryAllocation overrides scoped to a Team and PI. Organization management, holiday inspection, and category allocation are available in `/organization`. F004–F019 capabilities remain conceptual. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md).
+**Implementation status** — F001 provides infrastructure metadata. F002 implements ART, Team, Member, dated Team assignments, PI, Iteration, Location, Holiday, Absence Type, and Absence persistence. Team Iteration schedules are derived. F003 implements ART-owned Categories and TeamCategoryAllocation overrides. These configuration screens live in `/organization`. F004 implements the Capacity Engine, Team-scoped OverheadDeduction (called OverheadReserve in v0.6), TeamPiVelocityOverride, and the planner at `/capacity`. F005–F019 capabilities remain conceptual. See the [physical dictionary](data-dictionary.md), [roadmap](../feature-roadmap.md), and [constitution](../../.specify/memory/constitution.md).
 
 ## Ownership and planning scope
 
@@ -18,7 +18,7 @@
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Train / ART           | Owns default categories, calendar configuration, and common PI/iteration cadence.                                                                                                                                                                          |
 | Team                  | Belongs to Train; default workday 8.0 hours, deduction mode, `sprint_offset_workdays` of −1/0/+1 working day, and `planning_style` of `owner` or `distributed`. Keeps shared ART iteration identity; planning style is snapshotted at Sprint Commitment.   |
-| Member                | Team, identity/display fields, role, `fte_factor`, Location. PO and SM do not contribute development capacity; FTE handles part-time/new-joiner capacity.                                                                                                  |
+| Member                | Dated Team assignments, identity and display fields, role, `fte_factor`, and Location. Only the `Team member` role contributes development capacity (F004 A4). FTE handles part-time or new-joiner capacity. |
 | User / Role           | Admin, RTE, SM, PO, Team member, tentative Business Owner. Single operator now; RBAC later. Retain actor/timestamp provenance.                                                                                                                             |
 | PI                    | Train, name, configured start/end, lifecycle. Admin/RTE configures boundaries and uses Start PI for participating Team commitments.                                                                                                                        |
 | Iteration / Sprint    | PI, custom name, scheduled dates, development/IP kind. Admin/RTE configures count, dates, and 2/3/4-week lengths. YYWW naming is optional and based on ISO ending week. Sample dates/counts are illustrative.                                              |
@@ -35,30 +35,29 @@
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Category                      | ART-owned name, short label, color, kind, and order. Development categories carry a semantic role and an integer default percentage. Overhead categories have neither. Archiving excludes a category from active totals and preserves its references. |
 | TeamCategoryAllocation        | Explicit integer percentage override for an ART's development category, Team, and PI. An absent override inherits the live ART default. Saved effective development splits must total 100%. F012 owns immutable commitment snapshots. |
-| OverheadReserve               | Member/Sprint/overhead category reserved hours, source `pi_plan` or `sprint_adjusted`. Set at PI planning, adjustable at Sprint Planning, deducted once, never SP/velocity.                                                    |
-| OverheadTicket                | Team/Sprint/category/title/member/hours/optional date/notes. Draws against the member's reserve; reserve may remain unticketed. Exceeding it warns. Dated tickets appear on the calendar; the flow is not implemented in F001. |
+| OverheadDeduction             | Fixed quarter-hour increments of deducted time scoped to Member, Team, Sprint, and overhead category. F004 writes `pi_plan`. Sprint Planning owns `sprint_adjusted`. Deduct once before FTE. |
+| TeamPiVelocityOverride        | Explicit normalized velocity for one Team and PI. A stored zero is valid. Clearing it allows the normal fallback chain. |
+| OverheadTicket                | Proposed F013 Team/Sprint/category activity record with title, Member, hours, optional date, and notes. F013 must revise the v0.6 ticket workflow to follow F004 R9. Overhead is a pre-FTE deduction and capacity flags over-deduction only when the plan exceeds availability. |
 | UnplannedDeduction / activity | Member(s)/date/duration/category/note for actual Sprint overhead; no Project or Story parent.                                                                                                                                  |
 | Buffer                        | Team/Sprint/category/title/holder/SP/PI-planned SP. Reserves unknown work, counts toward planned load, remains outside commitment. Revisit at Sprint Planning; release unused SP at closure; never velocity credit.            |
 | BufferDraw                    | Buffer/work item/SP. Replaces reserved SP with traceable actual work so planned load stays flat; overdraw warns.                                                                                                               |
 
-Canonical durations should use integer minutes where feasible. PI planning presents days; Sprint Planning presents hours. **8.0 hours per workday by default**, with Team setting override, is the only hours/day conversion; there is **no focus factor**. Normalized velocity bridges time and points; SP is not directly converted to hours except the display-only buffer rule below.
+The engine calculates in minutes and derives days using the Team workday (default 8.0 hours, 1.0–24.0 in half-hour increments). PI planning presents days and Sprint Planning presents hours. FTE is the sole capacity multiplier. Normalized velocity bridges time and points. The display-only buffer rule below applies to future distributed planning.
 
-For each capacity-contributing member `m` and Team Sprint `i`, following the v0.6 formula (normalize dated time amounts to days at PI level):
+For each capacity-contributing Member `m` and Team Sprint `i`, Team-scheduled weekdays intersect dated Team membership. Effective Location holidays and active capacity-affecting absences remove time once per affected half-day. Estimated holidays count immediately. Historical calculations use the Member's current role, FTE, and Location. Archived Members can contribute to Sprints that ended before today.
 
 ```text
-working_days(m,i) = NETWORKDAYS(Team scheduled start, Team scheduled end, Location holidays)
-available_days(m,i) = working_days(m,i) - active capacity-affecting absences
-planned_overhead(m,i) = overhead reserves + ceremonies + meetings attended
-dev_days(m,i) = fte_factor(m) * (available_days(m,i) - planned_overhead(m,i)) + planned overtime
-team_dev_days(i) = sum(dev_days(m,i)), excluding PO and SM
-velocity(i) = Sprint override ?? PI override ?? rolling normalized velocity
-forecast_sp(i) = team_dev_days(i) * velocity(i)
-category_budget(c,i) = forecast_sp(i) * development_category_pct(c)
-planned_sp(i) = committed and Stretch slice SP + buffer SP
-load(i) = planned_sp(i) / forecast_sp(i)       # 85–115% is on target
+available_minutes(m,i) = assigned Team-scheduled working time after holidays and absences
+pre_fte_minutes(m,i) = max(0, available_minutes(m,i) - overhead_minutes(m,i))
+dev_days_raw(m,i) = pre_fte_minutes(m,i) * fte_factor(m) / workday_minutes
+team_dev_days_raw(i) = sum(dev_days_raw(m,i)) for eligible Members
+velocity(i) = Sprint override ?? Team/PI override ?? rolling normalized velocity ?? Team seed
+forecast_sp_display(i) = round(team_dev_days_raw(i) * velocity(i))
 ```
 
-Normalized velocity is the **ratio of sums** of completed development SP to actual development days over the last four completed Sprints, using available history or a manual seed when none exists. Team deduction mode supports percent of available days or fixed days per member/Sprint; Sprint Planning refines ceremonies/meetings without double deduction. Use one canonical golden dataset; the sample Palawan 291.25 days × 0.92 ≈ 268 SP is illustrative, not a fixed cadence rule.
+The rolling velocity uses the **ratio of sums** of completed development SP to actual development days over up to four completed Sprints, including IP. F004 exposes the Team/PI override and Team seed. F013 and F015 own Sprint overrides and completed-history inputs respectively. PI forecasts sum displayed Sprint SP, and whole-SP category budgets use largest-remainder allocation per Sprint. Team deduction mode supports prorated fixed days or one-off percent of available time. Both persist fixed pre-FTE hours. F005 owns deductions for ceremonies and meetings and additions for planned overtime. See [ADR 0004](decisions/0004-capacity-engine-and-planner.md).
+
+Future planned SP includes committed and Stretch slice SP and buffer SP. Load divides planned SP by the applicable displayed forecast or budget. The on-target range is 85–115%.
 
 - **Owner planning:** member load = (owned Story SP + held buffer SP) / (member dev days × velocity).
 - **Distributed planning:** member load = (assigned task hours + held buffer SP × `hours_per_sp`) / member dev hours, where `hours_per_sp = team_dev_hours / forecast_sp`. This buffer conversion is display-only, derived, not stored, and never feeds capacity/velocity. Untasked stories warn because their SP is on nobody's member load.
@@ -101,8 +100,8 @@ Derived values include layout, carry-over, target-after-milestone warning, aging
 | Concept                 | Event and immutable meaning                                                                                                                                                                                                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PlanVersion             | Explicitly saved full current PI planning snapshot, including unchanged records and revisions, relationships/dependencies, capacity assumptions/allocations, objectives, risks, milestones, layout. A mid-PI v3 replan retains earlier versions and is not an official commitment. |
-| PICommitment            | Admin/RTE **Start PI** captures participating Teams' current plans, member × Sprint capacity totals, overhead reserves, buffers. No separate manual baseline action.                                                                                                               |
-| SprintCommitment        | SM **Start Sprint** captures the current reviewed Sprint Plan: member capacity totals, velocity value/source (rolling/PI/Sprint override), forecast, planning style, buffers/reserves. Never silently reconstruct an earlier plan from a backdated effective date.                 |
+| PICommitment            | Admin/RTE **Start PI** captures participating Teams' current plans, Member × Sprint capacity totals, overhead deductions, and Buffers. The Start PI action creates the baseline. |
+| SprintCommitment        | SM **Start Sprint** captures the current reviewed Sprint Plan, including Member capacity totals, resolved velocity and source, forecast, planning style, deductions, and Buffers. A backdated effective date does not reconstruct an earlier plan. |
 | SprintClosure / Actuals | SM **Close Sprint** confirms final Story/slice actual SP, actual capacity/outcomes, released buffers. Removed-after-commitment items remain informational and never count in say/do.                                                                                               |
 | StateChange             | Immutable item/from/to/when/by transition event independent of snapshots.                                                                                                                                                                                                          |
 

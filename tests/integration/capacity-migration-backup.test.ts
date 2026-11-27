@@ -17,7 +17,6 @@ import { drizzle } from 'drizzle-orm/pglite';
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { BackupManifestSchema } from '../../src/domain/health/schemas';
 import { runMigrations } from '../../src/persistence/migrate';
-import { APP_VERSION } from '../../src/persistence/version';
 
 const migrationsFolder = path.resolve('src/persistence/migrations');
 const today = '2026-11-26';
@@ -315,7 +314,7 @@ it('round-trips capacity settings, deductions, and velocity through the CLI', as
     path.join(restoredDir, '.azusa-last-healthy.json'),
     'utf8',
   );
-  expect(JSON.parse(marker)).toMatchObject({ appVersion: APP_VERSION });
+  expect(JSON.parse(marker)).toMatchObject({ appVersion: '0.4.0' });
   await withCluster(restoredDir, async (client) => {
     const restored = await snapshotRows(client, tables);
     expect(restored).toEqual(expected);

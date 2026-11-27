@@ -7,9 +7,12 @@ const compat = new FlatCompat({
 const config = [
   {
     ignores: [
+      '.azusa/**',
       '.next/**',
       '.next-playwright/**',
       'node_modules/**',
+      'playwright-report/**',
+      'test-results/**',
       'next-env.d.ts',
     ],
   },

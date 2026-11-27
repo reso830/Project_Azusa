@@ -84,7 +84,7 @@ it('manages ARTs, Teams and rosters with strict fields, defaults and reference g
       add({
         fullName: `Member ${i}`,
         locationId: i % 2 ? sg.id : ph.id,
-        role: i % 2 ? 'SM' : 'PO',
+        role: (['SM', 'PO', 'Admin', 'RTE'] as const)[i % 4],
       }),
     ),
   );

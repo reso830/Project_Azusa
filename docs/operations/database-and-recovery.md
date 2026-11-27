@@ -1,6 +1,6 @@
 # Database and recovery runbook
 
-F003 / 0.3.0. Run commands from the repository root. Defaults are active `.azusa/data/db` and backups `.azusa/data/backups`. Substitute configured `AZUSA_DB_DIR` / `AZUSA_BACKUP_DIR` paths consistently. Keep database, backups, and sibling restore targets disjoint. [Architecture](../architecture/overview.md) explains startup. The [dictionary](../architecture/data-dictionary.md) describes files and fields.
+F004 / 0.4.0. Run commands from the repository root. Defaults are active `.azusa/data/db` and backups `.azusa/data/backups`. Substitute configured `AZUSA_DB_DIR` / `AZUSA_BACKUP_DIR` paths consistently. Keep database, backups, and sibling restore targets disjoint. [Architecture](../architecture/overview.md) explains startup. The [dictionary](../architecture/data-dictionary.md) describes files and fields.
 
 ## Initialize and migrate
 
@@ -9,7 +9,9 @@ F003 / 0.3.0. Run commands from the repository root. Defaults are active `.azusa
 3. Run `npm run db:migrate`. A fresh cluster is created, explicit migrations applied, `foundation.init` inserted, and `.azusa-last-healthy.json` written. The command returns JSON `{ "ok": true, "dbDir": "..." }`; failures use stderr and exit 1.
 4. Run `npm run dev`, open `http://127.0.0.1:3000`, and inspect Foundation status. Database initialization also occurs on the first database-backed request if not run explicitly.
 
-`0001_organization_cadence.sql` adds the organization and calendar tables. `0002_work_categories_allocation.sql` adds ART categories and Team/PI overrides without modifying existing tables. After SQL migration, `runMigrations()` seeds default Locations and Absence Types and fills missing holiday years. Category catalogs start empty. Fresh clusters record `APP_VERSION` in `foundation.init`. Upgrades retain the original row and its `0000_foundation_init` label. Successful migration and restore stamp the running version (`0.3.0`) in `.azusa-last-healthy.json`. Backups include category records and explicit override rows, including `0%`.
+`0001_organization_cadence.sql` adds the organization and calendar tables. `0002_work_categories_allocation.sql` adds ART categories and Team/PI allocation overrides. `0003_capacity_engine_planner.sql` adds Team capacity settings, `overhead_deductions`, and `team_pi_velocity_overrides`. It defaults the deduction mode to `fixed_days`, leaves seed velocity unset, and snaps legacy workdays to half-hour increments within 1.0–24.0 hours, rounding ties up.
+
+After SQL migration, `runMigrations()` seeds default Locations and Absence Types and fills missing holiday years. Category catalogs start empty. Fresh clusters record `APP_VERSION` in `foundation.init`. Upgrades retain the original row and its `0000_foundation_init` label. Successful migration and restore stamp the running version (`0.4.0`) in `.azusa-last-healthy.json`. Backups include category records and explicit allocation overrides, including `0%`, along with Team capacity settings, fixed deduction hours, and Team/PI velocity overrides.
 
 For schema work, edit `src/persistence/schema/`, run `npx drizzle-kit generate --name <description>`, review the generated SQL plus journal/snapshot, and test fresh/upgrade paths before applying to valued data. Commit generation metadata with SQL; do not hand-edit migration timestamps or discard the baseline snapshot. The low-level runner does not arrange ownership or backups: use `db:migrate` for operational migration.
 

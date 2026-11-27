@@ -3,6 +3,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { getDbContext, closeDbContext } from '../../src/persistence/client';
 import { acquirePlaywrightLock } from './acquire-playwright-lock';
+import { seedCapacityBrowserFixture } from '../../tests/support/capacity-browser-fixture';
 
 async function main() {
   const root = await realpath(process.cwd());
@@ -33,8 +34,12 @@ async function main() {
   } finally {
     await release();
   }
-  await getDbContext({ dbDir, backupDir });
-  await closeDbContext();
+  const { db } = await getDbContext({ dbDir, backupDir });
+  try {
+    await seedCapacityBrowserFixture(db);
+  } finally {
+    await closeDbContext();
+  }
   const child = spawn(
     process.execPath,
     [

@@ -30,6 +30,7 @@ import {
 import { IdPathSchema } from '../../domain/organization/schemas';
 import {
   categories,
+  overheadDeductions,
   pis,
   teamCategoryAllocations as allocations,
   teams,
@@ -62,6 +63,11 @@ type DriftedAllocation = {
 };
 
 const categoryIdColumn = sql`${sql.identifier(getTableName(categories))}.${sql.identifier(categories.id.name)}`;
+// Keep the outer qualifier in correlated subqueries on the categories table.
+const categoryReferences = {
+  allocation: sql<boolean>`exists (select 1 from ${allocations} where ${allocations.categoryId} = ${categoryIdColumn})`,
+  deduction: sql<boolean>`exists (select 1 from ${overheadDeductions} where ${overheadDeductions.categoryId} = ${categoryIdColumn})`,
+};
 
 const categoryOrder = [
   asc(categories.kind),
@@ -114,13 +120,14 @@ function getCategory(tx: Tx, id: string) {
     .then((rows) => requireRecord(rows, 'Category'));
 }
 
-async function isReferenced(tx: Tx, id: string) {
-  const rows = await tx
-    .select({ id: allocations.id })
-    .from(allocations)
-    .where(eq(allocations.categoryId, id))
-    .limit(1);
-  return rows.length > 0;
+async function readCategoryReferences(tx: Tx, id: string) {
+  return requireRecord(
+    await tx
+      .select(categoryReferences)
+      .from(categories)
+      .where(eq(categories.id, id)),
+    'Category',
+  );
 }
 
 async function nextSortOrder(tx: Tx, trainId: string, kind: Category['kind']) {
@@ -310,10 +317,7 @@ async function readCatalog(
   const rows = await tx
     .select({
       category: categories,
-      // Drizzle drops the outer column's qualifier in a single-table select.
-      referenced: sql<boolean>`exists (
-      select 1 from ${allocations} where ${allocations.categoryId} = ${categoryIdColumn}
-    )`,
+      referenced: sql<boolean>`${categoryReferences.allocation} or ${categoryReferences.deduction}`,
     })
     .from(categories)
     .where(eq(categories.trainId, trainId))
@@ -396,10 +400,15 @@ export function updateCategory(
     async (tx) => {
       const current = await getCategory(tx, id);
       requireActive(await getTrain(tx, current.trainId), 'ART');
-      const referenced = await isReferenced(tx, id);
+      const references = await readCategoryReferences(tx, id);
+      const referenced = references.allocation || references.deduction;
       const kind = data.kind ?? current.kind;
       const changingKind = kind !== current.kind;
-      if (changingKind && referenced)
+      if (changingKind && references.deduction)
+        throw new ConflictError(
+          'A category with overhead deductions cannot change kind.',
+        );
+      if (changingKind && references.allocation)
         throw new ConflictError('A referenced category cannot change kind.');
 
       const role =
@@ -458,7 +467,12 @@ export function deleteCategory(db: PgliteDatabase, id: string) {
     async (tx) => {
       const category = await getCategory(tx, id);
       requireActive(await getTrain(tx, category.trainId), 'ART');
-      if (await isReferenced(tx, id)) throw new ConflictError(message);
+      const references = await readCategoryReferences(tx, id);
+      if (references.deduction)
+        throw new ConflictError(
+          'A category with overhead deductions cannot be deleted.',
+        );
+      if (references.allocation) throw new ConflictError(message);
       await tx.delete(categories).where(eq(categories.id, id));
       return { deleted: true as const, id };
     },
@@ -683,14 +697,17 @@ export function getTeamPiAllocation(
   return writeOrganization(db, async (tx) => {
     const { team, pi } = await getPair(tx, ids);
     requireSameArt(team, pi);
-    return readPair(
-      tx,
-      team,
-      pi,
-      today,
-      await getDevelopment(tx, team.trainId),
-    );
+    return readTeamPiAllocation(tx, team, pi, today);
   });
+}
+
+export async function readTeamPiAllocation(
+  tx: Tx,
+  team: Team,
+  pi: Pi,
+  today: string,
+) {
+  return readPair(tx, team, pi, today, await getDevelopment(tx, team.trainId));
 }
 
 export function saveTeamPiAllocation(

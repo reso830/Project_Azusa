@@ -1,8 +1,10 @@
 # Azusa
 
-Azusa is a personal, local-first learning project for Team- and ART-level Agile/SAFe planning, execution, and reporting. Version **0.3.0** runs locally with Next.js 15, React 19, strict TypeScript, embedded PGlite/PostgreSQL with Drizzle, and bundled fonts. No cloud services, credentials, paid APIs, or external runtime fonts are required.
+Azusa is a personal, local-first learning project for Team- and ART-level Agile/SAFe planning, execution, and reporting. Version **0.4.0** runs locally with Next.js 15, React 19, strict TypeScript, embedded PGlite/PostgreSQL with Drizzle, and bundled fonts. No cloud services, credentials, paid APIs, or external runtime fonts are required.
 
-Open **Organization** from the profile menu or visit `/organization` to manage ARTs, Teams, Members, PIs, Iterations, and Locations, and inspect seeded holidays. The header remembers Team and PI selections in the browser and shows the active Sprint on the Team's shifted schedule. The nine planning destinations remain placeholders with database diagnostics. Search supports expansion, focus, and dismissal. Settings remains disabled.
+Open **Organization** from the profile menu or visit `/organization` to manage ARTs, Teams, Members, PIs, Iterations, and Locations, and inspect seeded holidays. The header remembers Team and PI selections in the browser and shows the active Sprint on the Team's shifted schedule. Search supports expansion, focus, and dismissal. Settings remains disabled.
+
+Open **Capacity Planner** from the **Capacity** menu or visit `/capacity`. Select a Team and PI in the header to inspect Sprint development capacity, forecast story points, category budgets, and individual calculations. Set the Team workday and deduction mode, apply or edit overhead deductions, and set a Team velocity seed or Team/PI override. **Team Calendar** remains a placeholder until F005.
 
 Migration and startup seed six default Locations and standard Absence Types, then fill missing years of public and bank holidays from the bundled `date-holidays` data. The process runs locally, keeps existing reference edits and overrides, and creates no sample ARTs, Teams, or Members.
 
@@ -89,15 +91,18 @@ Start with the repository map to find relevant modules before making changes.
 | [Changelog](CHANGELOG.md)                                                                | Application history, separate from PI Plan Versions                |
 | [Architecture overview](docs/architecture/overview.md)                                   | Runtime, startup state machine, data flow                          |
 | [Conceptual domain model](docs/architecture/domain-model.md)                             | Data Model v0.6 blueprint; future business capabilities            |
-| [Physical data dictionary](docs/architecture/data-dictionary.md)                         | Implemented F001–F003 fields, files, and constraints               |
+| [Physical data dictionary](docs/architecture/data-dictionary.md)                         | Implemented F001–F004 fields, files, and constraints               |
 | [ADR 0001](docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md)     | Foundation decision, alternatives, consequences                    |
 | [ADR 0002](docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md) | Cadence, membership history, and holiday seeding                   |
 | [ADR 0003](docs/architecture/decisions/0003-work-categories-and-allocation.md)           | Category ownership, lifecycle, and allocation rules                |
+| [ADR 0004](docs/architecture/decisions/0004-capacity-engine-and-planner.md)              | Capacity math, deduction storage, velocity, and planner decisions  |
 | [Database and recovery](docs/operations/database-and-recovery.md)                        | Initialization, migration, backup, restore, cleanup                |
 | [Feature roadmap](docs/feature-roadmap.md)                                               | Roadmap v0.2, M0–M4 and F001–F019; acceptance checklist            |
 | [F001 feature brief](docs/features/001-application-foundations.md)                       | Foundation scope and acceptance criteria                           |
 | [F002 feature brief](docs/features/002-organization-cadence.md)                          | Organization and PI cadence scope and acceptance criteria          |
 | [F003 feature brief](docs/features/003-work-categories-allocation.md)                    | Work categories and allocation scope and acceptance criteria       |
+| [F004 feature brief](docs/features/004-capacity-engine-planner.md)                       | Capacity engine and planner scope and acceptance criteria          |
+| [F005 feature brief](docs/features/005-team-calendar-availability.md)                    | Team calendar and availability scope and acceptance criteria       |
 | [Design handoff v2](docs/handoffs/azusa-handoff-v2.zip)                                  | Current prototype, icons, Data Model v0.6, cross-feature decisions |
 | [Design handoff v1](docs/handoffs/azusa-handoff-v1.zip)                                  | Historical reference, superseded by v2 where they differ           |
 | [F001 specification](specs/001-application-foundations/spec.md)                          | Functionality and operator clarifications                          |
