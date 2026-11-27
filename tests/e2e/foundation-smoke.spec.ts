@@ -78,7 +78,7 @@ async function accessible(page: Page, state: string) {
   ).toEqual([]);
 }
 
-test('keyboard-only shell navigation reaches all nine honest placeholders', async ({
+test('keyboard-only shell navigation reaches all nine destinations', async ({
   page,
 }) => {
   test.setTimeout(90000); // Includes navigation and compilation across nine routes.
@@ -136,12 +136,18 @@ test('keyboard-only shell navigation reaches all nine honest placeholders', asyn
       destination.title,
     );
     await expect(page).toHaveTitle(`${destination.title} · Azusa`);
-    await expect(page.locator('main')).toContainText(
-      `${destination.milestone} · ${destination.feature}`,
-    );
-    await expect(page.locator('main')).toContainText(
-      'This feature is not yet implemented.',
-    );
+    if (destination.href === '/capacity') {
+      await expect(
+        page.getByRole('link', { name: 'Team calendar', exact: true }).first(),
+      ).toBeVisible();
+    } else {
+      await expect(page.locator('main')).toContainText(
+        `${destination.milestone} · ${destination.feature}`,
+      );
+      await expect(page.locator('main')).toContainText(
+        'This feature is not yet implemented.',
+      );
+    }
     await expect(menu).toHaveCount(0);
   }
   const search = page.getByRole('button', { name: 'Search', exact: true });

@@ -14,7 +14,14 @@ import {
   UpdateIterationSchema,
   UpdatePiSchema,
 } from '../../domain/organization/schemas';
-import { iterations, pis, teams, trains } from '../../persistence/schema';
+import {
+  iterations,
+  overheadDeductions,
+  pis,
+  teamPiVelocityOverrides,
+  teams,
+  trains,
+} from '../../persistence/schema';
 import {
   ConflictError,
   type OrganizationOptions,
@@ -188,11 +195,19 @@ export async function deletePi(db: PgliteDatabase, piId: string) {
   const { id } = validate(IdPathSchema, { id: piId });
   return writeOrganization(
     db,
-    async (tx) =>
-      requireRecord(
+    async (tx) => {
+      if (
+        await tx.$count(
+          teamPiVelocityOverrides,
+          eq(teamPiVelocityOverrides.piId, id),
+        )
+      )
+        throw new ConflictError('This PI has Team velocity overrides.');
+      return requireRecord(
         await tx.delete(pis).where(eq(pis.id, id)).returning(),
         'PI',
-      ),
+      );
+    },
     'Remove the PI’s Iterations and category allocations before deleting it.',
   );
 }
@@ -323,12 +338,19 @@ export async function updateIteration(
 
 export async function deleteIteration(db: PgliteDatabase, iterationId: string) {
   const { id } = validate(IdPathSchema, { id: iterationId });
-  return writeOrganization(db, async (tx) =>
-    requireRecord(
+  return writeOrganization(db, async (tx) => {
+    if (
+      await tx.$count(
+        overheadDeductions,
+        eq(overheadDeductions.iterationId, id),
+      )
+    )
+      throw new ConflictError('This Iteration has overhead deductions.');
+    return requireRecord(
       await tx.delete(iterations).where(eq(iterations.id, id)).returning(),
       'Iteration',
-    ),
-  );
+    );
+  });
 }
 
 export async function getOrganizationContextTree(db: PgliteDatabase) {

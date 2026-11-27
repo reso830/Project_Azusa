@@ -19,7 +19,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
 - [ ] **M3 — Metrics & Reporting** (F016–F018)
 - [ ] **M4 — ART-Level Planning** (F019)
 
-**Progress:** 3 / 19 features implemented and accepted (F001, F002, F003). Operator UAT acceptance was confirmed for F001 on 2026-11-23, for F002 on 2026-11-24, and for F003 on 2026-11-25; see the [F001](../specs/001-application-foundations/tasks.md) and [F002](../specs/002-organization-cadence/tasks.md) Phase 08 and [F003](../specs/003-work-categories-allocation/tasks.md) Phase 07 verification records. F004–F019 remain planned.
+**Progress:** 4 / 19 features implemented and accepted (F001–F004). Operator UAT acceptance was confirmed for F001 on 2026-11-23, F002 on 2026-11-24, F003 on 2026-11-25, and F004 on 2026-11-27. See the [F001](../specs/001-application-foundations/tasks.md), [F002](../specs/002-organization-cadence/tasks.md), [F003](../specs/003-work-categories-allocation/tasks.md), and [F004](../specs/004-capacity-engine-planner/tasks.md) verification records. F005–F019 remain planned.
 
 ---
 
@@ -44,7 +44,7 @@ The roadmap contains **5 milestones and 19 features**. Feature checkboxes should
   - Settings for categories are delivered here, not through a separate Settings feature.
   - Dependencies: F002.
 
-- [ ] **F004 — Capacity Engine & Capacity Planner**
+- [x] **F004 — Capacity Engine & Capacity Planner**
   - Independently testable capacity and forecasting logic: working days, FTE, absences/holidays, overhead, normalized velocity, PI/Sprint overrides where applicable, forecast SP, category budgets, and load indicators. Deliver the PI-level Capacity Planner screen.
   - Use golden tests and one canonical seed dataset. Preserve the 8-hour workday rule and do not introduce a separate focus factor.
   - Dependencies: F002, F003. Calendar data may initially be supplied through seed/test records; F005 provides the full calendar experience.

@@ -42,8 +42,8 @@ const location = {
 
 it('applies role and holiday rules', () => {
   expect(MEMBER_ROLES.map(contributesToDevCapacity)).toEqual([
-    true,
-    true,
+    false,
+    false,
     false,
     false,
     true,

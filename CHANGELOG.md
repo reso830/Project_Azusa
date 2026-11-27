@@ -2,6 +2,20 @@
 
 Application release history is independent of Azusa's internal PI Plan Versioning.
 
+## [0.4.0] - 2026-11-27
+
+The operator accepted F004 on 2026-11-27 at PR #7 head `79d9472`. See the [Phase 07 verification record](specs/004-capacity-engine-planner/tasks.md).
+
+### Added
+
+- F004 Capacity Planner at `/capacity` shows Team and Sprint development capacity, forecast SP, category budgets, and per-Member calculation breakdowns. It supports bulk and individual overhead edits, workday settings, and Team and Team/PI velocity inputs.
+- A shared capacity engine calculates development days from dated assignments, holidays, absences, overhead deductions, and FTE. Team-scoped overhead deductions persist as fixed hours in 0.25-hour increments.
+
+### Changed
+
+- Only Members with the `Team member` role contribute to development capacity. `Admin` and `RTE` now also show the **Excluded from dev capacity** badge on `/organization`.
+- `teams.hours_per_day` now accepts 1.0–24.0 hours in 0.5-hour increments. Migration `0003_capacity_engine_planner.sql` rounds legacy values to the nearest supported half-hour and clamps values below 1.0.
+
 ## [0.3.0] - 2026-11-25
 
 F003 operator UAT acceptance was confirmed on 2026-11-25 and recorded in the F003 Phase 07 task notes.

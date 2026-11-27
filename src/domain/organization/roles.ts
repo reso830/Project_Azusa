@@ -8,5 +8,5 @@ export const MEMBER_ROLES = [
 export type MemberRole = (typeof MEMBER_ROLES)[number];
 
 export function contributesToDevCapacity(role: MemberRole): boolean {
-  return role !== 'PO' && role !== 'SM';
+  return role === 'Team member';
 }

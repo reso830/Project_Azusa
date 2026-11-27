@@ -1,0 +1,29 @@
+# ADR 0004 — Capacity engine and planner
+
+**Date** 2026-11-27
+
+**Status** Accepted for implementation. Planner visual conformance and operator UAT are tracked in [Phase 07](../../../specs/004-capacity-engine-planner/tasks.md).
+
+## Context
+
+The Capacity Planner and later planning screens need the same forecast inputs and calculation rules. A shared ART Iteration can have different Team schedules, and a Member can transfer Teams within that Iteration. The planner must preserve which Team owns each deduction and explain how available time becomes development capacity and forecast SP.
+
+## Decision
+
+- **Engine and precision (A4, M2).** Use a pure TypeScript engine with a Team workday of 1.0–24.0 hours in 0.5-hour increments (`workdayMinutes` 60–1440 in steps of 30). Intersect Team-scheduled weekdays with dated assignments. Only the `Team member` role counts. Historical calculations use current role, FTE, and Location. Archived Members contribute only to eligible Sprints that ended before today. Count distinct AM and PM absences and cap their combined effect with holidays at one day per weekday. Unconfirmed holidays affect capacity immediately and display as estimated. The authoritative value is `devDaysRaw = max(0, availableMinutes − overheadMinutes) × fteFactor / workdayMinutes`. Derive integer `devMinutes` by rounding `devDaysRaw × workdayMinutes`. Emit `over_deducted` when deductions exceed available time. Overtime is deferred to F005 (m9).
+- **Team ownership and inputs (A2, R2, R5).** Rename the v0.6 `OverheadReserve` to `OverheadDeduction`. Use reserve terminology for Buffers. The unique key in `overhead_deductions` adds `team_id` to v0.6's Member, Iteration, and category key. This keeps a transfer from moving or overwriting another Team's deduction. Bulk fixed days prorate against assigned weekdays out of the Team's scheduled Sprint weekdays. Bulk percentages apply once to assigned available time after holidays and absences (m5). Individual edits change the resulting rows. The Team stores the deduction mode. These operations need no separate Team overhead-category defaults.
+- **Fixed hours (R6, superseding R3).** Store pre-FTE `deducted_hours` from 0 through 744 in exact 0.25-hour increments. Snap bulk and inline input to the nearest quarter-hour, rounding ties up. A day at 8 hours split across 4/10 and 6/10 assigned weekdays stores 3.25 and 4.75 hours for the two Teams. A workday edit keeps stored hours fixed and recalculates day equivalents, development days, and forecast SP. The half-hour workday step keeps half-day availability on the quarter-hour grid.
+- **Overhead and future tickets (R9, superseding A2.6).** Deduct overhead once, before applying FTE. Overhead earns no SP or velocity credit. F013 must rework the v0.6 ticket design that draws against an overhead allowance and warns when tickets exceed it. The capacity warning applies when planned deductions exceed availability. F004 writes `pi_plan` for both bulk and individual edits. F013 owns the meaning of `sprint_adjusted` (R4).
+- **Velocity (A3).** Resolve Sprint override → Team/PI override → rolling normalized velocity → Team seed. The rolling window uses the ratio of summed completed development SP to summed actual development days across up to four completed Sprints, including IP. An empty history or zero denominator falls back to the seed. With positive actual days, zero completed SP yields a valid zero velocity. Explicit zero overrides and seeds are valid too. Persist PI overrides in `team_pi_velocity_overrides` keyed by Team and PI because one PI is shared across Teams. F013 owns Sprint override input, and F015 owns completed Sprint history.
+- **Display and aggregation (A5, m2).** Display PI development days by rounding the raw sum (291.25 → 291.3 in the golden fixture). Round each Sprint forecast to whole SP and sum those values for the PI forecast (268 SP in the fixture). Use exact integer largest remainders for Sprint category budgets, breaking ties by `sort_order` then `categoryId`, and sum Sprint budgets for the PI. Use displayed forecasts and budgets for displayed load. Rounded values are derived.
+- **Planner handoff (A1, R1, R4, R7, R8).** Apply the approved deviations from the v2 Capacity prototype. D1 shows an unavailable Planned SP total until F009. D2 links to Team Calendar. D3 links to Organization for category allocation editing. D4 uses dynamic ART overhead categories and the Deducted first summary. D5 adds the workday and Team seed and Team/PI override controls. D6 derives working days from the schedule and availability rules. D7 defers the adjusted marker to F013. D8 fixes the KPI labels to **Planned SP**, **Development capacity**, **Normalized velocity**, **Forecast SP**, and **Team FTE**. Expanded cells, inputs, and footers show pre-FTE values. The Member subline and breakdown show the multiplier, and the breakdown explains any clamp.
+
+## Alternatives considered
+
+- Storing or rescaling days on a workday edit changes the deducted duration and adds write work. Fixed hours preserve the planned duration.
+- A shared ART/PI velocity or Member/Sprint deduction key conflates decisions made by different Teams.
+- Rounding intermediate capacity values or each category independently can change forecasts or yield budgets that miss the forecast total.
+
+## Consequences
+
+Migration `0003_capacity_engine_planner.sql` adds two capacity tables and tightens Team workday settings after normalizing legacy values. The planner calculates a live view from the working plan. F012 and F013 own commitment snapshots, and F015 owns finalized Actuals. The [F004 specification](../../../specs/004-capacity-engine-planner/spec.md) records the operator clarifications and the [API contract](../../../specs/004-capacity-engine-planner/contracts/api.md) defines the read and mutation shapes.

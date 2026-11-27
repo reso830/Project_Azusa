@@ -14,6 +14,7 @@ const documents = [
   'docs/architecture/decisions/0001-local-first-nextjs-pglite-foundation.md',
   'docs/architecture/decisions/0002-organization-cadence-and-holiday-seeding.md',
   'docs/architecture/decisions/0003-work-categories-and-allocation.md',
+  'docs/architecture/decisions/0004-capacity-engine-and-planner.md',
   'docs/operations/database-and-recovery.md',
 ];
 const read = (file: string) => readFile(path.resolve(file), 'utf8');
@@ -101,9 +102,9 @@ it('retains the nineteen-feature roadmap across five milestones without acceptin
   );
   expect(
     features
-      .filter(({ id }) => !['F001', 'F002', 'F003'].includes(id))
-      .every(({ checked }) => checked === ' '),
-  ).toBe(true);
+      .filter(({ checked }) => checked.toLowerCase() === 'x')
+      .map(({ id }) => id),
+  ).toEqual(['F001', 'F002', 'F003', 'F004']);
 });
 
 it('keeps application release metadata synchronized', async () => {

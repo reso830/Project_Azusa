@@ -28,8 +28,10 @@ import {
   locations,
   members,
   memberTeamAssignments as assignments,
+  overheadDeductions,
   pis,
   teams,
+  teamPiVelocityOverrides,
   trains,
 } from '../../persistence/schema';
 import {
@@ -262,11 +264,23 @@ export async function deleteTeam(db: PgliteDatabase, teamId: string) {
   const { id } = validate(IdPathSchema, { id: teamId });
   return writeOrganization(
     db,
-    async (tx) =>
-      requireRecord(
+    async (tx) => {
+      if (
+        await tx.$count(overheadDeductions, eq(overheadDeductions.teamId, id))
+      )
+        throw new ConflictError('This Team has overhead deductions.');
+      if (
+        await tx.$count(
+          teamPiVelocityOverrides,
+          eq(teamPiVelocityOverrides.teamId, id),
+        )
+      )
+        throw new ConflictError('This Team has PI velocity overrides.');
+      return requireRecord(
         await tx.delete(teams).where(eq(teams.id, id)).returning(),
         'Team',
-      ),
+      );
+    },
     'This Team has Member assignments or category allocations.',
   );
 }
@@ -521,6 +535,10 @@ export async function deleteMember(db: PgliteDatabase, memberId: string) {
   return writeOrganization(
     db,
     async (tx) => {
+      if (
+        await tx.$count(overheadDeductions, eq(overheadDeductions.memberId, id))
+      )
+        throw new ConflictError('This Member has overhead deductions.');
       if (await tx.$count(absences, eq(absences.memberId, id)))
         throw new ConflictError('This Member has Absence records.');
       await tx.delete(assignments).where(eq(assignments.memberId, id));

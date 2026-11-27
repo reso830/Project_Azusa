@@ -1,14 +1,11 @@
-import { PlaceholderScreen } from '../../ui/shell/PlaceholderScreen';
-import { destinations } from '../../ui/shell/nav-config';
-import { getPageHealth } from '../../ui/shell/page-health';
+import { Suspense } from 'react';
+import { CapacityPlannerWorkspace } from '../../ui/capacity/CapacityPlannerWorkspace';
 export const metadata = { title: 'Capacity planner · Azusa' };
 export const dynamic = 'force-dynamic';
-export default async function Page() {
+export default function Page() {
   return (
-    <PlaceholderScreen
-      key="capacity"
-      destination={destinations[4]!}
-      health={await getPageHealth()}
-    />
+    <Suspense fallback={<h1>Capacity planner</h1>}>
+      <CapacityPlannerWorkspace />
+    </Suspense>
   );
 }

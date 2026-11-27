@@ -41,6 +41,10 @@ export const teams = pgTable(
       .references(() => trains.id, { onDelete: 'restrict' }),
     name: text('name').notNull(),
     hoursPerDay: doublePrecision('hours_per_day').notNull().default(8),
+    deductionMode: text('deduction_mode', { enum: ['fixed_days', 'percent'] })
+      .notNull()
+      .default('fixed_days'),
+    seedNormalizedVelocity: doublePrecision('seed_normalized_velocity'),
     sprintOffsetWorkdays: integer('sprint_offset_workdays')
       .$type<-1 | 0 | 1>()
       .notNull()
@@ -57,7 +61,15 @@ export const teams = pgTable(
     ),
     check(
       'teams_hours_per_day_valid',
-      sql`${t.hoursPerDay} > 0 and ${t.hoursPerDay} <= 24`,
+      sql`${t.hoursPerDay} >= 1 and ${t.hoursPerDay} <= 24 and (${t.hoursPerDay} * 2) = floor(${t.hoursPerDay} * 2)`,
+    ),
+    check(
+      'teams_deduction_mode_valid',
+      sql`${t.deductionMode} in ('fixed_days', 'percent')`,
+    ),
+    check(
+      'teams_seed_normalized_velocity_valid',
+      sql`${t.seedNormalizedVelocity} is null or (${t.seedNormalizedVelocity} >= 0 and ${t.seedNormalizedVelocity} <= 1000)`,
     ),
     check('teams_offset_valid', sql`${t.sprintOffsetWorkdays} in (-1, 0, 1)`),
     uniqueIndex('teams_train_name_ci_unique').on(

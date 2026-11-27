@@ -104,6 +104,7 @@ it('upgrades an F002 database in place without changing its rows', async () => {
       'utf8',
     ),
   );
+  const f003Entry = journal.entries[2];
   journal.entries = journal.entries.slice(0, 2);
   await writeFile(
     path.join(baseline, 'meta', '_journal.json'),
@@ -122,7 +123,16 @@ it('upgrades an F002 database in place without changing its rows', async () => {
     const before = await snapshotRows(client, f002Tables);
     expect(before.app_metadata).toHaveLength(1);
 
-    await runMigrations({ db, dbDir, today });
+    journal.entries.push(f003Entry);
+    await writeFile(
+      path.join(baseline, 'meta', '_journal.json'),
+      JSON.stringify(journal),
+    );
+    await copyFile(
+      path.join(migrationsFolder, `${f003Entry.tag}.sql`),
+      path.join(baseline, `${f003Entry.tag}.sql`),
+    );
+    await runMigrations({ db, dbDir, migrationsFolder: baseline, today });
     expect(await snapshotRows(client, f002Tables)).toEqual(before);
     expect(await snapshotRows(client, f003Tables)).toEqual({
       categories: [],

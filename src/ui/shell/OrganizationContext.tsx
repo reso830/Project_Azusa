@@ -34,6 +34,7 @@ function useOrganizationState() {
   const [trains, setTrains] = useState<Tree>([]);
   const [stored, setStored] = useState<Selection>({});
   const [loading, setLoading] = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const request = useRef<AbortController | null>(null);
   const refresh = useCallback(async () => {
@@ -46,14 +47,18 @@ function useOrganizationState() {
         signal: controller.signal,
         cache: 'no-store',
       });
-      if (!response.ok) return;
+      if (!response.ok) {
+        if (!controller.signal.aborted) setUnavailable(true);
+        return;
+      }
       const { trains } = (await response.json()) as { trains: Tree };
       if (!controller.signal.aborted && Array.isArray(trains)) {
         setTrains(trains);
         setLoaded(true);
+        setUnavailable(false);
       }
     } catch {
-      // Keep the current selection when context is unavailable.
+      if (!controller.signal.aborted) setUnavailable(true);
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
@@ -106,7 +111,28 @@ function useOrganizationState() {
     setStored({ trainId, teamId, piId: id });
   }
 
-  return { trains, selected, setTeamId, setPiId, refresh, loading };
+  const setSelection = useCallback(
+    ({ teamId, piId }: { teamId: string; piId: string }) => {
+      const train = trains.find((entry) =>
+        entry.teams.some((team) => team.id === teamId),
+      );
+      if (!train?.pis.some((pi) => pi.id === piId)) return false;
+      setStored({ trainId: train.id, teamId, piId });
+      return true;
+    },
+    [trains],
+  );
+
+  return {
+    trains,
+    selected,
+    setTeamId,
+    setPiId,
+    setSelection,
+    refresh,
+    loading,
+    unavailable,
+  };
 }
 
 const OrganizationContext = createContext<ReturnType<

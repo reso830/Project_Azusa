@@ -18,6 +18,9 @@ for (const width of [1440, 1024, 768]) {
   test(`shell geometry, tokens and overlays at ${width}px`, async ({
     page,
   }, info) => {
+    await page.route('**/api/organization/context', (route) =>
+      route.fulfill({ json: { trains: [] } }),
+    );
     await page.setViewportSize({ width, height: 1000 });
     await freezeClock(page);
     await page.goto('/');
@@ -229,7 +232,7 @@ for (const width of [1440, 1024, 768]) {
   });
 }
 
-test('all nine destinations render their own placeholder and badge', async ({
+test('all nine destinations render with their intended screen', async ({
   page,
 }) => {
   test.setTimeout(90000); // Includes cold compilation across nine routes.
@@ -240,6 +243,12 @@ test('all nine destinations render their own placeholder and badge', async ({
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       destination.title,
     );
+    if (destination.href === '/capacity') {
+      await expect(
+        page.getByRole('link', { name: 'Team calendar', exact: true }).first(),
+      ).toBeVisible();
+      continue;
+    }
     await expect(page.locator('main')).toContainText(
       `${destination.milestone} · ${destination.feature}`,
     );
