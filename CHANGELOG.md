@@ -4,6 +4,8 @@ Application release history is independent of Azusa's internal PI Plan Versionin
 
 ## [0.4.0] - 2026-11-27
 
+The operator accepted F004 on 2026-11-27 at PR #7 head `79d9472`. See the [Phase 07 verification record](specs/004-capacity-engine-planner/tasks.md).
+
 ### Added
 
 - F004 Capacity Planner at `/capacity` shows Team and Sprint development capacity, forecast SP, category budgets, and per-Member calculation breakdowns. It supports bulk and individual overhead edits, workday settings, and Team and Team/PI velocity inputs.

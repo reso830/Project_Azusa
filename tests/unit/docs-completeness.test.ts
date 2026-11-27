@@ -102,9 +102,9 @@ it('retains the nineteen-feature roadmap across five milestones without acceptin
   );
   expect(
     features
-      .filter(({ id }) => !['F001', 'F002', 'F003'].includes(id))
-      .every(({ checked }) => checked === ' '),
-  ).toBe(true);
+      .filter(({ checked }) => checked.toLowerCase() === 'x')
+      .map(({ id }) => id),
+  ).toEqual(['F001', 'F002', 'F003', 'F004']);
 });
 
 it('keeps application release metadata synchronized', async () => {
